@@ -21,7 +21,7 @@ var info = (function () {
 
     var _mvReady = true;
 
-    var _panelsTemplate = {"right-panel": "default", "bottom-panel": "default"};
+    var _panelsTemplate = {"right-panel": "default", "bottom-panel": "default", "modal-panel": "default"};
 
     /**
      * Property: _overLayers
@@ -29,6 +29,8 @@ var info = (function () {
      */
 
     var _overLayers = {};
+
+    var _mobile = false;
 
     /**
      * Property: _queryableLayers
@@ -124,7 +126,8 @@ var info = (function () {
         var queryType = "map"; // default behaviour
         var views = {
             "right-panel":{ "panel": "right-panel", "layers": []},
-            "bottom-panel":{ "panel": "bottom-panel", "layers": []}
+            "bottom-panel":{ "panel": "bottom-panel", "layers": []},
+            "modal-panel": { "panel": "modal-panel", "layers": []}
         };
         if (options) {
             // used to link elasticsearch feature with wms getFeatureinfo
@@ -324,6 +327,9 @@ var info = (function () {
 
                         if (!$('#'+panel).hasClass("active")) {
                             $('#'+panel).toggleClass("active");
+                        }
+                        if (_mobile) {
+                            $("#modal-panel").modal("show");
                         }
                         $("#"+panel+" .popup-content iframe[class!='chartjs-hidden-iframe']").each(function( index) {
                             $(this).on('load',function () {
@@ -695,8 +701,10 @@ var info = (function () {
         _projection = mviewer.getProjection();
         _overLayers = mviewer.getLayers();
         _captureCoordinatesOnClick = configuration.getCaptureCoordinates();
+        _mobile = configuration.getConfiguration().mobile;
         if (configuration.getConfiguration().application.templaterightinfopanel) {
             _panelsTemplate["right-panel"] = configuration.getConfiguration().application.templaterightinfopanel;
+            _panelsTemplate["modal-panel"] = configuration.getConfiguration().application.templaterightinfopanel;
         }
         if (configuration.getConfiguration().application.templatebottominfopanel) {
             _panelsTemplate["bottom-panel"] = configuration.getConfiguration().application.templatebottominfopanel;

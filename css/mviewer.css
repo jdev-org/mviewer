@@ -97,13 +97,6 @@ a:hover{
 	border:0px;
 }
 
-#searchtool {	
-	width:220px;
-	/*position: fixed;*/
-	right:50px;    
-	top: 3px;
-}
-
 .mv-searchtool-delete {    
     padding-right: 0px; 
     display: none;
@@ -126,17 +119,23 @@ a#searchparams {
   font-size: 10px;
 }
 @media (max-width: 767px){
+    #searchtool {
+        margin-right:5px;
+        margin-left:5px;
+        top: 3px;
+    }
 	#searchresults {
-		max-width:300px;
-		min-width: 246px;
-		position: fixed;
-		left:50px;
-		top: 150px;
-		z-index: 5;
+		padding: 0px 30px 0px 30px;
+        margin-top: -10px;
 	}
 }
 
 @media (min-width: 768px) {
+    #searchtool {
+        width:220px;
+        margin-right:50px;
+        top: 3px;
+    }
 	#searchresults {
 		max-width:300px;
 		min-width: 246px;
@@ -707,11 +706,22 @@ ul#layers-container {
   box-shadow: 0px 0px 30px 3px rgba(200, 200, 200, 0.5) ;
 }
 
-#backgroundlayerstoolbar-default {
-	bottom: 15px;
-	right: 15px;
-	float: right;
-	position: fixed;   
+
+@media (min-width: 768px) {
+    #backgroundlayerstoolbar-default {
+        bottom: 15px;
+        right: 15px;
+        float: right;
+        position: fixed;
+    }
+}
+
+@media (max-width: 767px) {
+    #backgroundlayerstoolbar-default {
+        bottom: 35px;
+        left: 10px;
+        position: fixed;
+    }
 }
 
 /*******************************
@@ -1650,4 +1660,8 @@ button.btn.btn-default.btn-raised, a#exportpng,a.btn.btn-default {
     background: url(../img/logo/worldwide.svg) no-repeat scroll;
     background-size: 16px 16px;
     margin-top: 9px;
+}
+
+.mv-nav>li{
+    display: inline-block;
 }

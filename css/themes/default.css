@@ -346,3 +346,11 @@ body .popover-title {
   border-right: 1.1em solid rgba(3, 46, 70, 0.2);
   border-bottom: 1.1em solid rgba(3, 46, 70, 0.2);
   border-left: 1.1em solid #2e5367; }
+
+  #mv-navbar {
+    font-family: "roboto_bold", Arial, Sans-serif;
+}
+
+#mv-navbar.navbar-default .navbar-nav>li>a {
+    color: #ffffff;
+}

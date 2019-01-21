@@ -188,16 +188,16 @@ $(document).ready(function () {
             <a class="navbar-brand" href="#">
                 <img alt="Logo" src="img/logo/earth-globe.svg" class="mv-logo">
             </a>
+            <a class="navbar-brand mv-title" href="#">mViewer</a>
             <a type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" href="#">
-                <span class="glyphicon glyphicon-search"></span>
+                <span class="glyphicon glyphicon-menu-hamburger"></span>
             </a>
-            <!--<a class="navbar-brand" href="#"> Mviewer</a>-->
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="navbar-text mv-title hidden-xs hidden-sm hidden-md">
-                    mViewer
-                </li>
+            <ul class="nav navbar-nav mv-nav">
+                <li class="hidden-lg hidden-md"><a href="#" data-toggle="modal" data-target="#thematic-modal">Thématiques</a></li>
+                <li class="hidden-lg hidden-md"><a href="#" data-toggle="modal" data-target="#legend-modal">Légende</a></li>
+                <li class="hidden-lg hidden-md"><a href="#" data-toggle="modal" data-target="#help">Aide</a></li>
                 <li class="hidden-xs hidden-sm hidden-md">
                     <div class="navbar-form navbar-left" id="coordinates">
                         <span class=""></span>
@@ -220,21 +220,19 @@ $(document).ready(function () {
                         </div>
                     </div>
                 </li>
-                <li class="hidden-xs hidden-sm hidden-md">
+                <li class="hidden-xs hidden-sm">
                     <div class="nav navbar-nav">
                        <button id="iconhelp" type="button" class="btn btn-default navbar-btn mv-navbar-btn" data-toggle="modal" data-target="#help"><span class="fas fa-question"></span></button>
                     </div>
                 </li>
+                <!-- SEARCH RESULTS  -->
+                <ul id="searchresults" class="list-group" ></ul>
             </ul>
         </div>
     </nav>
     <div id="wrapper">
         <!-- LEFT MENU SIDEBAR -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>
-            <!--<div id="menu-toggle-2" ><span class="fa leftpanel-btn"></span></div>-->
-        </div>
-
+        <div id="sidebar-wrapper"></div>
         <!-- Page Content -->
         <div id="page-content-wrapper" >
             <div class="container-fluid xyz" >
@@ -273,9 +271,6 @@ $(document).ready(function () {
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="els_marker" x="0px" y="0px" viewBox="0 0 297 297" style="enable-background:new 0 0 297 297;" xml:space="preserve" width="30px" height="30px">
                 <path d="M148.5,0C85.646,0,34.511,51.136,34.511,113.989c0,25.11,8.008,48.926,23.157,68.873  c13.604,17.914,32.512,31.588,53.658,38.904l27.464,68.659c1.589,3.971,5.434,6.574,9.71,6.574c4.276,0,8.121-2.603,9.71-6.574  l27.464-68.659c21.146-7.316,40.054-20.99,53.658-38.904c15.149-19.947,23.157-43.763,23.157-68.873  C262.489,51.136,211.354,0,148.5,0z M148.5,72.682c22.777,0,41.308,18.53,41.308,41.308c0,22.777-18.53,41.309-41.308,41.309  c-22.777,0-41.308-18.531-41.308-41.309C107.192,91.212,125.723,72.682,148.5,72.682z" fill="#F31541"/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g>
             </svg>
-
-            <!-- SEARCH RESULTS  -->
-            <ul id="searchresults" class="list-group" ></ul>
             <!-- BACKGROUND LAYERS  -->
             <div id="backgroundlayerstoolbar-gallery">
                 <div class="" onclick="mviewer.bgtoogle();"></div>
@@ -408,6 +403,44 @@ $(document).ready(function () {
                         <h4 class="modal-title">DOCUMENTATION</h4>
                     </div>
                     <div class="modal-body" ></div>
+                </div>
+            </div>
+        </div>
+        <!-- THEMATIC POPUP -->
+        <div id="thematic-modal" class="modal fade" tabindex="-1" role="dialog" >
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content" role="document">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Thématiques</h4>
+                    </div>
+                    <div class="modal-body" ></div>
+                </div>
+            </div>
+        </div>
+        <!-- LEGEND POPUP -->
+        <div id="legend-modal" class="modal fade" tabindex="-1" role="dialog" >
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content" role="document">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Légende</h4>
+                    </div>
+                    <div class="modal-body" ></div>
+                </div>
+            </div>
+        </div>
+        <!-- FEATUREINFO POPUP -->
+        <div id="modal-panel" class="modal fade" tabindex="-1" role="dialog" >
+            <div class="modal-dialog modal-md">
+                <div class="modal-content" role="document">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <div class="mv-header"><h5>Informations</h5>
+                    </div>
+                    <div class="modal-body" >
+                        <div class="popup-content"></div>
+                    </div>
                 </div>
             </div>
         </div>

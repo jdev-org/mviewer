@@ -30,6 +30,8 @@ mviewer = (function () {
 
     var _proxy = "";
 
+    var _mobile;
+
     var _geolocation;
 
     var _sourceGeolocation;
@@ -578,6 +580,23 @@ mviewer = (function () {
         _events.overLayersLoaded += 1;
     };
 
+    /**
+     * Private Method: _initDataList
+     *
+     * Parameter
+     */
+
+    var _initMobile = function () {
+        if (configuration.getConfiguration().mobile) {
+            _mobile = true;
+            console.log("version mobile");
+            $(".menu-toggle, #sidebar-wrapper, #layers-container-box").hide();
+            $("#wrapper").css({"padding-left": 0});
+        } else {
+            console.log("version normale");
+        }
+    };
+
 
     /**
      * Private Method: _initDataList
@@ -637,6 +656,12 @@ mviewer = (function () {
         if (panelMini && (panelMini === 'true')) {
             mviewer.toggleMenu(false);
             mviewer.toggleLegend(false);
+        }
+        if (_mobile) {
+            $("#thematic-modal .modal-body").append('<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>');
+            $("#legend").appendTo("#legend-modal .modal-body");
+        } else {
+            $("#sidebar-wrapper").append('<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>');
         }
         $("#menu").html(htmlListGroup);
         initMenu();
@@ -1487,6 +1512,7 @@ mviewer = (function () {
 
         init: function () {
                 _setVariables();
+                _initMobile();
                 _initDataList();
                 _initVectorOverlay();
                 search.init(configuration.getConfiguration());
