@@ -465,6 +465,16 @@ mviewer = (function () {
         }
         //Activate GetFeatureInfo tool
         mviewer.setTool('info');
+        //Activate tooltips on tools buttons
+        if (!_mobile) {
+            $("#zoomtoolbar button, #toolstoolbar button, #toolstoolbar a").tooltip({
+                placement: 'left',
+                trigger: 'hover',
+                html: true,
+                container: 'body',
+                template: mviewer.templates.tooltip
+            });
+        }
     };
 
     /**

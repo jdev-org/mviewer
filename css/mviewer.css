@@ -146,22 +146,18 @@ a#searchparams {
 	}
 }
 
-#searchresults li {
-	padding: 10px;
-}
-
-#searchresults li a {
+#searchresults a {
 	font-size: 11px;
 	margin-left: 5px;
 }
 
-#searchresults li.disabled {
+#searchresults a.disabled {
     padding: 10px;
 }
 
-li.geoportail.list-group-item.disabled{
+#searchresults a.list-group-item.disabled{
 	color:#fff;
-	font-size:13px!important;
+	font-size:13px;
 }
 
 #searchtool .btn-default{

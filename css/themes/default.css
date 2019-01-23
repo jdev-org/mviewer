@@ -273,12 +273,12 @@ body .popover-title {
 #searchresults {
   font-family: "roboto_regular", Arial, Sans-serif;
   color: #555555; }
-  #searchresults li.list-group-item.disabled {
+  #searchresults a.list-group-item.disabled {
     background-color: #2e5367;
     border-color: #2e5367;
     color: white;
     font-family: "roboto_bold", Arial, Sans-serif; }
-  #searchresults li a:hover {
+  #searchresults a:hover {
     font-family: "roboto_bold", Arial, Sans-serif;
     color: #2e5367; }
 
@@ -347,10 +347,8 @@ body .popover-title {
   border-bottom: 1.1em solid rgba(3, 46, 70, 0.2);
   border-left: 1.1em solid #2e5367; }
 
-  #mv-navbar {
-    font-family: "roboto_bold", Arial, Sans-serif;
-}
+#mv-navbar {
+  font-family: "roboto_bold", Arial, Sans-serif; }
 
-#mv-navbar.navbar-default .navbar-nav>li>a {
-    color: #ffffff;
-}
+#mv-navbar.navbar-default .navbar-nav > li > a {
+  color: white; }

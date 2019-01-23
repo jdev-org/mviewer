@@ -398,14 +398,14 @@ body .popover-title{
 	font-family:$font-regular;
 	color: $text-color-1;
 
-    li.list-group-item.disabled {
+    a.list-group-item.disabled {
         background-color: $theme-color-1;
         border-color: $theme-color-1;
         color: $theme-color-2;
         font-family: $font-bold;
     }
 
-    li a:hover {
+    a:hover {
         font-family: $font-bold;
         color: $theme-color-1;
     }
@@ -508,4 +508,12 @@ body .popover-title{
     border-right: 1.1em solid $loader-color;
     border-bottom: 1.1em solid $loader-color;
     border-left: 1.1em solid $theme-color-1;
+}
+
+#mv-navbar {
+    font-family: $font-bold;
+}
+
+#mv-navbar.navbar-default .navbar-nav>li>a {
+    color: $theme-color-2;
 }
