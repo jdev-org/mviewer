@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <application title="Mviewer" mouseposition="false" logo="" help="mviewer_help.html" measuretools="true" exportpng="false" style="" togglealllayersfromtheme="true" geoloc="true"/>    
+    <application title="Mviewer" mouseposition="false" logo="" help="mviewer_help.html" measuretools="true" exportpng="false" style="" togglealllayersfromtheme="true" geoloc="true" templaterightinfopanel="accordion"/>    
     <mapoptions maxzoom="19" projection="EPSG:3857" center="-297799,6151041" zoom="7" projextent="-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244" />
   
     <baselayers style="default"><!-- style="default"||gallery" -->
