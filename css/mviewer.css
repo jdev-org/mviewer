@@ -128,6 +128,10 @@ a#searchparams {
 		padding: 0px 30px 0px 30px;
         margin-top: -10px;
 	}
+    /*  Modal popup close*/
+    .modal .close {
+        font-size: 30px;
+    }
 }
 
 @media (min-width: 768px) {
@@ -176,6 +180,10 @@ a#searchparams {
     cursor: pointer;
     max-width:100%;
     max-height: 210px;
+}
+
+#imagepopup {
+    z-index: 2000;
 }
 
 /*******************************
@@ -492,14 +500,20 @@ div#backgroundlayerstoolbar-gallery {
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
 }
+@media (min-width: 768px){
+    #layers-container-box-header {
+      height: 35px;
+      min-width: 35px;
+    }
 
-#layers-container-box-header {
-  height: 35px;
-  min-width: 35px;
+    #legend:not(.active) {
+      width: 35px;
+    }
 }
-
-#legend:not(.active) {
-  width: 35px;
+@media (max-width: 767px){
+    #layers-container-box-header {
+        display: none;
+    }
 }
 
 .active #layers-container {
@@ -1005,10 +1019,10 @@ ul#searchparameters{
 
 /* Boîte de dialogue partager la carte */ 
 
-#sharepanel .modal-header{
+/*#sharepanel .modal-header{
 	color: #333;
 	font-size: 13px;
-}
+}*/
 
 #sharepanel .form-group label {
 	color: #333;
@@ -1099,6 +1113,13 @@ ul#searchparameters{
 /*******************************
 ------------- NAVBAR 
 ********************************/
+
+@media (max-width: 767px){
+    .sidebar-nav {
+        margin-top: 0px;
+        width:auto;
+    }
+}
 .nav-pills li a{
 	border-radius:0px;
 }
@@ -1216,6 +1237,12 @@ span.state-icon.far{
 /*******************************
 ------------- LEGEND LAYER
 ********************************/
+
+.mv-layer-remove {
+    float: right;
+    right: 10px;
+    opacity: .5;
+}
 a:focus{
 	text-decoration: none;
 }

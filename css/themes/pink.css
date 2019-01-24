@@ -352,3 +352,19 @@ body .popover-title {
 
 #mv-navbar.navbar-default .navbar-nav > li > a {
   color: white; }
+
+@media (max-width: 767px) {
+  #legend-modal .modal-header,
+  #modal-panel .modal-header,
+  #sharepanel .modal-header,
+  #thematic-modal .modal-header {
+    background: #f62459;
+    color: white; }
+
+  #legend-modal .modal-header .close,
+  #sharepanel .modal-header .close,
+  #modal-panel .modal-header .close,
+  #thematic-modal .modal-header .close {
+    color: white;
+    opacity: .9;
+    padding-bottom: 7px; } }

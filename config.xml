@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <application title="Mviewer" mouseposition="false" logo="" help="mviewer_help.html" measuretools="true" exportpng="true" style="" togglealllayersfromtheme="true" geoloc="true"/>    
-    <mapoptions maxzoom="19" projection="EPSG:3857" center="-220750.13768758904,6144925.57790189" zoom="8" projextent="-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244" />
+    <application title="Mviewer" mouseposition="false" logo="" help="mviewer_help.html" measuretools="true" exportpng="false" style="" togglealllayersfromtheme="true" geoloc="true"/>    
+    <mapoptions maxzoom="19" projection="EPSG:3857" center="-297799,6151041" zoom="7" projextent="-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244" />
   
     <baselayers style="default"><!-- style="default"||gallery" -->
         <baselayer  type="fake" id="fake" label="Carroyage" title="Carroyage" thumbgallery="img/basemap/grid.png" visible="false"  />
@@ -39,7 +39,7 @@
         	<layer id="reserve_naturelle_regionale" name="Réserves naturelles régionales"  visible="false" tiled="false"
                     searchable="false" queryable="true" fields="axe" aliases="axe"   
                     infoformat="application/vnd.ogc.gml" featurecount="20"
-                    sld="https://kartenn.region-bretagne.fr/styles/reserve_naturelle.sld" 
+                    sld="http://kartenn.region-bretagne.fr/styles/reserve_naturelle.sld" 
                     url="https://ows.region-bretagne.fr/geoserver/rb/wms"
                     legendurl="https://kartenn.region-bretagne.fr/doc/icons_region/reserve_naturelle.svg" 
                     attribution="Source: Région Bretagne" 
@@ -92,7 +92,7 @@
                 <layer id="gare_maritime" name="Gares maritimes"  visible="false" tiled="false"
                     searchable="false" queryable="true" fields="axe" aliases="axe"   
                     infoformat="application/vnd.ogc.gml" featurecount="20"
-                    sld="https://kartenn.region-bretagne.fr/styles/gare_maritime.sld" 
+                    sld="http://kartenn.region-bretagne.fr/styles/gare_maritime.sld" 
                     url="https://geobretagne.fr/geoserver/dreal_b/ows"
                     legendurl="https://kartenn.region-bretagne.fr/doc/icons_region/gare_maritime.svg" 
                     attribution="Source: DREAL Bretagne" 
@@ -103,7 +103,7 @@
 		        <layer id="port" name="Ports"  visible="false" tiled="false"
                     searchable="false" queryable="true" fields="axe" aliases="axe"   
                     infoformat="application/vnd.ogc.gml" featurecount="20"
-                    sld="https://kartenn.region-bretagne.fr/styles/port.sld" 
+                    sld="http://kartenn.region-bretagne.fr/styles/port.sld" 
                     url="https://ows.region-bretagne.fr/geoserver/rb/wms"
                     legendurl="https://kartenn.region-bretagne.fr/doc/icons_region/port.svg" 
                     attribution="Source: Région Bretagne" 
