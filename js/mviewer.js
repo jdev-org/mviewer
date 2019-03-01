@@ -30,7 +30,9 @@ mviewer = (function () {
 
     var _proxy = "";
 
-    var _mobile;
+    var _bsize = ""; /* bootstrap size */
+
+    var _mediaSize = "";
 
     var _geolocation;
 
@@ -466,7 +468,7 @@ mviewer = (function () {
         //Activate GetFeatureInfo tool
         mviewer.setTool('info');
         //Activate tooltips on tools buttons
-        if (!_mobile) {
+        if (!configuration.getConfiguration().mobile) {
             $("#zoomtoolbar button, #toolstoolbar button, #toolstoolbar a").tooltip({
                 placement: 'left',
                 trigger: 'hover',
@@ -591,20 +593,96 @@ mviewer = (function () {
     };
 
     /**
-     * Private Method: _initDataList
+     * Private Method: _updateMedia
      *
-     * Parameter
+     */
+
+    var _updateMedia = function (s) {
+        switch (s) {
+            case "xs":
+            case "sm":
+                if (_mediaSize === "xl") {
+                    _updateViewPort("xs");
+                }
+                break;
+            case "md":
+            case "lg":
+                if (_mediaSize === "xs") {
+                    _updateViewPort("xl");
+                }
+                break;
+        }
+
+    };
+
+    /**
+     * Private Method: _updateViewPort
+     *
+     */
+
+    var _updateViewPort = function (s) {
+        _mediaSize = s;
+        if (s === "xs") {
+            $("#wrapper, #main").removeClass("xl").addClass("xs");
+            $("#menu").appendTo("#thematic-modal .modal-body");
+            $("#legend").appendTo("#legend-modal .modal-body");
+            configuration.getConfiguration().mobile = true;
+
+        } else {
+            $("#wrapper, #main").removeClass("xs").addClass("xl");
+            $("#menu").appendTo("#sidebar-wrapper");
+            $("#legend").appendTo("#layers-container-box");
+            configuration.getConfiguration().mobile = false;
+        }
+    };
+
+    /**
+     * Private Method: _initMobile
+     *
      */
 
     var _initMobile = function () {
-        if (configuration.getConfiguration().mobile) {
-            _mobile = true;
-            console.log("version mobile");
-            $(".menu-toggle, #sidebar-wrapper, #layers-container-box").hide();
-            $("#wrapper").css({"padding-left": 0});
+        if ($(window).width() < 992 ) {
+            _mediaSize = "xs";
+            configuration.getConfiguration().mobile = true;
         } else {
-            console.log("version normale");
+            _mediaSize = "xl";
+            configuration.getConfiguration().mobile = false;
         }
+        if (_mediaSize === "xs") {
+            _updateViewPort("xs");
+        }
+        $(window).resize(function() {
+            var w = $(this).width();
+            var s = "";
+            if (w < 768) {
+                s = 'xs';
+            } else if (w < 992) {
+                s = 'sm';
+            } else if (w < 1200) {
+                s = 'md';
+            } else if (w >= 1200) {
+                s = 'lg';
+            }
+            if (s !== _bsize) {
+                _bsize = s;
+                _updateMedia(_bsize);
+            }
+        });
+
+        if (configuration.getConfiguration().mobile) {
+            $("#thematic-modal .modal-body").append('<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>');
+            $("#legend").appendTo("#legend-modal .modal-body");
+        } else {
+            $("#sidebar-wrapper").append('<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>');
+        }
+
+        $('.navbar-collapse a, #map').on('click', function(){
+            if ( $( '.navbar-collapse' ).hasClass('in') ) {
+                $('.navbar-toggle').click();
+            }
+        });
+
     };
 
 
@@ -666,12 +744,6 @@ mviewer = (function () {
         if (panelMini && (panelMini === 'true')) {
             mviewer.toggleMenu(false);
             mviewer.toggleLegend(false);
-        }
-        if (_mobile) {
-            $("#thematic-modal .modal-body").append('<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>');
-            $("#legend").appendTo("#legend-modal .modal-body");
-        } else {
-            $("#sidebar-wrapper").append('<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>');
         }
         $("#menu").html(htmlListGroup);
         initMenu();

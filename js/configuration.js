@@ -85,7 +85,6 @@ var configuration = (function () {
 
     var _load = function (conf) {
         _configuration = conf;
-        _configuration.mobile = ($(document).width() < 768) || (config.mobile === "true");
         utils.testConfiguration(conf);
         //apply application customization
         if (conf.application.title) {
@@ -337,11 +336,7 @@ var configuration = (function () {
                     oLayer.name = layer.name;
                     oLayer.title = layer.name;
                     oLayer.layerid = mvid;
-                    if (_configuration.mobile) {
-                        oLayer.infospanel = 'modal-panel';
-                    } else {
-                        oLayer.infospanel = layer.infopanel ||'right-panel';
-                    }
+                    oLayer.infospanel = layer.infopanel ||'right-panel';
                     oLayer.featurecount = layer.featurecount;
                     //styles
                     if (layer.style && layer.style !== "") {
