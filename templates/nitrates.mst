@@ -1,6 +1,6 @@
 {{#features}}
 	<li class="item">
-		<div class="title-feature" id="conteneur">Code commune : {{commune}}</div>		
+		<div class="title-feature" id="conteneur">Mesure de nitrate: {{nitrate_2018}}</div>		
 		<div id="chart_lines" class="chartContainer"></div>		
 	</li>
 {{/features}}
