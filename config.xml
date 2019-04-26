@@ -133,27 +133,24 @@
                 metadata-csw="https://geobretagne.fr/geonetwork/srv/eng/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;elementSetName=full&amp;ID=2298d744-49cb-4fcb-9487-26f916fecdff"/>       
         </theme>
         <theme name="Qualité de l'eau"  collapsed="false" id="qualEau" icon="fas fa-water">
-            <layer 
-                id="nitrates" 
-                name="Nitrates en mg/l"  
-                visible="true" 
-                queryable="true" 
-                fields="nitrate_2018" 
-                aliases="nitrate_2018"
-                toplayer="true"
-                infopanel="bottom-panel"
-                infoformat="application/vnd.ogc.gml"
+            <layer
+                id="nitrate"
+                name="Mesure de nitrate (mg/l)"
+                visible="true"
+                queryable="true"
+                vectorlegend="true"
+                opacity="1"
                 type="customlayer"
-                style=""
-                opacity="1" 
-                featurecount="20"                                    
-                url="customlayers/nitrates.js"
-                legendurl="img/legend/nitrates.PNG"
-                tooltip="true" 
-                tooltipenabled="true"
-                attribution="Source: JDEV - informations fictives.">
-                <template url="templates/nitrates.mst"></template>
-            </layer>
+                url="customlayers/nitrate.js"
+                infoformat="application/vnd.ogc.gml"
+                tooltip="true" tooltipenabled="true" tooltipcontent="{{value}}"
+                infopanel="bottom-panel"
+                legendurl="img/legend/nitrate.PNG"
+                metadata=""
+                metadata-csw=""
+                >
+                <template url ="templates/dataviz.mst"/>
+            </layer>            
         </theme>
     </themes>
 </config>

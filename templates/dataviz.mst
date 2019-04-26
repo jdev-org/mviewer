@@ -1,0 +1,73 @@
+{{#features}}
+	<li class="item">
+		<div class="title-feature" id="conteneur"></div>
+			<div class="container">
+				<div class="row">				
+					 <div id="myDiv" style=" max-height: 300px;"></div>
+    			</div>
+			</div>
+		</div>
+	</li>
+{{/features}}
+
+
+<script>
+	// features attributes
+	var attributes=[];
+	var codePoint = [];
+
+	// Get values from attributes
+	{{#features}}
+		// filter on date
+		{{#date}}
+			attributes.push({id:'{{id}}',date:'{{date}}',mesure:'{{value}}'});
+			codePoint.push('{{code_id}}');
+		{{/date}}
+  {{/features}}
+	
+	// Sort array items according to date value and time graph
+	sortAttributes = attributes.sort(function(a,b){
+		return a.date.localeCompare(b.date);
+	});
+
+	// only get dinstinct values	
+	var distinctPoints = codePoint.filter((v, i, a) => a.indexOf(v) === i);
+
+	// Affichage de la liste des id des points de prélèvement dans l'entête
+	// Display id into header
+	document.getElementById("conteneur").innerHTML = distinctPoints.join(", ");
+
+	// init default scatter graph
+	console.log(distinctPoints);
+	console.log(sortAttributes);
+
+	// get values for axe X as date and Y as measure value
+	x = [];
+	y = [];	
+	sortAttributes.forEach(function(f){
+		// get year
+		var splitStr = f.date.split(';');
+		var year = splitStr[splitStr.length-1];
+		x.push(year);
+		y.push(f.mesure);
+	});		
+	x = x.sort();
+
+	// create scatter type chart
+	var scatter = {
+  		x: x,
+  		y: y,
+  		type: 'scatter'
+	};
+
+	var data = [scatter];
+
+	// create Plotly component
+	if  (Plotly) {
+		Plotly.newPlot('myDiv', data);
+	} else {
+		$.get('https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js', function() {
+			Plotly.newPlot('myDiv', data, {responsive: true});
+		});
+	}
+</script>
