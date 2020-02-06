@@ -8,6 +8,8 @@ mviewer.customControls.corona = (function() {
     var _play = true;
     var intervalId = null;
 
+    var _firstDay = "2020/01/22";
+
     // stock data
     var _data = [];
     var _orderedDate = [];
@@ -32,7 +34,7 @@ mviewer.customControls.corona = (function() {
 
     // update layer from date
     var _updateLayer = function(type) {
-        var date = $('.coronaInput').val() || '2020/01/22';
+        var date = $('.coronaInput').val() || _firstDay;
         date = new Date(date);
         date = _formatUTCDate(date, '');
         // get layer source
@@ -166,6 +168,8 @@ mviewer.customControls.corona = (function() {
          */
         init: function() {
             // mandatory - code executed when panel is opened
+            // set first datepicker value
+            $(".coronaInput.datepicker").val(_firstDay);
             $(".coronaInput.datepicker").datepicker({
                 todayHighlight: true,
                 language: "fr",
