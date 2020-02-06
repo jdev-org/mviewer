@@ -8,10 +8,10 @@
     <baselayer visible="false" type="OSM" id="stamen1" label="Toner-lite" title="Stamen Design" thumbgallery="img/basemap/toner-lite.png" url="http://{a-d}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png" maxzoom="20" attribution="Stamen toner-lite"/>    
     </baselayers>
     <proxy url=""/>
-    <themes mini="true">
+    <themes mini="false">
         <theme name="Virus"  id="formation" collapsed="true" icon="fas fa-microscope">
             <layer 
-                id="datacorona" 
+                id="datacorona"
                 infoformat="application/vnd.ogc.gml" featurecount="5"
                 time="true" queryable="true" name="2019-nCoV" visible="true" tiled="false" expanded="true" style="" opacity="0.7" 
                 url="https://gis.jdev.fr:443/geoserver/ows"
@@ -24,10 +24,10 @@
                 type="customlayer"
                 infoformat="application/vnd.ogc.gml" featurecount="5"
                 url="apps/corona/customlayers/corona.js"
-                time="true" queryable="false" name="corona" visible="true" tiled="false" expanded="true" style="" opacity="0.7" 
-                attribution="John Hopkins University"
+                time="true" queryable="false" name="corona" visible="true" tiled="true" expanded="true" style="" opacity="0.7" 
+                
                 customcontrol="true"
-
+                customcontrolpath="apps/corona/customcontrols/"
             >
             <template url="apps/corona/template/corona.mst"></template>
             </layer>            
