@@ -36,15 +36,13 @@ mviewer.customControls.corona = (function() {
     var _updateLayer = function(type) {
         var date = $('.coronaInput').val() || _firstDay;
         date = new Date(date);
-        date = _formatUTCDate(date, '');
+        date = _formatDate(date, '');
         // get layer source
         var _source = mviewer.getLayers()[_idlayer].layer.getSource();
         // get data for a date
         var isInRange = false;
 
         if (type === 0 && _play) { // update by range
-            console.log(_play);
-            console.log('play');
             _invervalId = null;
             var toRead = [];
             var inRange = false;
@@ -65,8 +63,11 @@ mviewer.customControls.corona = (function() {
                 if (counter != counterLimit) {
                     _source.clear();
                     if (_dateObj[toRead[counter]].features) {
-                        _source.addFeatures(_dateObj[toRead[counter]].features);
+                        var fDate = toRead[counter];
+                        _source.addFeatures(_dateObj[fDate].features);
                         _source.refresh();
+                        var time = new Date(_dateObj[fDate].features[0].values_.properties.date);
+                        $(".coronaInput.datepicker").val(_formatDate(time,'/'));
                     }
                 } else {
                     // stop counter
@@ -79,12 +80,11 @@ mviewer.customControls.corona = (function() {
             }
             start();
         } else { // init first display without animation for today
-            console.log('pause');
-            console.log(_play);
             if (_dateObj[date] && $('.coronaInput').val()) {
                 _source.clear();
                 _source.addFeatures(_dateObj[date].features);
                 _source.refresh();
+                $(".coronaInput.datepicker").val(date);
             }
         }
     }
@@ -103,8 +103,8 @@ mviewer.customControls.corona = (function() {
 
     // get every days from date to now
     _getEveryDays = function(from, to) {
-        from = _formatUTCDate(from);
-        to = _formatUTCDate(to);
+        from = _formatDate(from);
+        to = _formatDate(to);
         var date = new Date(from)
         var dates = [];
         while (_formatDate(date) != to) {
@@ -114,40 +114,6 @@ mviewer.customControls.corona = (function() {
             date.setUTCDate(date.getUTCDate() + 1);
         }
         return dates;
-    }
-
-    // get every features for a date
-    _getFeaturesFromDate = function(date, features, ) {
-        date = new Date(date);
-        var selection = [];
-        // filter features
-        features.forEach(e => {
-            var fdate = new Date(e.properties.date);
-            var D = fdate.getUTCDate() > 9 ? fdate.getUTCDate() : `0${fdate.getUTCDate()}`
-            var M = fdate.getUTCMonth() + 1 > 9 ? fdate.getUTCMonth() + 1 : `0${fdate.getUTCMonth()+1}`
-            fdate = new Date([fdate.getUTCFullYear(), M, D].join('/'));
-            if (fdate > date) {
-                selection.push(e);
-            }
-        });
-        return selection;
-    }
-
-    // get day by date where date is like 2020/01/25
-    _getFeaturesByDay = function(date, features) {
-        var selection = [];
-        // filter features
-        features.forEach(e => {
-            var fdate = new Date(e.properties.date);
-            var D = fdate.getUTCDate() + 1 > 9 ? fdate.getUTCDate() + 1 : `0${fdate.getUTCDate()+1}`
-            var M = fdate.getUTCMonth() + 1 > 9 ? fdate.getUTCMonth() + 1 : `0${fdate.getUTCMonth()+1}`
-            fdate = [fdate.getUTCFullYear(), M, D].join('/');
-            // control string not Date object
-            if (fdate === date) {
-                selection.push(e);
-            }
-        });
-        return selection;
     }
 
     // get numbers of day between to date where dateStart is given as 2020/01/20
@@ -181,13 +147,23 @@ mviewer.customControls.corona = (function() {
                     _updateLayer(0)
                 }
             });
+            $('.replay-corona').on('click', function(e) {
+                _play = true;
+                $(".coronaInput.datepicker").val(_firstDay);  
+                if(_orderedDate.length) {
+                    _updateLayer(0)
+                }
+            });             
             $('.pause-corona').on('click', function(e) {
                 if(intervalId) {
                     clearInterval(intervalId);
                 }
             });            
             $('.hand-corona').on('click', function(e) {
-                _play = false;   
+                _play = false;
+                if(intervalId) {
+                    clearInterval(intervalId);
+                }                
                 if(_orderedDate.length) {
                     _updateLayer(1)
                 }
@@ -208,7 +184,7 @@ mviewer.customControls.corona = (function() {
                             var newData = e;
                             var prop = [e.properties.country, e.properties.state].join('-');
                             var addFeature = true;
-                            fdate = _formatUTCDate(fdate, '');
+                            fdate = _formatDate(fdate, '');
                             // create index into json
                             if (_orderedDate.indexOf(fdate) < 0) {
                                 _orderedDate.push(fdate);
