@@ -22,6 +22,7 @@
             <layer 
                 id="corona"
                 type="customlayer"
+                legendurl="apps/corona/legend/heatmap.png"
                 infoformat="application/vnd.ogc.gml" featurecount="5"
                 url="apps/corona/customlayers/corona.js"
                 time="true" queryable="false" name="Cas confirmés / pays" visible="true" tiled="true" expanded="true" style="" opacity="0.7" 
