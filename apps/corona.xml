@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <application lang="fr,en" langfile="demo/demo.i18n.json"
-        title="Expansion du Corona Virus (2019-nCoV)" showhelp="false" help="apps/corona/help.html" logo="apps/corona/img/corona.png"  exportpng="true" style="css/themes/black.css" geoloc="true"/>
+        title="Expansion du Corona Virus (2019-nCoV)" showhelp="true" help="apps/corona/help.html" logo="apps/corona/img/corona.png"  exportpng="true" style="css/themes/black.css" geoloc="true"/>
     <mapoptions maxzoom="18" projection="EPSG:3857" rotation="true" center="2054627.32,2798206.73" zoom="3" projextent="-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244" />
    	<baselayers style="gallery">
     <baselayer visible="true" type="OSM" id="darkmatter" label="Dark Matter" title="CartoDb" thumbgallery="img/basemap/darkmatter.png" url="http://{a-c}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png" maxzoom="20" attribution="Map tiles by CartoDb, under CC BY 3.0"/>
@@ -25,7 +25,6 @@
                 infoformat="application/vnd.ogc.gml" featurecount="5"
                 url="apps/corona/customlayers/corona.js"
                 time="true" queryable="false" name="corona" visible="true" tiled="true" expanded="true" style="" opacity="0.7" 
-                
                 customcontrol="true"
                 customcontrolpath="apps/corona/customcontrols/"
             >
