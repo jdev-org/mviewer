@@ -34,14 +34,12 @@ mviewer.customControls.corona = (function() {
 
     // update layer from date
     var _updateLayer = function(type) {
-        var date = $('.coronaInput').val() || _firstDay;
-        date = new Date(date);
+        var dateInput = $('.coronaInput').val() || _firstDay;
+        var date = new Date(dateInput);
         date = _formatDate(date, '');
         // get layer source
         var _source = mviewer.getLayers()[_idlayer].layer.getSource();
         // get data for a date
-        var isInRange = false;
-
         if (type === 0 && _play) { // update by range
             _invervalId = null;
             var toRead = [];
@@ -58,27 +56,37 @@ mviewer.customControls.corona = (function() {
             // update map for each day
             var counterLimit = toRead.length;            
             counter = 0;
-            function updateMap() {
-                // while counter
-                if (counter != counterLimit) {
-                    _source.clear();
-                    if (_dateObj[toRead[counter]].features) {
-                        var fDate = toRead[counter];
-                        _source.addFeatures(_dateObj[fDate].features);
-                        _source.refresh();
-                        var time = new Date(_dateObj[fDate].features[0].values_.properties.date);
-                        $(".coronaInput.datepicker").val(_formatDate(time,'/'));
+            if(!inRange) {
+                // to display alert message
+                mviewer.alert("Aucune données pour cette date : " + dateInput, "alert-danger");
+                mviewer.alert("Choisir une date entre le " + _firstDay + " et aujourd\'hui", "alert-warning");
+                // to hide alert auto
+                setTimeout(function(){
+                     $('.alert-dismissible').hide();
+                }, 3000);
+            } else {
+                function updateMap() {
+                    // while counter
+                    if (counter != counterLimit) {
+                        _source.clear();
+                        if (_dateObj[toRead[counter]].features) {
+                            var fDate = toRead[counter];
+                            _source.addFeatures(_dateObj[fDate].features);
+                            _source.refresh();
+                            var time = new Date(_dateObj[fDate].features[0].values_.properties.date);
+                            $(".coronaInput.datepicker").val(_formatDate(time,'/'));
+                        }
+                    } else {
+                        // stop counter
+                        clearInterval(intervalId);
                     }
-                } else {
-                    // stop counter
-                    clearInterval(intervalId);
+                    counter++;
                 }
-                counter++;
+                function start() {
+                    intervalId = setInterval(updateMap, 1000);
+                }
+                start();
             }
-            function start() {
-                intervalId = setInterval(updateMap, 1000);
-            }
-            start();
         } else { // init first display without animation for today
             if (_dateObj[date] && $('.coronaInput').val()) {
                 _source.clear();
