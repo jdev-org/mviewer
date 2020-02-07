@@ -39,6 +39,7 @@ mviewer.customControls.corona = (function() {
         date = _formatDate(date, '');
         // get layer source
         var _source = mviewer.getLayers()[_idlayer].layer.getSource();
+        
         // get data for a date
         if (type === 0 && _play) { // update by range
             _invervalId = null;
@@ -142,6 +143,7 @@ mviewer.customControls.corona = (function() {
          */
         init: function() {
             // mandatory - code executed when panel is opened
+            
             // set first datepicker value
             $(".coronaInput.datepicker").val(_firstDay);
             $(".coronaInput.datepicker").datepicker({
@@ -189,10 +191,10 @@ mviewer.customControls.corona = (function() {
                         resultJson = result;
                         _data.forEach(e => {
                             var fdate = new Date(e.properties.date);
+                            fdate = _formatDate(fdate, '');
                             var newData = e;
                             var prop = [e.properties.country, e.properties.state].join('-');
                             var addFeature = true;
-                            fdate = _formatDate(fdate, '');
                             // create index into json
                             if (_orderedDate.indexOf(fdate) < 0) {
                                 _orderedDate.push(fdate);
@@ -215,16 +217,17 @@ mviewer.customControls.corona = (function() {
                                         }
                                     }
                                 });
-                                // add feature
-                                if (addFeature) {
-                                    var feature = new ol.Feature({
-                                        id: e.id,
-                                        properties: e.properties,
-                                        geometry: new ol.geom.Point(e.geometry.coordinates)
-                                    });
-                                    _dateObj[fdate].features.push(feature);
-                                }
                             }
+                            // add feature
+                            if (addFeature) {
+                                var feature = new ol.Feature({
+                                    id: e.id,
+                                    properties: e.properties,
+                                    geometry: new ol.geom.Point(e.geometry.coordinates)
+                                });
+                                _dateObj[fdate].features.push(feature);
+                            }
+                            
                         });
                         _orderedDate.sort();
                         _updateLayer(0);
