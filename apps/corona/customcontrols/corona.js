@@ -6,7 +6,8 @@ mviewer.customControls.corona = (function() {
 
     // play anim
     var _play = true;
-    var intervalId = null;
+    var _intervalId = null;
+    var _intervalMs = 3;
 
     var _firstDay = "2020/01/22";
 
@@ -66,6 +67,9 @@ mviewer.customControls.corona = (function() {
                      $('.alert-dismissible').hide();
                 }, 3000);
             } else {
+                if(_intervalId) {
+                    clearInterval(_intervalId);
+                }
                 function updateMap() {
                     // while counter
                     if (counter != counterLimit) {
@@ -79,12 +83,12 @@ mviewer.customControls.corona = (function() {
                         }
                     } else {
                         // stop counter
-                        clearInterval(intervalId);
+                        clearInterval(_intervalId);
                     }
                     counter++;
                 }
                 function start() {
-                    intervalId = setInterval(updateMap, 1000);
+                    _intervalId = setInterval(updateMap, _intervalMs*1000);
                 }
                 start();
             }
@@ -137,15 +141,37 @@ mviewer.customControls.corona = (function() {
         return differenceDays;
     }
 
+    _initSlider = function () {
+        $("#ex16a").slider({ min: 1, max: 5, value: 2, focus: true });
+        // slider behavior
+        if($("#ex16a").slider()) {
+            $("#ex16a").slider().on('slideStop', function(ev) {
+                _intervalMs = $('#ex16a').slider('getValue');
+                if(_intervalId) {
+                    clearInterval(_intervalId);
+                }
+                setTimeout(function(){
+                    _updateLayer(0);
+               }, 1000);                
+            });
+        }        
+        // slider width and
+        if($('.coronaControl').children('.slider').length) {
+            $('.coronaControl').children('.slider').attr('style','margin-top:9px; width:160px;');
+        }
+    }
+
     return {
         /*
          * Public
          */
         init: function() {
             // mandatory - code executed when panel is opened
-            
             // set first datepicker value
             $(".coronaInput.datepicker").val(_firstDay);
+            // slider init
+            _initSlider();
+            // datepicker
             $(".coronaInput.datepicker").datepicker({
                 todayHighlight: true,
                 language: "fr",
@@ -153,6 +179,9 @@ mviewer.customControls.corona = (function() {
             });
             $('.play-corona').on('click', function(e) {
                 _play = true;
+                if(_intervalId) {
+                    clearInterval(_intervalId);
+                }   
                 if(_orderedDate.length) {
                     _updateLayer(0)
                 }
@@ -165,14 +194,14 @@ mviewer.customControls.corona = (function() {
                 }
             });             
             $('.pause-corona').on('click', function(e) {
-                if(intervalId) {
-                    clearInterval(intervalId);
+                if(_intervalId) {
+                    clearInterval(_intervalId);
                 }
             });            
             $('.hand-corona').on('click', function(e) {
                 _play = false;
-                if(intervalId) {
-                    clearInterval(intervalId);
+                if(_intervalId) {
+                    clearInterval(_intervalId);
                 }                
                 if(_orderedDate.length) {
                     _updateLayer(1)
