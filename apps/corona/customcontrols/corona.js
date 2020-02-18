@@ -9,7 +9,7 @@ mviewer.customControls.corona = (function() {
     var _intervalId = null;
     var _intervalMs = 3;
 
-    var _firstDay = "2020/01/22";
+    var _firstDay = "2020/01/23";
 
     // stock data
     var _data = [];
