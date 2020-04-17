@@ -1837,6 +1837,7 @@ mviewer = (function () {
                 _initDataList();
                 _initVectorOverlay();
                 search.init(configuration.getConfiguration());
+                filter.init();
                 _initPanelsPopup();
                 _initGeolocation();
                 _initTools();

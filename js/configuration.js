@@ -664,6 +664,12 @@ var configuration = (function () {
                             sessionStorage.setItem(oLayer.url, layer.authorization);
                     }
 
+                    // before customControl configuration in order to update filter if wanted
+                    oLayer.filterable = (layer.filterable === "true") ? true : false;
+                    if (oLayer.filterable) {
+                        oLayer = filter.configFilterableLayer(oLayer, layer);
+                    }
+                    
                     if (oLayer.customcontrol) {
                         var customcontrolpath = oLayer.customcontrolpath;
                         $.ajax({
