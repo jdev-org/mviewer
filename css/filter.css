@@ -1,0 +1,22 @@
+.advancedFilter
+{
+ background-color:#FFFFFF;
+ display:none;
+ margin-top: 100px;
+ position:absolute;
+ text-align:left;
+ z-index:5000;
+ padding: 25px 25px 20px;
+}
+
+.advancedFilter h2{
+  font-size: 14px;
+  font-style: italic;
+  font-family: 'roboto_regular', Arial, Sans-serif;
+  margin-top: 10px;
+  text-align:center;
+}
+
+.advancedFilter label{
+  margin-right: 5px;
+}
