@@ -68,7 +68,11 @@ var filter = (function() {
         } else if (params[index].type == "combobox") {
           params[index].values = _getDistinctValues(layerId, index);
           _addComboboxFilter(layerId, params[index]);
+        } else if (params[index].type == "textbox") {
+          params[index].values = _getDistinctValues(layerId, index);
+          _addTextFilter(layerId, params[index]);
         }
+
 
         // get attribut possible values
       }
@@ -126,7 +130,34 @@ var filter = (function() {
   };
 
   var _addTextFilter = function(layerId, params) {
+    // ID - generate to be unique
+    var id = "filterText-" + layerId + "-" + params.attribut;
 
+    // HTML
+    var _text = [
+      '<div class="form-check mb-2 mr-sm-2">',
+      '<legend> ' + params.label + ' </legend>'
+    ];
+    _text.push('<input type="text" value="" data-role="tagsinput" id="' + id + '" class="form-control">');
+    _text.push('</div>');
+    $("#advancedFilter").append(_text.join(""));
+
+    //EVENT
+    $("#" + id).tagsinput({
+      typeahead: {
+        source: params.values
+      },
+      freeInput: false
+    });
+    $("#" + id).on('itemAdded', function(event) {
+      _addFilterElementToList(layerId, params.attribut, event.item);
+      _filterFeatures(layerId);
+
+    });
+    $("#" + id).on('itemRemoved', function(event) {
+      _removeFilterElementFromList(layerId, params.attribut, event.item);
+      _filterFeatures(layerId);
+    });
   };
 
   var _addComboboxFilter = function(layerId, params) {
@@ -241,7 +272,7 @@ var filter = (function() {
     else if (type == "filterCombo") {
       _removeFilterElementFromList(layerId, attribut, null);
       // if value not the first text here ("Choississez...")
-      if(element.selectedIndex != 0){
+      if (element.selectedIndex != 0) {
         _addFilterElementToList(layerId, attribut, value);
       }
     } else {
