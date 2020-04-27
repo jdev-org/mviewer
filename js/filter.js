@@ -22,7 +22,8 @@ var filter = (function() {
       '<div><h2>Filtres</h2></div>',
       '</div>'
     ].join("");
-    $("#sidebar-wrapper").append(_dialog);
+    $("#page-content-wrapper").append(_dialog);
+    //$("#advancedFilter").drags();
   };
 
   /**
@@ -46,6 +47,9 @@ var filter = (function() {
     return oLayer;
   };
 
+  /**
+   *
+   */
   var _createFilterPanel = function(layerIdList, params) {
     // add master div
     _filter_dialog();
@@ -71,10 +75,10 @@ var filter = (function() {
         } else if (params[index].type == "textbox") {
           params[index].values = _getDistinctValues(layerId, index);
           _addTextFilter(layerId, params[index]);
+        } else if (params[index].type == "date") {
+          params[index].values = _getDistinctValues(layerId, index);
+          _addDateFilter(layerId, params[index]);
         }
-
-
-        // get attribut possible values
       }
     }
 
@@ -96,7 +100,6 @@ var filter = (function() {
     features.forEach(feature => {
 
       if (feature.get(attribut) != null) {
-        console.log(feature.get(attribut));
         result.push(feature.get(attribut));
       }
 
@@ -113,6 +116,9 @@ var filter = (function() {
     return layerParams[index].values;
   };
 
+  /**
+   *
+   */
   var _addCheckboxFilter = function(layerId, params) {
     var _checkBox = [
       '<div class="form-check mb-2 mr-sm-2">',
@@ -129,6 +135,9 @@ var filter = (function() {
     $("#advancedFilter").append(_checkBox.join(""));
   };
 
+  /**
+   *
+   */
   var _addTextFilter = function(layerId, params) {
     // ID - generate to be unique
     var id = "filterText-" + layerId + "-" + params.attribut;
@@ -142,21 +151,49 @@ var filter = (function() {
     _text.push('</div>');
     $("#advancedFilter").append(_text.join(""));
 
-    //EVENT
+    // Update tagsinput params
     $("#" + id).tagsinput({
       typeahead: {
         source: params.values
       },
       freeInput: false
     });
+
+    //EVENT
     $("#" + id).on('itemAdded', function(event) {
       _addFilterElementToList(layerId, params.attribut, event.item);
       _filterFeatures(layerId);
-
+      // remover entered text
+      setTimeout(function() {
+        $(">input[type=text]", ".bootstrap-tagsinput").val("");
+      }, 1);
     });
     $("#" + id).on('itemRemoved', function(event) {
       _removeFilterElementFromList(layerId, params.attribut, event.item);
       _filterFeatures(layerId);
+    });
+  };
+
+  /**
+   *
+   */
+  var _addDateFilter = function(layerId, params) {
+    var id = "filterDate-" + layerId + "-" + params.attribut;
+    var _datePicker = [
+      '<div class="form-group form-group-timer mb-2 mr-sm-2">',
+      '<legend> ' + params.label + ' </legend>'
+    ];
+    _datePicker.push('<input class="form-control datepicker" id=' + id + ' data-provide="datepicker" />');
+    _datePicker.push('</div>');
+    $("#advancedFilter").append(_datePicker.join(""));
+    $('.id').datepicker({
+      todayHighlight: true,
+      format: 'mm/dd/yyyy',
+      startDate: '-3d'
+    });
+
+    $('.id').on('changeDate', function(e) {
+      //  _addFilterElementToList(layerId, params.attribut, e.format());
     });
   };
 
@@ -186,8 +223,11 @@ var filter = (function() {
   var _toggle = function() {
 
     // show or hide filter panel
-    $("#advancedFilter").show();
-
+    if ($("#advancedFilter").is(':visible')) {
+      $("#advancedFilter").hide();
+    } else {
+      $("#advancedFilter").show();
+    }
   };
 
   /**
@@ -203,15 +243,26 @@ var filter = (function() {
     if (layerId != null && attribut != null && value != null) {
       var filtersByLayer = (_currentFilters.get(layerId) != null ? _currentFilters.get(layerId) : []);
 
-      var filter = {
-        layerId: layerId,
-        attribut: attribut,
-        value: value,
-        type: type
-      };
+      // If attribut exist add new value to existing one
+      var filteringOnAttributeExist = false;
+      filtersByLayer.forEach(function(filter, index, array) {
+        if (filter.attribut == attribut && value != null && !filter.values.includes(value)) {
+          filteringOnAttributeExist = true;
+          filter.values.push(value);
+        }
+      });
 
-      filtersByLayer.push(filter);
-      _currentFilters.set(layerId, filtersByLayer);
+      // If first filtering for this attribut
+      if (!filteringOnAttributeExist) {
+
+        var filter = {
+          attribut: attribut,
+          values: [value],
+          type: type
+        };
+        filtersByLayer.push(filter);
+        _currentFilters.set(layerId, filtersByLayer);
+      }
     }
   };
 
@@ -229,8 +280,10 @@ var filter = (function() {
     //search if value exist un currentFilters
     if (filtersByLayer != undefined) {
       filtersByLayer.forEach(function(filter, index, array) {
-        if (filter.attribut == attribut && (value == null || filter.value == value)) {
+        if (filter.attribut == attribut && (value == null || filter.values == value)) {
           indexToRemove = index;
+        } else if (filter.attribut == attribut && filter.values.includes(value)) {
+          filter.values.splice(filter.values.indexOf(value), 1);
         }
       });
 
@@ -328,12 +381,14 @@ var filter = (function() {
     featuresToBeFiltered.forEach(feature => {
 
       if (filtersByLayer.length > 0) {
-        var hideFeature = false;
+        hideFeature = false;
+
         //search if value exist un currentFilters
         filtersByLayer.forEach(function(filter, index, array) {
 
           // if feature map filter keep it
-          if (feature.get(filter.attribut) != null && feature.get(filter.attribut).includes(filter.value)) {
+          // TODO we should escape regex key value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); before join
+          if (feature.get(filter.attribut) != null && new RegExp(filter.values.join("|")).test(feature.get(filter.attribut))) {
             feature.setStyle(null);
           } else {
             // hide
@@ -342,7 +397,6 @@ var filter = (function() {
           }
 
         });
-
         if (hideFeature) {
           feature.setStyle(new ol.style.Style({}));
         }
@@ -417,5 +471,50 @@ var filter = (function() {
 })();
 
 $(document).ready(function() {
+
+  (function($) {
+    $.fn.drags = function(opt) {
+
+      opt = $.extend({
+        handle: "",
+        cursor: "move"
+      }, opt);
+
+      if (opt.handle === "") {
+        var $el = this;
+      } else {
+        var $el = this.find(opt.handle);
+      }
+
+      return $el.css('cursor', opt.cursor).on("mousedown", function(e) {
+        if (opt.handle === "") {
+          var $drag = $(this).addClass('draggable');
+        } else {
+          var $drag = $(this).addClass('active-handle').parent().addClass('draggable');
+        }
+        var z_idx = $drag.css('z-index'),
+          drg_h = $drag.outerHeight(),
+          drg_w = $drag.outerWidth(),
+          pos_y = $drag.offset().top + drg_h - e.pageY,
+          pos_x = $drag.offset().left + drg_w - e.pageX;
+        $drag.css('z-index', 1000).parents().on("mousemove", function(e) {
+          $('.draggable').offset({
+            top: e.pageY + pos_y - drg_h,
+            left: e.pageX + pos_x - drg_w
+          }).on("mouseup", function() {
+            $(this).removeClass('draggable').css('z-index', z_idx);
+          });
+        });
+        e.preventDefault(); // disable selection
+      }).on("mouseup", function() {
+        if (opt.handle === "") {
+          $(this).removeClass('draggable');
+        } else {
+          $(this).removeClass('active-handle').parent().removeClass('draggable');
+        }
+      });
+
+    }
+  })(jQuery);
 
 });
