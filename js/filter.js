@@ -178,21 +178,28 @@ var filter = (function() {
    *
    */
   var _addDateFilter = function(layerId, params) {
-    var id = "filterDate-" + layerId + "-" + params.attribut;
+    // for type date, two parameters are availables
+    // create unique id with first parameter
+    var id = "filterDate-" + layerId + "-" + params.attribut[0] ;
     var _datePicker = [
       '<div class="form-group form-group-timer mb-2 mr-sm-2">',
       '<legend> ' + params.label + ' </legend>'
     ];
-    _datePicker.push('<input class="form-control datepicker" id=' + id + ' data-provide="datepicker" />');
+    _datePicker.push('<input type="text" class="form-control" id="' + id + '" />');
     _datePicker.push('</div>');
     $("#advancedFilter").append(_datePicker.join(""));
-    $('.id').datepicker({
-      todayHighlight: true,
-      format: 'mm/dd/yyyy',
-      startDate: '-3d'
+
+    $("#" + id).datepicker({
+      format: "yyyy-mm-dd",
+      language: "fr",
+      autoclose: true,
+      startDate: '-3d',
+      clearBtn: true,
+      todayHighlight: true
     });
 
-    $('.id').on('changeDate', function(e) {
+    $("#" + id).on('changeDate', function(e) {
+      console.log(e);
       //  _addFilterElementToList(layerId, params.attribut, e.format());
     });
   };
