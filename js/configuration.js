@@ -48,6 +48,32 @@ var configuration = (function () {
 
     var _themes = null;
 
+    /**
+     * Get config for one layer
+     */
+    var _getlayerconfig = function(id) {
+        var themes = configuration.getConfiguration().themes.theme;
+        var layerResult = null;
+        // parse each layers theme
+        var findLayersById = function (theme, idLayer) {
+            var findLayer = null;
+            theme.layer.forEach( layer => {
+                if (layer.id == idLayer) {
+                    findLayer = layer;
+                }
+            })
+            return findLayer;
+        }
+        // parse each themes
+        themes.forEach(e => {
+            if(!layerResult) {
+                layerResult = findLayersById(e, id);
+            }
+        });
+        // return layer config or null
+        return layerResult;
+    }
+
      /**
      * Property: _proxy
      * Ajax proxy to use for crossdomain requests
@@ -958,7 +984,8 @@ var configuration = (function () {
         getConfiguration: function () { return _configuration; },
         getLang: function () { return _lang },
         getLanguages: function () { return _languages; },
-        setLang: function (lang) { _lang = lang; mviewer.lang.lang = lang;}
+        setLang: function (lang) { _lang = lang; mviewer.lang.lang = lang;},
+        getConfigurationLayer: function(idLayer) {return _getlayerconfig(idLayer)}
     };
 
 })();
