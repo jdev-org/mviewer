@@ -541,6 +541,15 @@ var configuration = (function () {
                     oLayer.type = layer.type || "wms";
                     oLayer.theme = themeid;
                     oLayer.rank = layerRank;
+                    /**
+                     * SPECIFIQUE SANTEGRAPHIE
+                     * EN ATTENDANT VALIDATION PULL REQUEST #470
+                     * https://github.com/geobretagne/mviewer/pull/407/files
+                     */
+                    oLayer.index = layer.index ? parseFloat(layer.index): null;
+                    /**
+                     * FIN SPECIFIQUE SANTEGRAPHIE
+                     */
                     oLayer.name = layer.name;
                     oLayer.title = layer.name;
                     oLayer.layerid = mvid;
@@ -611,7 +620,8 @@ var configuration = (function () {
                         layer.attributefilter === "true") ? true : false;
                     oLayer.attributefield = layer.attributefield;
                     oLayer.attributeoperator = layer.attributeoperator || "=";
-                    oLayer.attributelabel = layer.attributelabel;
+                    // diff entre santegraphie et mviewer natif
+                    oLayer.attributelabel = layer.attributelabel || "Attributs";
                     if (layer.attributevalues && layer.attributevalues.search(",")) {
                         oLayer.attributevalues = layer.attributevalues.split(",");
                     }
@@ -660,6 +670,19 @@ var configuration = (function () {
                     oLayer.dynamiclegend = (layer.dynamiclegend === "true") ? true : false;
                     oLayer.vectorlegend =  (layer.vectorlegend === "true") ? true : false;
                     oLayer.nohighlight =  (layer.nohighlight === "true") ? true : false;
+                    /**
+                     * SPECIFIQUE SANTEGRAPHIE
+                     */
+                    if (layer.geocodingfields) {
+                        oLayer.geocodingfields = layer.geocodingfields.split(",");
+                    }
+                    oLayer.geocoder = layer.geocoder || false;
+                    oLayer.xfield = layer.xfield;
+                    oLayer.yfield = layer.yfield;
+                    /**
+                     * FIN SPECIFIC
+                     */
+                    oLayer.geocoder = layer.geocoder || false;                    
                     oLayer.infohighlight =  (layer.infohighlight === "false") ? false : true;
                     oLayer.showintoc =  (layer.showintoc && layer.showintoc === "false") ? false : true;
                     oLayer.legendurl=(layer.legendurl)? layer.legendurl : mviewer.getLegendUrl(oLayer);
