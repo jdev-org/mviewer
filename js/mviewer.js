@@ -1008,18 +1008,6 @@ mviewer = (function () {
             panel.attr("src","img/invisible.png");
             panel.closest("li").addClass("glyphicon mv-invisible");
         }
-    }
-
-    var _setUrlLegendStatus = function (layer, visible) {
-        var legendUrl = _getlegendurl(layer);
-        var panel = $('#legend-'+layer.id);
-        if (visible) {
-            panel.attr("src",legendUrl);
-            panel.closest("li").removeClass("glyphicon mv-invisible");
-        } else {
-            panel.attr("src","img/invisible.png");
-            panel.closest("li").addClass("glyphicon mv-invisible");
-        }
     };
 
     var _setLayerLegend = function (layer, scale) {
