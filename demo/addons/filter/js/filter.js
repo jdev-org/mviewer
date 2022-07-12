@@ -4,7 +4,11 @@ var filter = (function() {
    * @type {String}
    */
   var _id = "";
-
+  /**
+   * Property: _visibleLayers
+   *  @type {Map}
+   */
+  var _visibleLayers = new Map();
   /**
    * Property: _layersParams
    *  @type {Map}
@@ -23,6 +27,28 @@ var filter = (function() {
    */
   var _currentSelectedLayer = "";
 
+
+  /**
+   * PrepareLayer before create panel
+   *
+   */
+   var _prepareReadyLayers = (layersParams) => {
+    var layerId = "";
+    var nbLayers = 0;
+    layersParams.forEach((layer,i) => {
+      layerId = layer.layerId;
+      var mvLayer = mviewer.getLayer(layerId) ? mviewer.getLayer(layerId).layer : null;
+      // Should never happens but we could check if layer.id not already exist in _layersParams
+      if(mvLayer && mvLayer.getVisible()) _visibleLayers.set(layerId, layer.filter);
+      _visibleFeatures.set(layerId, []);
+
+      nbLayers++;
+      if (!_currentSelectedLayer && (nbLayers == 1 && mvLayer && mvLayer.getVisible() || mvLayer && mvLayer.getVisible())) {
+        _currentSelectedLayer =  layerId;
+      }
+    });
+  }
+
   /**
    * Public Method: _initFilterTool exported as init
    *
@@ -36,27 +62,17 @@ var filter = (function() {
       options = mviewer.customComponents.filter.config.options;
     }
     // get filters by layer
-    var layerParams = mviewer.customComponents.filter.config.options.layers;
-    var layerId = "";
-    var nbLayers = 0;
+    var layersParams = mviewer.customComponents.filter.config.options.layers;
 
-    layerParams.forEach(layer => {
-      layerId = layer.layerId;
-      // Should never happens but we could check if layer.id not already exist in _layersParams
-      _layersFiltersParams.set(layerId, layer.filter);
-      _visibleFeatures.set(layerId, []);
-
-      nbLayers++;
-      if (nbLayers == 1) {
-        _currentSelectedLayer = layerId;
-      }
-
+    layersParams.forEach(layer => {
+      _layersFiltersParams.set(layer.layerId, layer.filter);
     });
 
     if (_layersFiltersParams.size > 0) {
 
-      // wait map ready
+      // wait map ready and prepare layers to avoid empty filter panel
       mviewer.getMap().once('rendercomplete', function(e) {
+        _prepareReadyLayers(layersParams);
         _initFilterPanel();
       });
 
@@ -190,6 +206,17 @@ var filter = (function() {
           _manageDateFilter(destinationDivId, layerId, params[index]);
         }
       }
+      const layerConfig = mviewer.customComponents.filter.config.options.layers.find(x => x.layerId == layerId);
+      if (layerConfig.downloadFormats && layerConfig.downloadFormats.length) {
+        try {
+          _addDownLoadPanel(destinationDivId, layerConfig);
+        } catch (error) {
+           mviewer.alert("L'option downloadFormats ne fonctionne qu'avec des couches WFS", "alert-info")
+           console.error("L'option downloadFormats ne fonctionne qu'avec des couches WFS")
+        }
+      }
+      
+
       if (layerId != _currentSelectedLayer) {
         $("#" + destinationDivId).hide();
       }
@@ -200,7 +227,78 @@ var filter = (function() {
       contentSelectLayer.push('</select></div>');
       $("#selectLayerFilter").append(contentSelectLayer.join(''));
     }
+    
     _setStyle();
+  };
+
+  /**
+   * Private Method: _addDownLoadPanel
+   *
+   * Add a download panel for WFS datasource
+   **/
+  var _addDownLoadPanel = function(destinationDivId,layerConfig) {
+    // Create div only if not exist
+    if (!$("#download-" + destinationDivId).length){
+      panel=$('<div id="download-' + destinationDivId+'" class="download-section"> <legend class="textlabel">Télécharger</legend></div>');
+      
+      layerConfig.downloadFormats.forEach(format => {
+        var button = $(`
+        <span class="download-btn" 
+          data-toggle="filter-tooltip" 
+          data-original-title="Télécharger au format ${format.label}">
+          ${format.label}
+        </span>`);
+        button.on('click', function(event) {  
+          _download(layerConfig,format);  
+        });
+        panel.append(button);
+      });
+      
+      $("#" + destinationDivId).append(panel);
+    }
+  };
+
+  var _download = function(layerConfig, format) {
+    var url = mviewer.getLayer(layerConfig.layerId).layer.getSource().getUrl();
+    var parseURL = new URLSearchParams(url);
+    
+    if(url.apply){ // Si getUrl() renvoie une fonction
+      url = mviewer.getLayer(layerConfig.layerId).layer.getSource().getUrl().apply(null, []);
+    }
+    if (format.format) {
+      // manage format and replace if already exists - use mixed method to change outputFormat param
+      url = parseURL.has("outputFormat") ? url.replace(new RegExp(/&outputFormat(.*)(&|$)/), '') : url;
+      url += `&outputFormat=${format.format}`;
+    }
+    if (_getFilter(layerConfig.layerId)) { // add only if filters exist
+      url += _getFilter(layerConfig.layerId);
+    }
+    window.open(url, "target='_blank'");
+  }
+
+  /**
+   * Private Method: _getFilter
+   *
+   * get layer filter as CQL string
+   **/
+  var _getFilter = function(layerId) {
+    let filterTxt;
+    filter.layersFiltersParams.get(layerId).forEach(function(filter, index, array) {
+        // Only if there is a filter
+        if (filter.currentValues.length > 0) {
+            let newFilter = filter.attribut + "='" + filter.currentValues[0] + "'";
+            if (filterTxt && filterTxt.length > 0) {
+                filterTxt += " AND " + newFilter;
+            } else {
+                filterTxt = newFilter;
+            }
+        }
+    });
+    if (filterTxt && filterTxt.length > 0) {
+        return "&CQL_FILTER=" + filterTxt;
+    } else {
+        return "";
+    }
   };
 
   /**
@@ -907,6 +1005,7 @@ var filter = (function() {
     init: _initFilterTool,
     toggle: _toggle,
     filterFeatures: _filterFeatures,
+    layersFiltersParams: _layersFiltersParams,
     onValueChange: _onValueChange,
     clearFilter: _clearFilter,
     clearAllFilter: _clearAllFilter,

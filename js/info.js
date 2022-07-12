@@ -243,8 +243,16 @@ var info = (function () {
                 var url = visibleLayers[i].getSource().getFeatureInfoUrl(
                     evt.coordinate, _map.getView().getResolution(), _map.getView().getProjection(), params
                 );
+                urlParams = new URLSearchParams(url)
+                cql = new URLSearchParams(url).get("CQL_FILTER")
                 if (layer && featureid) {
-                    url+= '&CQL_FILTER='+_overLayers[layer].searchid+'%3D%27'+featureid+'%27';
+                    // create new cql to insert feature id
+                    attributeFilter = _overLayers[layer].searchid+'%3D%27'+featureid+'%27';
+                    // create new cql filter
+                    urlParams.delete("CQL_FILTER");
+                    cql = `&CQL_FILTER=${cql || ""}${cql ? " AND " : ""}${attributeFilter}`;
+                    // force to decode to string result and avoid unreadable params
+                    url = decodeURIComponent(urlParams.toString()) + cql;
                 }
                 urls.push({url:url, layerinfos: _overLayers[visibleLayers[i].get('mviewerid')]});
             }
@@ -416,7 +424,9 @@ var info = (function () {
 
                     if (configuration.getConfiguration().mobile) {
                         $("#modal-panel").modal("show");
-                        $("#feature-info").tooltip("hide");
+                        if (_featureTooltip.getElement().children.length) {
+                            _featureTooltip.getElement().popover('hide')
+                        }
                     } else {
                         if (!$('#'+panel).hasClass("active")) {
                             $('#'+panel).toggleClass("active");
@@ -444,14 +454,16 @@ var info = (function () {
                     // init sub selection
                     _firstlayerFeatures = _queriedFeatures.filter(feature => {
                         return feature.get("mviewerid") == view.layers[0].layerid;
-                    })
+                    });
                     // change feature of sub selection
                     $('.carousel.slide').on('slide.bs.carousel', function (e) {
                         $(e.currentTarget).find(".counter-slide").text($(e.relatedTarget).attr("data-counter"));
                         var selectedFeature = _queriedFeatures.filter(feature => {
                             return feature.ol_uid == e.relatedTarget.id;
                         })
-                        mviewer.highlightSubFeature(selectedFeature[0]);
+                        if (!_queriedFeatures[0].get("features")) {
+                            mviewer.highlightSubFeature(selectedFeature[0]);
+                        }
                     });
                     // change layer of sub selection
                     if (configuration.getConfiguration().mobile) {
@@ -467,8 +479,13 @@ var info = (function () {
                     $('#'+panel).removeClass("active");
                 }
                 // highlight features and sub feature
-                mviewer.highlightFeatures(_queriedFeatures);
-                mviewer.highlightSubFeature(_firstlayerFeatures[0]);
+                if(_queriedFeatures[0] && _queriedFeatures[0].get("features")) {
+                    // cluster
+                    mviewer.highlightSubFeature(_queriedFeatures[0]);
+                } else {
+                    mviewer.highlightFeatures(_queriedFeatures);
+                    mviewer.highlightSubFeature(_firstlayerFeatures[0]);
+                }
                 // show pin as fallback if no geometry for wms layer
                 if (showPin || (!_queriedFeatures.length && !_firstlayerFeatures.length && !isClick)) {
                     mviewer.showLocation(_projection.getCode(), _clickCoordinates[0], _clickCoordinates[1], !showPin ? search.options.banmarker : showPin);
@@ -524,22 +541,20 @@ var info = (function () {
             return;
         }
         if (!_featureTooltip) {
-            _featureTooltip = $('#feature-info');
-            _featureTooltip.tooltip({
-                animation: false,
-                trigger: 'manual',
-                container: 'body',
-                html: true,
-                template: mviewer.templates.tooltip
+            _featureTooltip = new ol.Overlay({
+                element: document.getElementById('feature-info'),
+                offset: [5, -10]
             });
+            mviewer.getMap().addOverlay(_featureTooltip);
         }
-        var pixel = _map.getEventPixel(evt.originalEvent);
-        var _o = mviewer.getLayers();
-        // default tooltip state or reset tooltip
-        _featureTooltip.tooltip('hide');
-        $("#map").css("cursor", "");
+        _featureTooltip.setPosition(evt.coordinate);
+        const popup = _featureTooltip.getElement();
 
-        var feature = _map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+        var pixel = mviewer.getMap().getEventPixel(evt.originalEvent);
+        // default tooltip state or reset tooltip
+        $(popup).popover('destroy');
+        $("#map").css("cursor", "");
+        var feature = mviewer.getMap().forEachFeatureAtPixel(pixel, function (feature, layer) {
             if (!layer
                 || layer.get('mviewerid') === 'featureoverlay'
                 || layer.get('mviewerid') === 'selectoverlay'
@@ -578,7 +593,6 @@ var info = (function () {
         //hack to check if feature is yet overlayed
         var newFeature = false;
         if(!feature) {
-            _featureTooltip.tooltip('hide');
             $("#map").css("cursor", "");
             _sourceOverlay.clear();
             return;
@@ -615,15 +629,15 @@ var info = (function () {
                     feature.getProperties()["title"] || feature.getProperties()["nom"] ||
                     feature.getProperties()[l.fields[0]]);
             }
-
-            _featureTooltip.css({
-                left: (pixel[0]) + 'px',
-                top: (pixel[1] - 15) + 'px'
+            $(popup).popover({
+                container: popup,
+                placement: 'top',
+                animation: false,
+                html: true,
+                content: title,
+                template: mviewer.templates.tooltip
             });
-            _featureTooltip.tooltip('hide')
-                .attr('data-original-title', title)
-                .tooltip('fixTitle')
-                .tooltip('show');
+            $(popup).popover('show');
         }
     };
 
@@ -841,22 +855,6 @@ var info = (function () {
         $.each(_overLayers, function (i, layer) {
             if (layer.queryable && layer.showintoc) {
                 _addQueryableLayer(layer);
-            }
-        });
-        var noTooltipZone = [
-            "#layers-container-box",
-            "#sidebar-wrapper",
-            "#bottom-panel",
-            "#right-panel",
-            "#mv-navbar",
-            "#zoomtoolbar",
-            "#toolstoolbar",
-            "#backgroundlayerstoolbar-default",
-            "#backgroundlayerstoolbar-gallery"
-        ];
-        $(noTooltipZone.join(", ")).on('mouseover', function() {
-            if (_featureTooltip) {
-                $('#feature-info').tooltip('hide');
             }
         });
     };

@@ -9,7 +9,7 @@ var configuration = (function () {
 
     // Mviewer version a saisir manuellement
 
-    var VERSION = "3.6-snapshot";
+    var VERSION = "3.8";
 
     var _showhelp_startup = false;
 
@@ -231,7 +231,9 @@ var configuration = (function () {
         if (conf.application.title || API.title) {
             var title = API.title || conf.application.title;
             document.title = title;
-            $(".mv-title").text(title);
+            title = conf.application.htmltitle || title;
+            $(".mv-title").text("");
+            $(".mv-title").append(title);
         }
         if (conf.application.stats === "true" && conf.application.statsurl) {
             $.get(conf.application.statsurl +"?app=" + document.title);
@@ -515,6 +517,7 @@ var configuration = (function () {
                     oLayer.type = layer.type || "wms";
                     oLayer.theme = themeid;
                     oLayer.rank = layerRank;
+                    oLayer.index = layer.index ? parseFloat(layer.index): null;
                     oLayer.name = layer.name;
                     oLayer.title = layer.name;
                     oLayer.layerid = mvid;
@@ -585,6 +588,8 @@ var configuration = (function () {
                         layer.attributefilter === "true") ? true : false;
                     oLayer.attributefield = layer.attributefield;
                     oLayer.attributeoperator = layer.attributeoperator || "=";
+                    oLayer.wildcardpattern = layer.wildcardpattern || "%value%";
+                    oLayer.styletitle = layer.styletitle;
                     oLayer.attributelabel = layer.attributelabel;
                     if (layer.attributevalues && layer.attributevalues.search(",")) {
                         oLayer.attributevalues = layer.attributevalues.split(",");
@@ -715,7 +720,7 @@ var configuration = (function () {
                         }
                         if (oLayer.attributefilter && oLayer.attributefilterenabled &&
                             oLayer.attributevalues.length > 1) {
-                            wms_params['CQL_FILTER'] = mviewer.makeCQL_Filter(oLayer.attributefield, oLayer.attributeoperator, oLayer.attributevalues[0]);
+                            wms_params['CQL_FILTER'] = mviewer.makeCQL_Filter(oLayer.attributefield, oLayer.attributeoperator, oLayer.attributevalues[0], oLayer.wildcardpattern);
                         }
                         if (oLayer.sld) {
                             wms_params['SLD'] = oLayer.sld;

@@ -4,7 +4,7 @@ mviewer.templates = {};
 mviewer.templates.tooltip = [
     '<div class="tooltip mv-tooltip" role="tooltip">',
         '<div class="mv-tooltip tooltip-arrow"></div>',
-        '<div class="mv-tooltip tooltip-inner"></div>',
+        '<div class="mv-tooltip tooltip-inner popover-content"></div>',
     '</div>'].join("");
 
 mviewer.templates.theme = [
@@ -130,7 +130,12 @@ mviewer.templates.layerControl = [
             '<div class="row">',
                 '<div class="col-md-12">',
                     '<div class="form-group form-group-analyses">',
-                        '<label for="{{layerid}}-styles-selector" i18n="style.control.analyses">Analyses</label>',
+                        '{{#styleTitle }}',
+                            '<label for="{{layerid}}-styles-selector">{{styleTitle}}</label>',
+                        '{{/styleTitle}}',
+                        '{{^styleTitle}}',
+                            '<label for="{{layerid}}-styles-selector" i18n="style.control.analyses">Analyse</label>',
+                        '{{/styleTitle}}',
                         '<select class="form-control" name="{{layerid}}" id="{{layerid}}-styles-selector"',
                             ' onchange="mviewer.setLayerStyle(this.name ,this.value, this);">',
                         '{{#styles}}',

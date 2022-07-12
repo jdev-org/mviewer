@@ -339,6 +339,13 @@ mviewer = (function () {
             })
         });
 
+        const mapReadyEvent = new CustomEvent('map-ready', {
+            detail: {
+              map: _map
+            }
+        });
+        document.dispatchEvent(mapReadyEvent);
+
          _map.on('moveend', _mapChange);
         //Handle zoom change
         _map.getView().on('change:resolution', _mapZoomChange);
@@ -365,6 +372,33 @@ mviewer = (function () {
         delete _overLayers[layername];
     };
 
+    /**
+     * Get legend params object.
+     * @param {ol.layer} layer
+     * @returns params object
+     */
+    var _getLegendParams = (layer) => {
+        var legendParams = {
+            'LAYER': layer.layername,
+            'STYLE': layer.style,
+            'FORMAT': 'image/png',
+            'TRANSPARENT': true
+        };
+
+        if (layer.sld) {
+            legendParams['SLD'] = encodeURIComponent(layer.sld);
+        } else {
+            legendParams['STYLE'] = encodeURIComponent(layer.style);
+        }
+        return legendParams;
+    }
+
+    /**
+     *
+     * @param {object} layer - ol.layer object
+     * @param {*} scale - usefull with dynamicLegend is true
+     * @returns
+     */
     var _getlegendurl = function (layer, scale) {
         var legendUrl = "";
         if (layer.legendurl && !layer.styles) {
@@ -372,20 +406,7 @@ mviewer = (function () {
         } else if (layer.legendurl && layer.styles && (layer.styles.split(",").length === 1)) {
             legendUrl = layer.legendurl;
         } else {
-            var getLegendParams = {
-                'LAYER': layer.layername,
-                'STYLE': layer.style,
-                'FORMAT': 'image/png',
-                'TRANSPARENT': true
-            };
-
-            if (layer.sld) {
-                getLegendParams['SLD'] = encodeURIComponent(layer.sld);
-            } else {
-                getLegendParams['STYLE'] = encodeURIComponent(layer.style);
-            }
-
-            legendUrl = getLegendGraphicUrl(layer.url, getLegendParams);
+            legendUrl = getLegendGraphicUrl(layer.url, _getLegendParams(layer));
         }
         if (layer.dynamiclegend) {
             if (!scale) {
@@ -589,6 +610,28 @@ mviewer = (function () {
         _map.addLayer(_subSelectOverlayFeatureLayer);
     };
 
+    var _initTooltip = function () {
+        //Activate tooltips on tools buttons
+        if (!configuration.getConfiguration().mobile) {
+            $("[title]").each((i,el) => {
+                [placement, trigger, html, container, template] = ['left', 'hover', true, 'body', mviewer.templates.tooltip];
+                if ($(el).attr('tooltip')) {
+                    // element with "tooltip" params used to custom tooltip element
+                    [placement, trigger, html, container, template] = $(el).attr('tooltip').split(",");//.map(e => `${e}`);
+                    template = template.split(".").forEach(e => t = t ? t[e] : window[e]);
+                }
+                // create tooltip
+                $(el).tooltip({
+                    placement: placement,
+                    trigger: trigger,
+                    html: html,
+                    container: container,
+                    template: template
+                });
+            });
+        }
+    };
+
     /**
      * Private Method: initTools
      * Tools can be set or unset. Only one tool can be enabled like a switch.
@@ -601,24 +644,28 @@ mviewer = (function () {
         //GetFeatureInfo tool
         mviewer.tools.info = info;
         mviewer.tools.info.init();
+        const appconfig = configuration.getConfiguration().application;
+
         //Measure tool
-        if (configuration.getConfiguration().application.measuretools === "true") {
-            //Load measure moadule
+        if (appconfig.measuretools === "true") {
+            //Load measure module
             mviewer.tools.measure = measure;
             mviewer.tools.measure.init();
         }
+
         //Activate GetFeatureInfo tool
         mviewer.setTool('info');
-        //Activate tooltips on tools buttons
-        if (!configuration.getConfiguration().mobile) {
-            $("#backgroundlayersbtn, #zoomtoolbar button, #toolstoolbar button, #toolstoolbar a").tooltip({
-                placement: 'left',
-                trigger: 'hover',
-                html: true,
-                container: 'body',
-                template: mviewer.templates.tooltip
-            });
+        
+        //Measure tools
+        const zoomBtnActivate = appconfig.zoomtools === "true" || !appconfig.zoomtools;
+        const zoomToExtentBtnActivate = appconfig.initialextenttool === "true" || !appconfig.initialextenttool;
+        if (zoomToExtentBtnActivate || zoomBtnActivate) {
+            //Load zoom toolbar module if one of button is activate
+            mviewer.tools.zoom = zoom;
+            zoom.init();
         }
+        if (zoomToExtentBtnActivate) zoom.initExtentBtn();
+        if (zoomBtnActivate) zoom.initZoomBtn();
     };
 
     var _initShare = function () {
@@ -794,13 +841,24 @@ mviewer = (function () {
             $("#legend").appendTo("#legend-modal .modal-body");
             configuration.getConfiguration().mobile = true;
             if (displayMode) {
-                 $("#wrapper, #main").addClass("mode-" + displayMode);
-                 $("#page-content-wrapper").append(['<a id="btn-mode-su-menu" class="btn btn-sm btn-default" ',
-                    'type="button" href="#" data-toggle="modal" data-target="#legend-modal" title="Afficher la légende" i18n="data.toggle">',
-                    '<i class="fas fa-layer-group"></i></a>'].join(""));
-                 if (displayMode === "u") {
+                $("#wrapper, #main").addClass("mode-" + displayMode);
+				$("#page-content-wrapper").append(`
+                    <a 
+                        id="btn-mode-su-menu"
+                        class="btn btn-sm btn-default"
+                        type="button"
+                        href="#"
+                        data-toggle="modal"
+                        data-target="#legend-modal"
+                        title="Afficher la légende"
+                        i18n="data.toggle">
+                        <i class="fas fa-layer-group"></i>
+                        <span i18n="data.toggle"> Afficher la légende</span>
+                    </a>`
+                );                 
+                if (displayMode === "u") {
                     $("#mv-navbar").remove();
-                 }
+                }
             }
         } else {
             $("#wrapper, #main").removeClass("xs").addClass("xl");
@@ -1076,7 +1134,7 @@ mviewer = (function () {
         var l;
         function setBaseOpacity(layer, value){
             if(layer && value) {
-                layer.setOpacity(value);
+                layer.setOpacity(Number(value));
             }
         }
         switch (baselayer.type) {
@@ -1334,6 +1392,7 @@ mviewer = (function () {
             if (layerOptions.style && layerControler.type === "wms") {
                 layerControler.layer.getSource().getParams()['STYLES'] = layerOptions.style;
                 layerControler.style = layerOptions.style;
+                layerControler.legendurl = _getlegendurl(layerControler);
             }
             if (layerOptions.filter && layerControler.type === "wms") {
                 layerControler.layer.getSource().getParams()['CQL_FILTER'] = layerOptions.filter;
@@ -1773,26 +1832,6 @@ mviewer = (function () {
         },
 
         /**
-         * Public Method: zoomOut
-         *
-         */
-
-        zoomOut: function () {
-           var v = _map.getView();
-           v.animate({zoom: v.getZoom() - 1});
-        },
-
-        /**
-         * Public Method: zoomIn
-         *
-         */
-
-        zoomIn: function () {
-            var v = _map.getView();
-            v.animate({zoom: v.getZoom() + 1});
-        },
-
-        /**
          * Public Method: zoomToInitialExtent
          *
          */
@@ -1922,7 +1961,7 @@ mviewer = (function () {
             var oldIndex = layers.indexOf(layer);
             layers.splice(newIndex, 0, layers.splice(oldIndex, 1)[0]);
             _map.render();
-
+            mviewer.orderLegendByMap();
         },
 
         orderLayer: function (actionMove) {
@@ -1947,6 +1986,136 @@ mviewer = (function () {
                 _map.render();
             }
         },
+
+        /**
+         * Reorder layers according to layer rank.
+         * Rank is define by xml config file input (not by index or toplayer)
+         */
+        showLayersByAttrOrder: function(layers, reverse) {
+            // to keep baseLayer as first map layers
+            var baseLayersCount = configuration.getConfiguration().baselayers.baselayer.length;
+            let layersByRank = _.mapValues(_.invert(_.invert(layers)),parseInt);
+            var ids = reverse ? _.keys(layersByRank).reverse() : _.keys(layersByRank);
+            ids.forEach((id, pos) => {
+                var layer = _map.getLayers().getArray().filter(olLyr => olLyr.get("mviewerid") === id);
+                if(layer.length) mviewer.reorderLayer(layer[0], pos + baseLayersCount);
+            })
+            // now, order legend items according to map layers order
+            mviewer.orderTopLayer();
+            mviewer.orderLegendByMap();
+        },
+
+        /**
+         * Find layer into legend and set new legend position according to map visibility
+         * @param {String} layerId
+         * @param {Number} position
+         */
+        setLegendLayerPos: function(layerId, position) {
+            if(layerId) {
+                var legendItem = $(`#layers-container>li[data-layerid="${layerId}"]`);
+                // change layer position into legend
+                switch(position) {
+                    case 0:
+                        // first element
+                        $('#layers-container').prepend(legendItem);
+                        break;
+                    default:
+                        // others
+                        legendItem.insertBefore($(`#layers-container li:eq(${position})`));
+                        break;
+                }
+            }
+        },
+
+        /**
+         * Order layers according to map layers order and visibility
+         */
+        orderLegendByMap: function() {
+            var mviewerLayersId = Object.keys(mviewer.getLayers());
+            var mapLayers = mviewer.getMap().getLayers().getArray();
+            // get mapLayers and remove them from layers order
+            var countBaseLayers = configuration.getConfiguration().baselayers.baselayer.length;
+            mapLayers = mapLayers.slice(countBaseLayers);
+            // to only get visible layers and layers from themes
+            mapLayers = mapLayers.filter(layer => layer.getVisible() && mviewerLayersId.indexOf(layer.getProperties().mviewerid)>-1);
+            // only keep id and reverse to get order as we need on map
+            mapLayers = mapLayers.map(layer => layer.getProperties().mviewerid).reverse();
+            // now, we could order legend by map layers
+            $(`#layers-container>li[data-layerid]`).each((i,li)=> {
+                // get legend element
+                var legendLayerId = $(li).attr('data-layerid');
+                // get map position
+                mviewer.setLegendLayerPos(legendLayerId, mapLayers.indexOf(legendLayerId));
+            })
+        },
+
+        /**
+         * Return object to identify a given attribute value for each layer
+         * @param {String} attr
+         */
+        getLayersAttribute: function(attr) {
+            if(!attr) return;
+            var mLayers = Object.keys(mviewer.getLayers());
+            mLayers = mLayers.map(m => [m, mviewer.getLayers()[m][attr]]);
+            return Object.fromEntries(mLayers);
+        },
+
+        /**
+         * Get index param for each layer and order layers according to layer's index
+         */
+        orderLayerByIndex: function() {
+            var layersIndex = _.omitBy(mviewer.getLayersAttribute('index'), _.isNull);
+            var ids = _.keys(layersIndex);
+            if(!ids.length) return;
+            var newOrder = _.keys(_.mapValues(_.invert(_.invert(layersIndex)),parseInt));
+
+            // now we search null index position according to xml
+            var rankLayers = mviewer.getLayersAttribute('rank');
+            var rankLyrOrder = _.keys(_.mapValues(_.invert(_.invert(rankLayers)),parseInt));
+            var rankLyrWithoutindex = rankLyrOrder.filter(id => !newOrder.includes(id)).reverse();
+            newOrder = newOrder.concat(rankLyrWithoutindex);
+            newOrder = newOrder.filter(item => item) // remove null or undefined
+            mviewer.showLayersByAttrOrder(_.mapValues(_.invert(newOrder),parseInt),true);
+        },
+
+        /**
+         * Get toplayer according to xml order and pass all top layer to the top
+         */
+        orderTopLayer: function() {
+            var topLayers = mviewer.getLayersAttribute('toplayer');
+            var topLayersId = Object.keys(topLayers).filter(lyr => topLayers[lyr]).reverse();
+            // break if no top layers
+            if(!topLayersId.length) return;
+
+            // count base layers
+            var countLayers = configuration.getConfiguration().baselayers.baselayer.length;
+            // count themes layers
+            var themes = configuration.getConfiguration().themes.theme;
+            var topLayersByTheme = [];
+            themes.forEach(e => {
+                if(e.group && e.group.length) {
+                    countLayers += e.group.map(d => d.layer.length).reduce((a, b) => a + b, 0);
+                    e.group.forEach(g => {
+                        topLayersByTheme = [...topLayersByTheme, ...g.layer.filter(x => x.toplayer === "true")];
+                    })
+                }
+                if(e.layer && e.layer.length) {
+                    countLayers += e.layer.length;
+                    topLayersByTheme = [...topLayersByTheme, ...e.layer.filter(x => x.toplayer === "true")];
+                }
+            });
+            // get top layers id by xml order
+            let topLayersByXmlOrder = topLayersByTheme.reverse().map(l => l.id);
+            // parse top layers by xml order and be sur to dlisplay in this order
+            topLayersByXmlOrder.forEach(id => {
+                var layer = mviewer.getLayer(id).layer;
+                if(!layer) return; // no top layer to display
+
+                // set first layer over others theme or background layers and before system layers
+                mviewer.reorderLayer(layer, countLayers);
+            })
+        },
+
         /**
          * Public Method: openStudio
          */
@@ -2304,6 +2473,7 @@ mviewer = (function () {
             if (layer.attributefilter && layer.attributevalues != "undefined" && layer.attributefield != "undefined") {
                 view.attributeControl = true;
                 view.attributeLabel = layer.attributelabel;
+                view.styleTitle = layer.styletitle;
                 var options = [];
                 if (layer.attributefilterenabled === false) {
                     options.push({"label": "Par défaut", "attribute": "all"});
@@ -2330,7 +2500,7 @@ mviewer = (function () {
             }
 
             if (_topLayer && $("#layers-container .toplayer").length > 0) {
-                $("#layers-container .toplayer").after(item);
+                $("#layers-container .toplayer").last().after(item);
             } else {
                 $("#layers-container").prepend(item);
             }
@@ -2519,7 +2689,9 @@ mviewer = (function () {
             //Only for second and more loads
             if (oLayer.attributefilter && oLayer.layer.getSource().getParams()['CQL_FILTER']) {
                 var activeFilter = oLayer.layer.getSource().getParams()['CQL_FILTER'];
-                var activeAttributeValue = activeFilter.split(oLayer.attributeoperator)[1].replace(/\%|'/g, "").trim();
+                var wildcard = oLayer.wildcardpattern.split("value")[0];
+                var reg = new RegExp(wildcard + "|'", "g");
+                var activeAttributeValue = activeFilter.split(oLayer.attributeoperator)[1].replace(reg, "").trim();
                 $("#"+layer.layerid+"-attributes-selector option[value='"+activeAttributeValue+"']").prop("selected", true);
                 $('.mv-layer-details[data-layerid="'+layer.layerid+'"] .layerdisplay-subtitle .selected-attribute span')
                     .text(activeAttributeValue);
@@ -2530,13 +2702,13 @@ mviewer = (function () {
                 activeStyle = oLayer.layer.getSource().getParams()['STYLES'];
                 var refStyle= activeStyle;
                 //update legend image if nec.
-		var res = mviewer.getMap().getView().getResolution();
-		var ppi = 25.4/0.28;
-		var scale = res*ppi/0.0254;
-		if(layer.scale && scale >= layer.scale.min && scale <= layer.scale.max){
-			var legendUrl = _getlegendurl(layer);
-			$("#legend-" + layer.layerid).attr("src", legendUrl);
-		}
+                var res = mviewer.getMap().getView().getResolution();
+                var ppi = 25.4/0.28;
+                var scale = res*ppi/0.0254;
+                if(layer.scale && scale >= layer.scale.min && scale <= layer.scale.max){
+                    var legendUrl = _getlegendurl(layer);
+                    $("#legend-" + layer.layerid).attr("src", legendUrl);
+                }
             }
             if (oLayer.styles ) {
                 var selectCtrl = $("#"+layer.layerid+"-styles-selector")[0];
@@ -2575,6 +2747,12 @@ mviewer = (function () {
                 var newStatus = _getThemeStatus(layer.theme);
                 _setThemeStatus(layer.theme, newStatus);
             }
+            mviewer.orderTopLayer();
+            mviewer.orderLegendByMap();
+            // display layer with permalink params
+            oLayer.layer.getSource().refresh()
+            // create tooltip for this layer legend UI
+            _initTooltip();
         },
         removeLayer: function (el) {
             var item;
@@ -2604,6 +2782,8 @@ mviewer = (function () {
                 var newStatus = _getThemeStatus(layer.theme);
                 _setThemeStatus(layer.theme, newStatus);
             }
+            // clear tooltip
+            $(".mv-tooltip").remove();
         },
         removeAllLayers: function () {
             $("#layers-container .list-group-item").each( function (id, item) {
@@ -2705,12 +2885,12 @@ mviewer = (function () {
 
         },
 
-        makeCQL_Filter: function (fld,operator,value) {
+        makeCQL_Filter: function (fld,operator,value, wildcardpattern) {
             var cql_filter = "";
             if (operator == "=") {
                     cql_filter = fld + " = " + "'" + value.replace("'","''") + "'";
                 } else if (operator == "like") {
-                    cql_filter = fld + " like " + "'%" + value.replace("'","''") + "%'";
+                    cql_filter = fld + " like " + "'" + wildcardpattern.replace("value", value.replace("'","''")) + "'";
                 }
             return cql_filter;
         },
@@ -2722,7 +2902,7 @@ mviewer = (function () {
                 delete _source.getParams()['CQL_FILTER'];
             } else {
                 var cql_filter = this.makeCQL_Filter(_layerDefinition.attributefield, _layerDefinition.attributeoperator,
-                    attributeValue);
+                    attributeValue, _layerDefinition.wildcardpattern);
                 _source.getParams()['CQL_FILTER'] = cql_filter;
             }
             if (_layerDefinition.attributestylesync) {
@@ -3000,6 +3180,8 @@ mviewer = (function () {
         overLayersReady: _overLayersReady,
 
         renderHTMLFromTemplate : _renderHTMLFromTemplate,
+
+        initToolTip: _initTooltip,
 
         events: function () { return _events; }
 

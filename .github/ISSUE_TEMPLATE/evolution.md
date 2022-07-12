@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Description détaillée / Describe**
+**Description / Describe**
 
 Une courte et description de ce que vous voulez.
 Cela peut toucher une fonctionnalité qui existe (ex: améliorer un outil de mesure) ou l'ajout d'une nouvelle fonctionnalité qui n'existe pas dans le Mviewer.
@@ -18,4 +18,4 @@ Si vous avez une idée de comment mettre en place cette évolution, vous pouvez 
 
 **Informations complémentaires / Additional context**
 
-Toutes informations complémentaire que vous jugez utiles.
+Toutes informations complémentaires que vous jugez utiles.
