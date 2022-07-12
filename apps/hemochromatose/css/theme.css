@@ -40,6 +40,30 @@ Roboto, Google font */
     padding-left: 0px!important;
 }
 
+/* Agrandissement de la barre de recherche */
+@media (min-width: 768px){
+    #searchtool {
+        width: 350px!important;
+    }
+    
+    #searchtool .form-group.input-group {
+        width: 100%;
+    }
+    
+}
+
+
+/* Titre de l'app */
+.mv-title {
+    padding: 6px 0px!important;
+    font-weight: 300!important;
+    font-size: 17px!important;
+    line-height: 1.1!important;
+}
+
+.titleApp {
+    font-weight: 600;
+}
 
 /* Autres à définir */
 
@@ -80,7 +104,6 @@ Roboto, Google font */
 #mv-navbar a.navbar-brand, .mv-title{
 	color:#ffffff;
 	font-family: var(--myfont);
-    font-weight: 400;
 }
 
 /* Icône menu */
@@ -94,24 +117,6 @@ a.navbar-brand.menu-toggle:hover {
 
 img.mv-logo {
     margin: -4px 0px;
-}
-
-/* Style du titre html */
-
-.mv-title {
-    line-height: 1!important;
-    padding: 16px 0px!important;
-    font-size: 18px;
-	font-family: var(--myfont);
-}
-
-.mv-title .title-app {
-    padding: 2px 3px;
-    font-size: 13px;
-}
-
-.mv-title .subtitle-app {
-    font-size: 15px;
 }
 
 .navbar-default .navbar-toggle{
@@ -321,24 +326,10 @@ button.btn.btn-default.navbar-btn.mv-navbar-btn:hover{
 
  /* custom-tooltip-feature */
 .tooltip-feature.tooltip-inner {
-    background-color: rgba(51, 51, 51, 0.95);
-    padding: 8px 8px 8px;
     color: #fff;
     font-family: var(--myfont);
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 1;
-}
-
-.tooltip.right .tooltip-feature.tooltip-arrow {
-    border-right-color: rgba(51, 51, 51, 0.95);
-}
-
-.tooltip.top .tooltip-feature.tooltip-arrow {
-    border-top-color: rgba(51, 51, 51, 0.95);
-}
-
-.tooltip.left .tooltip-feature.tooltip-arrow {
-    border-left-color: rgba(51, 51, 51, 0.95);
 }
 
 .tooltip-feature h5 {
@@ -346,29 +337,16 @@ button.btn.btn-default.navbar-btn.mv-navbar-btn:hover{
 }
 
 .tooltip-feature.tooltip.in {
-    opacity: 1;
+    opacity: 0.8;
 }
 
 /* Custom-tooltip-infopanel */
 .mv-tooltip.tooltip-inner {
-    background-color: var(--colortheme);
-    padding: 8px 8px 8px;
     color: #fff;
     font-family: var(--myfont);
-    font-size: 11px;
+    font-size: 14px;
     letter-spacing: 1;
-}
-
-.tooltip.right .mv-tooltip.tooltip-arrow {
-    border-right-color: var(--colortheme); 
-}
-
-.tooltip.top .mv-tooltip.tooltip-arrow {
-    border-top-color: var(--colortheme); 
-}
-
-.tooltip.left .mv-tooltip.tooltip-arrow {
-    border-left-color: var(--colortheme); 
+    padding: 5px 10px!important;
 }
 
 /* Partager la carte*/
