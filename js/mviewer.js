@@ -732,6 +732,20 @@ mviewer = (function () {
         _updateLegendsScaleDependancy(scale);
     };
 
+    var _sensorDataStreamSelected = (e) => {
+        let className = e.getElementsByClassName("mv-unchecked").length ? "mv-checked" : "mv-unchecked";
+        const spanEl = e.getElementsByTagName("span")[0];
+        if (e.getElementsByClassName("mv-unchecked").length) {
+            spanEl.classList.remove("mv-unchecked");
+            spanEl.classList.add("mv-checked", "datastreams-checked");
+        } else {
+            spanEl.classList.add("mv-unchecked");
+            spanEl.classList.remove("mv-checked", "datastreams-checked");
+        }
+        const checkedCollection = [].slice.call(document.getElementsByClassName("datastreams-checked"));
+        info.dataStreamSelected(checkedCollection.map(i => i.getAttribute("datastream-span-id")));
+    }
+
     /**
      * Private Method: _getLayerByName
      *
@@ -751,6 +765,7 @@ mviewer = (function () {
         l.set('name', oLayer.name);
         l.set('mviewerid', oLayer.id);
         l.set('infohighlight', oLayer.infohighlight);
+        l.set("type", oLayer.type);
 
         if (oLayer.searchable) {
             search.processSearchableLayer(oLayer);
@@ -762,6 +777,8 @@ mviewer = (function () {
             _scaledDependantLayersLegend.push(oLayer);
         }
         _overLayers[oLayer.id] = oLayer;
+
+        console.log("OK 1");
 
         if (oLayer.metadatacsw && oLayer.metadatacsw.search("http")>=0) {
             $.ajax({
@@ -798,10 +815,12 @@ mviewer = (function () {
                 }
             });
         }
+        console.log("OK 2");
         _map.addLayer(l);
         if (oLayer.type === "customlayer" && mviewer.customLayers[oLayer.id]) {
             mviewer.customLayers[oLayer.id].config = oLayer;
         }
+        console.log(mviewer.getLayers());
         _events.overLayersLoaded += 1;
     };
 
@@ -1461,7 +1480,7 @@ mviewer = (function () {
         $(wmc).find('LayerList > Layer').each(function() {
             layerRank+=1;
             // we only consider queryable layers
-            if ($(this).attr('queryable')=='1') {
+            if ($(this).attr('queryable') == '1') {
                 var oLayer = {};
                 oLayer.checked = ($(this).attr('hidden')==='0')?true:false;
                 oLayer.id = $(this).children('Name').text();
@@ -3182,6 +3201,8 @@ mviewer = (function () {
         renderHTMLFromTemplate : _renderHTMLFromTemplate,
 
         initToolTip: _initTooltip,
+
+        sensorDataStreamSelected: _sensorDataStreamSelected,
 
         events: function () { return _events; }
 

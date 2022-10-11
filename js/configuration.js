@@ -629,6 +629,10 @@ var configuration = (function () {
                     oLayer.queryable = (layer.queryable === "true") ? true : false;
                     oLayer.exclusive = (layer.exclusive === "true") ? true : false;
                     oLayer.searchable = (layer.searchable === "true") ? true : false;
+                    oLayer.top = layer.top;
+                    oLayer.selector = layer.selector;
+                    oLayer.datastreamsfilter = layer.datastreamsfilter;
+                    oLayer.multidatastreamsfilter = layer.multidatastreamsfilter;
                     if (oLayer.searchable) {
                         oLayer = search.configSearchableLayer(oLayer, layer);
                     }
@@ -706,7 +710,8 @@ var configuration = (function () {
                     }
 
                     themeLayers[oLayer.id] = oLayer;
-                    var l= null;
+                    var l = null;
+                    
                     if (oLayer.type === 'wms') {
                         var wms_params = {
                             'LAYERS': layer.id,
@@ -813,6 +818,7 @@ var configuration = (function () {
                         });
                        mviewer.processLayer(oLayer, l);
                     } //end wms
+
                     if (oLayer.type === 'geojson') {
                         l = new ol.layer.Vector({
                             source: new ol.source.Vector({
@@ -825,7 +831,44 @@ var configuration = (function () {
                         }
                         mviewer.processLayer(oLayer, l);
                     }// end geojson
-
+                    if (oLayer.type === 'sensorthings') {
+                        l = new ol.layer.Vector({
+                            source: new ol.source.Vector({
+                                features: []
+                            })
+                        });
+                        if (oLayer.style && mviewer.featureStyles[oLayer.style]) {
+                            l.setStyle(mviewer.featureStyles[oLayer.style]);
+                        }
+                        mviewer.processLayer(oLayer, l);
+                        fetch(`${oLayer.url}/Locations?&$top=${oLayer.top}`).then(r => r.json()).then(data => {
+                            const data_dl = data?.value;
+                            return data_dl.map(location_th => {
+                                if (location_th.location.geometry !== undefined) {
+                                  return {
+                                    type: 'Feature',
+                                    geometry: location_th.location.geometry,
+                                    properties:location_th
+                                  };
+                                } else {
+                                  return {
+                                    type: 'Feature',
+                                    geometry: location_th.location,
+                                    properties:location_th
+                                  };
+                                }
+                              })
+                        }).then(features => {
+                            const geoJson = new ol.format.GeoJSON({
+                                dataProjection: 'EPSG:4326',
+                                featureProjection: 'EPSG:3857'
+                            }).readFeatures({
+                                'type': 'FeatureCollection',
+                                'features': features
+                            });
+                            mviewer.getLayer('agricast').layer.getSource().addFeatures(geoJson);
+                        });
+                    }
                     if (oLayer.type === 'kml') {
                         l = new ol.layer.Vector({
                             source: new ol.source.Vector({

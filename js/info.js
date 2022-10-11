@@ -128,6 +128,109 @@ var info = (function () {
     };
 
     /**
+     * Private Method: _onThingRequested
+     */
+
+    var _onThingRequested = (feature) => {
+        const lyrConfig = mviewer.getLayer(feature.getProperties().mviewerid);
+        // selector
+        let selector = lyrConfig.selector;
+        selector = selector && `$select=${selector}` || "";
+        // selector datastreams
+        let datastreamsfilter = lyrConfig.datastreamsfilter;
+        datastreamsfilter = datastreamsfilter && `Datastreams($select=${datastreamsfilter})`;
+        // selector multidatastreams
+        let multidatastreamsfilter = lyrConfig.multidatastreamsfilter;
+        multidatastreamsfilter = multidatastreamsfilter && `MultiDatastreams($select=${multidatastreamsfilter})`;
+        // join request URL
+        let fullStreamsfilter = [datastreamsfilter, multidatastreamsfilter].join(",");
+        fullStreamsfilter = fullStreamsfilter && `&$expand=${fullStreamsfilter}`;
+        // get full URL
+        console.log(feature);
+        return fetch(`${feature.getProperties()["Things@iot.navigationLink"]}?${selector}${fullStreamsfilter}&`)
+            .then(r => r.json())
+            .catch(r => {
+                console.log("Fail to request thing whith [" + feature.getProperties().mviewerid + "] layer");
+                return null;
+            });
+    }
+
+    var _onDatastreamRender = ({ value, url, layer }) => {
+        let clickedStreams = value[0];
+        const dataStreams = clickedStreams && clickedStreams?.Datastreams || null;
+        mviewer.sensorthings = {
+            datastreams: dataStreams.map(x => (
+                {
+                    ...x,
+                    id: x["@iot.id"],
+                    url: url,
+                    layer: layer
+                }))
+        };
+        const event = new CustomEvent('sensorAvailable', { detail: dataStreams });
+        document.dispatchEvent(event);
+        const targetDOM = document.querySelector('[data-layerid="agricast"]');
+
+        // delete old
+        const elements = document.getElementsByClassName("datastreams");
+        while(elements.length > 0){
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+        // add news
+        var rendered = Mustache.render(mviewer.templates.sensorThings, mviewer.sensorthings);
+        targetDOM.insertAdjacentHTML("afterend", rendered);
+        document.getElementsByClassName("datastreams")[0].click();
+    }
+
+    var _dataStreamSelected = (ids) => {
+        let layer = null;
+        let urlsObservation = ids.map(id => {
+            const dataStreamInfos = mviewer.sensorthings.datastreams.filter(x => x.id == id)[0];
+            if (dataStreamInfos) {
+                layer = dataStreamInfos.layer;
+                return fetch(`${dataStreamInfos.url}/Datastreams(${id})/Observations`).then(r => r.json());
+            }
+            return null;
+        }).filter(x => x);
+        Promise.all(urlsObservation).then((values) => {
+            let allValues = values.map(x => x.value);
+            _displayPanel({properties: allValues}, layer);
+        });
+    }
+
+    var _displayPanel = (features, layer) => {
+        const views = mviewer.views;
+        var panel = layer.infospanel;
+        if (configuration.getConfiguration().mobile) {
+            panel = 'modal-panel';
+        }
+        var name = layer.name;
+        var theme = layer.theme;
+        var theme_icon = layer.icon;
+        var id = views[panel].layers.length + 1;
+        //Create html content from features
+        var html_result = "";
+        if (layer.template) {
+            html_result = applyTemplate(features, layer);
+        } else {
+            html_result = createContentHtml(features, layer);
+        }
+        //Set view with layer info & html formated features
+        views[panel].layers.push({
+            "panel": panel,
+            "id": id,
+            "firstlayer": false, // firstlayer attribute is calculated after ordering layers with orderViewsLayersByMap
+            "manyfeatures": (features.length > 1),
+            "nbfeatures": features.length,
+            "name": name,
+            "layerid": layerid,
+            "initiallayerid": originLayer,
+            "theme_icon": theme_icon,
+            "html": html_result
+        });
+    }
+
+    /**
      * Private Method: _queryMap()
      * @param evt {ol.MapBrowserEvent}
      * @param options {type: 'feature' || 'map', layer: {ol.layer.Layer}, featureid:'featureid'}
@@ -140,11 +243,17 @@ var info = (function () {
         _firstlayerFeatures = [];
         var showPin = false;
         var queryType = "map"; // default behaviour
-        var views = {
+        if (!mviewer.views) {
+            
+        }
+        const views = {
             "right-panel":{ "panel": "right-panel", "layers": []},
             "bottom-panel":{ "panel": "bottom-panel", "layers": []},
             "modal-panel": { "panel": "modal-panel", "layers": []}
         };
+        if(!mviewer.views) {
+            mviewer.views = views
+        }
         if (options) {
             // used to link elasticsearch feature with wms getFeatureinfo
             var layer = options.layer;
@@ -165,27 +274,29 @@ var info = (function () {
             var vectorLayers = {};
             var format = new ol.format.GeoJSON();
             var f_idx=0;
-            _map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+            _map.forEachFeatureAtPixel(pixel, function (feature, layer) {
                 var l = layer.get('mviewerid');
-                if (l && l != 'featureoverlay' && l != 'selectoverlay' && l != 'subselectoverlay' && l != 'elasticsearch' ) {
-                    var queryable = _overLayers[l].queryable;
-                    if (queryable) {
-                        if (layer.get('infohighlight')) {
-                            _queriedFeatures.push(feature);
-                        } else {
-                            showPin = true;
-                        }
-                        if (vectorLayers[l] && vectorLayers[l].features) {
-                            vectorLayers[l].features.push(feature);
-                        } else {
-                            if (_overLayers[l] && _panelsTemplate[_overLayers[l].infospanel]=='allintabs') {
-                                l = l + '_' + f_idx;
-                                f_idx++;
-                            }
-                            vectorLayers[l] = {features:[]};
-                            vectorLayers[l].features.push(feature);
-                        }
-                     }
+                if (layer.get('infohighlight')) {
+                    _queriedFeatures.push(feature);
+                } else {
+                    showPin = true;
+                }
+                if (vectorLayers[l] && vectorLayers[l].features) {
+                    vectorLayers[l].features.push(feature);
+                } else {
+                    if (_overLayers[l] && _panelsTemplate[_overLayers[l].infospanel]=='allintabs') {
+                        l = l + '_' + f_idx;
+                        f_idx++;
+                    }
+                    vectorLayers[l] = {features:[]};
+                    vectorLayers[l].features.push(feature);
+                }
+            }, {
+                layerFilter: (layer) => {
+                    var l = layer.get('mviewerid');
+                    if (l && l != 'featureoverlay' && l != 'selectoverlay' && l != 'subselectoverlay' && l != 'elasticsearch') {
+                        return _overLayers[l]?.queryable || false;
+                    }
                 }
             });
             for(var layerid in vectorLayers) {
@@ -197,37 +308,18 @@ var info = (function () {
                 } else {
                     var l = _overLayers[originLayer];
                     
-                    if (l) {
-                        var panel = l.infospanel;
-                        if (configuration.getConfiguration().mobile) {
-                            panel = 'modal-panel';
-                        }
-                        var name = l.name;
-                        var theme = l.theme;
-                        var theme_icon = l.icon;
-                        var id = views[panel].layers.length + 1;
-                        //Create html content from features
-                        var html_result = "";
+                    if (l && l.type === "sensorthings") {
                         var features = vectorLayers[layerid].features;
-                        if (l.template) {
-                            html_result = applyTemplate(features, l);
-                        } else {
-                            html_result = createContentHtml(features, l);
+                        if (l.type === "sensorthings") {
+                            // get things
+                            const urlsThing = features.map(x => _onThingRequested(x));
+                            Promise.all(urlsThing).then(values => {
+                                _onDatastreamRender(values[0] ? {...values[0], url: l.url, layer: l} : null);
+                            });
                         }
-                        //Set view with layer info & html formated features
-                        views[panel].layers.push({
-                            "panel": panel,
-                            "id": id,
-                            "firstlayer": false, // firstlayer attribute is calculated after ordering layers with orderViewsLayersByMap
-                            "manyfeatures": (features.length > 1),
-                            "nbfeatures": features.length,
-                            "name": name,
-                            "layerid": layerid,
-                            "initiallayerid": originLayer,
-                            "theme_icon": theme_icon,
-                            "html": html_result
-                        });
-                     }
+                    } else if (l) {
+                        _displayPanel(features, l);
+                    }
                 }
             }
         }
@@ -997,6 +1089,7 @@ var info = (function () {
         templateHTMLContent: applyTemplate,
         addQueryableLayer: _addQueryableLayer,
         getQueriedFeatures: _getQueriedFeatures,
+        dataStreamSelected: _dataStreamSelected
     };
 
 })();

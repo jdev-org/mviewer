@@ -48,6 +48,22 @@ mviewer.templates.theme = [
         '</ul>',
     '</li>'].join("");
 
+mviewer.templates.sensorThings = `
+    <li class="level-2">
+        <a href="#" class="dataStream-header">DataStreams</a>
+        <ul class="nav-pills nav-stacked" style="list-style-type:none;">
+            {{#datastreams}}
+                <li class="mv-nav-item datastreams" onclick="mviewer.sensorDataStreamSelected(this)" data-datastreamid="{{id}}"">
+                    <a href="#" >
+                        <span class="state-icon far mv-unchecked" datastream-span-id={{id}}></span> {{name}}
+                        <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">
+                    </a>
+                </li>
+            {{/datastreams}}
+        </ul>
+    </li>
+`;
+
 
 mviewer.templates.layerControl = [
     '<li class="{{cls}}" data-layerid="{{layerid}}" data-title=" {{title}}">',
