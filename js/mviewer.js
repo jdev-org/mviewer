@@ -945,6 +945,7 @@ mviewer = (function () {
         });
 
     };
+
     /**
      * Private Method: _initDataList
      *
@@ -956,10 +957,20 @@ mviewer = (function () {
         var reverse_themes = [];
         var crossorigin = '';
         _themes = configuration.getThemes();
+        // get non sensorsThings themes
+        let notSensorThingsThemes = _.keys(_themes).map(theme => {
+            const layerSensorsThings = _.keys(_themes[theme].layers).filter(layer => _themes[theme].layers[layer].type === "sensorthings");
+            if (_.isEmpty(layerSensorsThings)) {
+                return theme;
+            }
+        }).filter(theme => theme);
+        console.log(notSensorThingsThemes);
+        console.log(_themes);
 		var topics = false;
 		if (API.topics) {
 			topics = API.topics.split(",");
-		}
+        }
+        console.log(_themes);
         $.each(_themes, function (id, theme) {
 			if (topics) {
 				if (topics.indexOf(theme.id) >= 0) {
@@ -970,28 +981,35 @@ mviewer = (function () {
 			}
         });
 
+        console.log(reverse_themes);
+
         $.each(reverse_themes.reverse(), function (id, theme) {
             var reverse_layers = [];
             var groups = [];
             var classes = [];
             var view = {
-                id:theme.id,
+                id: theme.id,
+                layerid: !_.isEmpty(theme?.layers) && _.keys(theme.layers)[0],
                 name: theme.name,
                 icon: theme.icon,
-                layers:false,
+                layers: false,
                 groups: false,
                 toggleAllLayers: false,
-                cls: ""
+                cls: "",
+                isSensorsThingsTheme: !notSensorThingsThemes.includes(theme.id)
             };
-             if (configuration.getConfiguration().application.togglealllayersfromtheme === "true") {
-                 view.toggleAllLayers = true;
-                 classes.push("empty");
-             }
+            if (configuration.getConfiguration().application.togglealllayersfromtheme === "true") {
+                view.toggleAllLayers = true;
+                classes.push("empty");
+            }
+            // if (view.isSensorsThingsTheme) {
+            //     htmlListGroup += _renderHTMLFromTemplate(mviewer.templates.sensorTheme, view);            
+            // } else {
             //GROUPS
             if (_themes[theme.id].groups) {
                 classes.push("level-1");
                 $.each(_themes[theme.id].groups, function (id, group) {
-                    var grp = {title: group.name, layers: [] };
+                    var grp = { title: group.name, layers: [] };
                     $.each(group.layers, function (id, layer) {
                         if (layer.showintoc) {
                             grp.layers.unshift(layer);
@@ -1001,18 +1019,19 @@ mviewer = (function () {
                 });
                 view.groups = groups;
                 view.cls = classes.join(" ");
-            //NO GROUPS
+                //NO GROUPS
             } else {
-                 $.each(_themes[theme.id].layers, function (id, layer) {
+                $.each(_themes[theme.id].layers, function (id, layer) {
                     if (layer.showintoc) {
                         reverse_layers.push(layer);
                     }
-
                 });
                 view.layers = reverse_layers.reverse();
                 view.cls = classes.join(" ");
             }
             htmlListGroup += _renderHTMLFromTemplate(mviewer.templates.theme, view);
+            
+            //}
         });
         var panelMini = configuration.getConfiguration().themes.mini;
         panelMini = panelMini && (panelMini === 'true') || false;
@@ -1107,6 +1126,7 @@ mviewer = (function () {
     };
 
     var _setThemeStatus = function (id, prop) {
+        console.log("THEME");
         var theme = $('#theme-layers-' + id);
         if (!prop) {
             prop = _getThemeStatus(id);

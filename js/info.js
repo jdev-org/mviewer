@@ -169,7 +169,7 @@ var info = (function () {
         };
         const event = new CustomEvent('sensorAvailable', { detail: dataStreams });
         document.dispatchEvent(event);
-        const targetDOM = document.querySelector('[data-layerid="agricast"]');
+        const targetDOM = document.querySelector('[id="theme-layers-sensors"]').querySelector("ul");
 
         // delete old
         const elements = document.getElementsByClassName("datastreams");
@@ -178,8 +178,8 @@ var info = (function () {
         }
         // add news
         var rendered = Mustache.render(mviewer.templates.sensorThings, mviewer.sensorthings);
-        targetDOM.insertAdjacentHTML("afterend", rendered);
-        document.getElementsByClassName("datastreams")[0].click();
+        targetDOM.innerHTML = rendered;
+        document.querySelector('[id="theme-layers-sensors"]').querySelector("a").click();
     }
 
     var _dataStreamSelected = (ids) => {
@@ -193,8 +193,10 @@ var info = (function () {
             return null;
         }).filter(x => x);
         Promise.all(urlsObservation).then((values) => {
-            let allValues = values.map(x => x.value);
-            _displayPanel({properties: allValues}, layer);
+            let allValues = values.map(x => x.value)[0];
+            let features = allValues.map(feature => ({...feature, getProperties : () => feature}))
+            _displayPanel(features, layer);
+            callback();
         });
     }
 
@@ -215,6 +217,8 @@ var info = (function () {
         } else {
             html_result = createContentHtml(features, layer);
         }
+        const layerid = layer.id;
+        var originLayer = (layerid.lastIndexOf("_") < 0 ? layerid : layerid.substring(0, layerid.lastIndexOf("_")) );
         //Set view with layer info & html formated features
         views[panel].layers.push({
             "panel": panel,
@@ -307,9 +311,8 @@ var info = (function () {
                     mviewer.customControls[originLayer].handle(vectorLayers[originLayer].features);
                 } else {
                     var l = _overLayers[originLayer];
-                    
+                    var features = vectorLayers[layerid].features;
                     if (l && l.type === "sensorthings") {
-                        var features = vectorLayers[layerid].features;
                         if (l.type === "sensorthings") {
                             // get things
                             const urlsThing = features.map(x => _onThingRequested(x));
@@ -399,6 +402,10 @@ var info = (function () {
                 }
             })
             return mapLayersOrder.filter(f => f).reverse();
+        }
+
+        var callbackSensorThings = (response) => {
+
         }
 
         /**
@@ -659,6 +666,8 @@ var info = (function () {
         // in the array have completed
         // this is promiseAll equivalent
         $.when.apply(new ajaxFunction(), requests).done(function (result) {
+            console.log("CALLBAK");
+            console.log(result);
             callback(result)
         });
     };
