@@ -733,7 +733,6 @@ mviewer = (function () {
     };
 
     var _sensorDataStreamSelected = (e) => {
-        let className = e.getElementsByClassName("mv-unchecked").length ? "mv-checked" : "mv-unchecked";
         const spanEl = e.getElementsByTagName("span")[0];
         if (e.getElementsByClassName("mv-unchecked").length) {
             spanEl.classList.remove("mv-unchecked");
@@ -778,8 +777,6 @@ mviewer = (function () {
         }
         _overLayers[oLayer.id] = oLayer;
 
-        console.log("OK 1");
-
         if (oLayer.metadatacsw && oLayer.metadatacsw.search("http")>=0) {
             $.ajax({
                 dataType: "xml",
@@ -815,12 +812,10 @@ mviewer = (function () {
                 }
             });
         }
-        console.log("OK 2");
         _map.addLayer(l);
         if (oLayer.type === "customlayer" && mviewer.customLayers[oLayer.id]) {
             mviewer.customLayers[oLayer.id].config = oLayer;
         }
-        console.log(mviewer.getLayers());
         _events.overLayersLoaded += 1;
     };
 
@@ -946,6 +941,19 @@ mviewer = (function () {
 
     };
 
+    var _initSensorMenu = () => {
+        // delete iniital click event
+        let outerHTML = document.querySelector("#theme-layers-sensors a").outerHTML;
+        document.querySelector("#theme-layers-sensors a").outerHTML = outerHTML;
+        document.querySelector("#theme-layers-sensors a").addEventListener("click", () => {
+            if (mviewer.sensorthings) {
+                info.displaySensorList();
+                let isVisible = document.querySelector("#theme-layers-sensors ul").style.display === "block";
+                document.querySelector("#theme-layers-sensors ul").style.display = isVisible ? "none" : "block";
+            }
+        });
+    }
+
     /**
      * Private Method: _initDataList
      *
@@ -964,13 +972,10 @@ mviewer = (function () {
                 return theme;
             }
         }).filter(theme => theme);
-        console.log(notSensorThingsThemes);
-        console.log(_themes);
 		var topics = false;
 		if (API.topics) {
 			topics = API.topics.split(",");
         }
-        console.log(_themes);
         $.each(_themes, function (id, theme) {
 			if (topics) {
 				if (topics.indexOf(theme.id) >= 0) {
@@ -980,8 +985,6 @@ mviewer = (function () {
 				reverse_themes.push(theme);
 			}
         });
-
-        console.log(reverse_themes);
 
         $.each(reverse_themes.reverse(), function (id, theme) {
             var reverse_layers = [];
@@ -1002,9 +1005,6 @@ mviewer = (function () {
                 view.toggleAllLayers = true;
                 classes.push("empty");
             }
-            // if (view.isSensorsThingsTheme) {
-            //     htmlListGroup += _renderHTMLFromTemplate(mviewer.templates.sensorTheme, view);            
-            // } else {
             //GROUPS
             if (_themes[theme.id].groups) {
                 classes.push("level-1");
@@ -1052,6 +1052,7 @@ mviewer = (function () {
         }
         $("#menu").html(htmlListGroup);
         initMenu();
+        _initSensorMenu();
         // Open theme item if set to collapsed=false
         if (configuration.getConfiguration().themes.theme !== undefined) {
             var expanded_theme = $.grep(configuration.getConfiguration().themes.theme, function(obj){return obj.collapsed === "false";});
@@ -1126,7 +1127,6 @@ mviewer = (function () {
     };
 
     var _setThemeStatus = function (id, prop) {
-        console.log("THEME");
         var theme = $('#theme-layers-' + id);
         if (!prop) {
             prop = _getThemeStatus(id);

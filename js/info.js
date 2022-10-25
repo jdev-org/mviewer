@@ -127,6 +127,8 @@ var info = (function () {
         _queryMap(evt);
     };
 
+    var _callback = () => { };
+
     /**
      * Private Method: _onThingRequested
      */
@@ -146,7 +148,6 @@ var info = (function () {
         let fullStreamsfilter = [datastreamsfilter, multidatastreamsfilter].join(",");
         fullStreamsfilter = fullStreamsfilter && `&$expand=${fullStreamsfilter}`;
         // get full URL
-        console.log(feature);
         return fetch(`${feature.getProperties()["Things@iot.navigationLink"]}?${selector}${fullStreamsfilter}&`)
             .then(r => r.json())
             .catch(r => {
@@ -169,39 +170,53 @@ var info = (function () {
         };
         const event = new CustomEvent('sensorAvailable', { detail: dataStreams });
         document.dispatchEvent(event);
-        const targetDOM = document.querySelector('[id="theme-layers-sensors"]').querySelector("ul");
-
-        // delete old
-        const elements = document.getElementsByClassName("datastreams");
-        while(elements.length > 0){
-            elements[0].parentNode.removeChild(elements[0]);
+        _displaySensorList();
+        // display datastreams list
+        if (document.querySelector("#theme-layers-sensors ul").style.display != "block") {
+            document.querySelector('[id="theme-layers-sensors"]').querySelector("a").click();
         }
-        // add news
+        // click first datastream if any selected
+        if (!document.getElementsByClassName("datastreams-checked").length) {
+            document.getElementsByClassName("datastreams")[0].click();   
+        }
+    }
+
+    var _displaySensorList = () => {
+        const targetDOM = document.querySelector('[id="theme-layers-sensors"]').querySelector("ul");
+        document.querySelector("#theme-layers-sensors ul").innerHTML = "";
         var rendered = Mustache.render(mviewer.templates.sensorThings, mviewer.sensorthings);
         targetDOM.innerHTML = rendered;
-        document.querySelector('[id="theme-layers-sensors"]').querySelector("a").click();
     }
 
     var _dataStreamSelected = (ids) => {
         let layer = null;
+        mviewer.sensorthings.selected = ids;
         let urlsObservation = ids.map(id => {
             const dataStreamInfos = mviewer.sensorthings.datastreams.filter(x => x.id == id)[0];
             if (dataStreamInfos) {
                 layer = dataStreamInfos.layer;
-                return fetch(`${dataStreamInfos.url}/Datastreams(${id})/Observations`).then(r => r.json());
+                return fetch(`${dataStreamInfos.url}/Datastreams(${id})/Observations`).then(r => r.json()).then(r => ({...dataStreamInfos, result: r.value}));
             }
             return null;
         }).filter(x => x);
         Promise.all(urlsObservation).then((values) => {
-            let allValues = values.map(x => x.value)[0];
-            let features = allValues.map(feature => ({...feature, getProperties : () => feature}))
-            _displayPanel(features, layer);
-            callback();
+            let feature = {
+                id: _.uniqueId(),
+                datastreamsCount: ids.length,
+                dataStreamsNames: values.map(v => v.name).join(", "),
+                dataStreamsIds: values.map(v => v.id).join(", "),
+                totalObservations: _.sum(values.map(v => v.result.length))
+            };
+            ids.forEach((id, idx) => {
+                feature[id] = values[idx];
+            });
+            _displayPanel([{ ...feature, getProperties: () => feature }], layer);
+            _callback();
         });
     }
 
     var _displayPanel = (features, layer) => {
-        const views = mviewer.views;
+        $(".popup-content").html('');
         var panel = layer.infospanel;
         if (configuration.getConfiguration().mobile) {
             panel = 'modal-panel';
@@ -209,7 +224,7 @@ var info = (function () {
         var name = layer.name;
         var theme = layer.theme;
         var theme_icon = layer.icon;
-        var id = views[panel].layers.length + 1;
+        var id = mviewer.views[panel].layers.length + 1;
         //Create html content from features
         var html_result = "";
         if (layer.template) {
@@ -220,7 +235,8 @@ var info = (function () {
         const layerid = layer.id;
         var originLayer = (layerid.lastIndexOf("_") < 0 ? layerid : layerid.substring(0, layerid.lastIndexOf("_")) );
         //Set view with layer info & html formated features
-        views[panel].layers.push({
+        mviewer.views[panel].layers = mviewer.views[panel].layers.filter(l => l.layerid !== layerid);
+        mviewer.views[panel].layers.push({
             "panel": panel,
             "id": id,
             "firstlayer": false, // firstlayer attribute is calculated after ordering layers with orderViewsLayersByMap
@@ -243,21 +259,17 @@ var info = (function () {
 
     var _queryMap = function (evt, options) {
         var isClick = evt.type === 'singleclick';
+        $(".popup-content").html('');
         _queriedFeatures = [];
         _firstlayerFeatures = [];
         var showPin = false;
         var queryType = "map"; // default behaviour
-        if (!mviewer.views) {
-            
-        }
         const views = {
             "right-panel":{ "panel": "right-panel", "layers": []},
             "bottom-panel":{ "panel": "bottom-panel", "layers": []},
             "modal-panel": { "panel": "modal-panel", "layers": []}
         };
-        if(!mviewer.views) {
-            mviewer.views = views
-        }
+        mviewer.views = views
         if (options) {
             // used to link elasticsearch feature with wms getFeatureinfo
             var layer = options.layer;
@@ -276,7 +288,6 @@ var info = (function () {
         if (queryType === 'map') {
             var pixel = evt.pixel;
             var vectorLayers = {};
-            var format = new ol.format.GeoJSON();
             var f_idx=0;
             _map.forEachFeatureAtPixel(pixel, function (feature, layer) {
                 var l = layer.get('mviewerid');
@@ -306,7 +317,7 @@ var info = (function () {
             for(var layerid in vectorLayers) {
                 var originLayer = (layerid.lastIndexOf("_") < 0 ? layerid : layerid.substring(0, layerid.lastIndexOf("_")) );
                 if (mviewer.customLayers[originLayer] && mviewer.customLayers[originLayer].handle) {
-                    mviewer.customLayers[originLayer].handle(vectorLayers[originLayer].features, views);
+                    mviewer.customLayers[originLayer].handle(vectorLayers[originLayer].features, mviewer.views);
                 } else if (mviewer.customControls[originLayer] && mviewer.customControls[originLayer].handle){
                     mviewer.customControls[originLayer].handle(vectorLayers[originLayer].features);
                 } else {
@@ -317,7 +328,7 @@ var info = (function () {
                             // get things
                             const urlsThing = features.map(x => _onThingRequested(x));
                             Promise.all(urlsThing).then(values => {
-                                _onDatastreamRender(values[0] ? {...values[0], url: l.url, layer: l} : null);
+                                _onDatastreamRender(values[0] ? { ...values[0], url: l.url, layer: l } : null);
                             });
                         }
                     } else if (l) {
@@ -334,7 +345,6 @@ var info = (function () {
         } else {
             visibleLayers =  $.grep( _queryableLayers, function( l, i ) {return l.getVisible();});
         }
-        $(".popup-content").html('');
         _clickCoordinates = evt.coordinate;
         var urls = [];
         var params;
@@ -404,16 +414,12 @@ var info = (function () {
             return mapLayersOrder.filter(f => f).reverse();
         }
 
-        var callbackSensorThings = (response) => {
-
-        }
-
         /**
          * Return infos according to map click event behavior.
          * This callback is return when all request are resolved (like promiseAll behavior)
          * @param {object} result
          */
-        var callback = function (result) {
+        _callback = function (result) {
             $.each(featureInfoByLayer, function (index, response) {
                 var layerinfos = response.layerinfos;
                 var panel = layerinfos.infospanel;
@@ -543,14 +549,14 @@ var info = (function () {
                 }
             });
             var infoLayers = [];
-            for (var panel in views) {
-                infoLayers = infoLayers.concat(views[panel].layers);
+            for (var panel in mviewer.views) {
+                infoLayers = infoLayers.concat(mviewer.views[panel].layers);
             }
             mviewer.setInfoLayers(infoLayers);
 
-            $.each(views, function (panel, view) {
+            $.each(mviewer.views, function (panel, view) {
                 if (view.layers.length > 0){
-                    view.layers = orderViewsLayersByMap(views[panel].layers);
+                    view.layers = orderViewsLayersByMap(mviewer.views[panel].layers);
                     view.layers[0].firstlayer=true;
                     var template = "";
                     if (configuration.getConfiguration().mobile) {
@@ -666,10 +672,9 @@ var info = (function () {
         // in the array have completed
         // this is promiseAll equivalent
         $.when.apply(new ajaxFunction(), requests).done(function (result) {
-            console.log("CALLBAK");
-            console.log(result);
-            callback(result)
+            _callback(result)
         });
+
     };
 
     /**
@@ -1098,7 +1103,8 @@ var info = (function () {
         templateHTMLContent: applyTemplate,
         addQueryableLayer: _addQueryableLayer,
         getQueriedFeatures: _getQueriedFeatures,
-        dataStreamSelected: _dataStreamSelected
+        dataStreamSelected: _dataStreamSelected,
+        displaySensorList: _displaySensorList
     };
 
 })();

@@ -841,7 +841,7 @@ var configuration = (function () {
                             l.setStyle(mviewer.featureStyles[oLayer.style]);
                         }
                         mviewer.processLayer(oLayer, l);
-                        fetch(`${oLayer.url}/Locations?&$top=${oLayer.top}`).then(r => r.json()).then(data => {
+                        fetch(`${oLayer.url}/Locations?$top=${oLayer.top}`).then(r => r.json()).then(data => {
                             const data_dl = data?.value;
                             return data_dl.map(location_th => {
                                 if (location_th.location.geometry !== undefined) {
