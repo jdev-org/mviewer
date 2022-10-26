@@ -945,6 +945,7 @@ mviewer = (function () {
 
     var _initSensorMenu = () => {
         // delete iniital click event
+        if (!document.querySelector("#theme-layers-sensors")) return;
         let outerHTML = document.querySelector("#theme-layers-sensors a").outerHTML;
         document.querySelector("#theme-layers-sensors a").outerHTML = outerHTML;
         document.querySelector("#theme-layers-sensors a").addEventListener("click", () => {
