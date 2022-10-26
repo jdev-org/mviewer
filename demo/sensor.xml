@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <application title="Mviewer" mouseposition="false" logo="" help="mviewer_help.html" measuretools="true" exportpng="true" style="css/themes/wet_asphalt.css" togglealllayersfromtheme="true"/>
+    <extensions>
+    <extension type="javascript" src="lib/chartjs-3.7.1/Chart.min.js" usededby="cad.js"/>
+</extensions>
     <mapoptions maxzoom="19" projection="EPSG:3857" center="-220750.13768758904,6144925.57790189" zoom="8" projextent="-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244" />
   
     <baselayers style="gallery">
@@ -83,7 +86,7 @@
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements"
             >
-				<template url="apps/sensor.mst"></template>
+				<template url="demo/sensor.mst"></template>
             </layer>
         </theme>
 

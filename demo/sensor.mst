@@ -1,0 +1,62 @@
+{{#features}}
+	<li id="{{feature_ol_uid}}" class="inventaire item" style="height: 300px;">
+        <p>
+            <b>Feature ol uid : </b> {{feature_ol_uid}}
+        </p>
+        
+        {{#observations}}
+            <p>
+                <b>Datastreams sélectionnés : </b> {{dataStreamsNames}}
+            </p>
+        {{/observations}}
+        <div class="chart-container" style="position: relative; margin: auto; height: 250px; width:80vh">
+            <canvas id="chart"></canvas>
+        </div>
+    </li>
+    <script>
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.round(Math.random() * 15)];
+        }
+        return color;
+    }
+
+    let featureWithObservations = mviewer.getLayer("agricast").layer.getSource().getFeatures().filter(x => x.ol_uid === mviewer.sensorthings.featureIdSelected);
+    const props = featureWithObservations[0].getProperties();
+    
+    const datastreamsObs = mviewer.sensorthings.selected.map(x => parseInt(x));
+    let streamsId = datastreamsObs[0];
+    const firstDatastreamObservation = props.observations[streamsId].result;
+    let datesValues = firstDatastreamObservation.map(o => new Date(o.resultTime).toLocaleDateString());
+    const datasets = datastreamsObs.map(data => {
+        let observations = props.observations[data].result;
+        let yValues = observations.map(o => o.result);
+        let randomColor = getRandomColor();
+        return {
+            label: mviewer.sensorthings.datastreams.filter(x => x.id === data)[0]?.name,
+            data: yValues,
+            borderWidth: 1.5,
+            borderColor: randomColor,
+            backgroundColor: randomColor,
+            fill: false
+        }
+    })
+
+    var config = {
+        type: 'line',
+        data: {
+            labels: datesValues,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    }
+    var ctx = document.getElementById('chart').getContext('2d');
+    new Chart(ctx, config);
+    </script>
+{{/features}}
