@@ -70,7 +70,7 @@
                 attribution="Région Bretagne" />
 		</theme>
         <theme id="sensors" name="sensors">
-            <layer
+            <!-- <layer
                 id="agricast"
                 type="sensorthings"
                 name="Sensor"
@@ -86,8 +86,8 @@
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements"
             >
-				<template url="demo/sensor.mst"></template>
-            </layer>
+            </layer> -->
+            <layer id="lora" type="sensorthings" name="Lora" visible="true" legendurl="false" queryable="true" url="https://api.geosas.fr/lora/v1.0" style="sensor" top="200" defaultSensor="ETP" selector="id,description" datastreamsfilter="name,id" multidatastreamsfilter="name,description,id,unitOfMeasurements"> </layer>
         </theme>
 
     </themes>

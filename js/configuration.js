@@ -866,7 +866,7 @@ var configuration = (function () {
                                 'type': 'FeatureCollection',
                                 'features': features
                             });
-                            mviewer.getLayer('agricast').layer.getSource().addFeatures(geoJson);
+                            oLayer.layer.getSource().addFeatures(geoJson);
                         });
                     }
                     if (oLayer.type === 'kml') {
