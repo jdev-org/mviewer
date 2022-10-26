@@ -159,6 +159,7 @@ var info = (function () {
     var _onDatastreamRender = ({ value, feature, url, layer }) => {
         let clickedStreams = value[0];
         const dataStreams = clickedStreams && clickedStreams?.Datastreams || null;
+        const multiDataStreams = clickedStreams && clickedStreams?.MultiDatastreams || null;
         mviewer.sensorthings = {
             datastreams: dataStreams.map(x => (
                 {
@@ -167,9 +168,17 @@ var info = (function () {
                     url: url,
                     layer: layer,
                     feature: feature
+                })),
+            multidatastreams: multiDataStreams.map(x => (
+                {
+                    ...x,
+                    id: x["@iot.id"],
+                    url: url,
+                    layer: layer,
+                    feature: feature
                 }))
         };
-        const event = new CustomEvent('sensorAvailable', { detail: dataStreams });
+        const event = new CustomEvent('sensorAvailable', { detail: mviewer.sensorthings });
         document.dispatchEvent(event);
         // Manage menu theme list
         _displaySensorList();
@@ -193,20 +202,28 @@ var info = (function () {
     var _dataStreamSelected = (ids) => {
         let layer = null;
         mviewer.sensorthings.selected = ids;
+        if (!ids.length) {
+            return $(".popup-content").html('');
+        }
         let urlsObservation = ids.map(id => {
             const dataStreamInfos = mviewer.sensorthings.datastreams.filter(x => x.id == id)[0];
+            const multiDataStreamsInfos = mviewer.sensorthings.multidatastreams.filter(x => x.id == id)[0]
             if (dataStreamInfos) {
                 layer = dataStreamInfos.layer;
                 return fetch(`${dataStreamInfos.url}/Datastreams(${id})/Observations`).then(r => r.json()).then(r => ({...dataStreamInfos, result: r.value}));
+            }
+            if (multiDataStreamsInfos) {
+                layer = multiDataStreamsInfos.layer;
+                return fetch(`${multiDataStreamsInfos.url}/MultiDatastreams(${id})/Observations`).then(r => r.json()).then(r => ({...multiDataStreamsInfos, result: r.value}));
             }
             return null;
         }).filter(x => x);
         Promise.all(urlsObservation).then((values) => {
             let feature = {
                 id: _.uniqueId(),
-                datastreamsCount: ids.length,
-                dataStreamsNames: values.map(v => v.name).join(", "),
-                dataStreamsIds: values.map(v => v.id).join(", "),
+                streamsCount: ids.length,
+                streamsNames: values.map(v => v.name).join(", "),
+                streamsIds: values.map(v => v.id).join(", "),
                 totalObservations: _.sum(values.map(v => v.result.length))
             };
             ids.forEach((id, idx) => {
@@ -338,9 +355,6 @@ var info = (function () {
                                 _onDatastreamRender(values[0] ? { ...values[i], feature: features[i], url: l.url, layer: l } : null);
                                 i++;
                             });
-                            document.addEventListener("observationReady", (e) => {
-                                console.log(e.detail)
-                            })
                         }
                     } else if (l) {
                         _displayPanel(features, l);

@@ -6,7 +6,7 @@
         
         {{#observations}}
             <p>
-                <b>Datastreams sélectionnés : </b> {{dataStreamsNames}}
+                <b>Streams sélectionnés : </b> {{streamsNames}}
             </p>
         {{/observations}}
         <div class="chart-container" style="position: relative; margin: auto; height: 250px; width:80vh">
@@ -24,26 +24,54 @@
         return color;
     }
 
-    let featureWithObservations = mviewer.getLayer("agricast").layer.getSource().getFeatures().filter(x => x.ol_uid === mviewer.sensorthings.featureIdSelected);
+    const mvLayer = _.keys(mviewer.getLayers()).filter(k => mviewer.getLayer(k).type === "sensorthings")[0];
+    let featureWithObservations = mviewer.getLayer(mvLayer).layer.getSource().getFeatures().filter(x => x.ol_uid === mviewer.sensorthings.featureIdSelected);
     const props = featureWithObservations[0].getProperties();
     
-    const datastreamsObs = mviewer.sensorthings.selected.map(x => parseInt(x));
-    let streamsId = datastreamsObs[0];
+    const streamsObs = mviewer.sensorthings.selected.map(x => parseInt(x));
+    let streamsId = streamsObs[0];
     const firstDatastreamObservation = props.observations[streamsId].result;
     let datesValues = firstDatastreamObservation.map(o => new Date(o.resultTime).toLocaleDateString());
-    const datasets = datastreamsObs.map(data => {
-        let observations = props.observations[data].result;
-        let yValues = observations.map(o => o.result);
-        let randomColor = getRandomColor();
-        return {
-            label: mviewer.sensorthings.datastreams.filter(x => x.id === data)[0]?.name,
-            data: yValues,
-            borderWidth: 1.5,
-            borderColor: randomColor,
-            backgroundColor: randomColor,
-            fill: false
-        }
-    })
+    let datasets = [];
+    if(mviewer.sensorthings.datastreams && mviewer.sensorthings.datastreams.length) {
+        datasets.push(
+            streamsObs.map(data => {
+                let observations = props.observations[data].result;
+                let yValues = observations.map(o => o.result);
+                let randomColor = getRandomColor();
+                const streams = mviewer.sensorthings.datastreams;
+                return {
+                    label: streams.filter(x => x.id === data)[0]?.name,
+                    data: yValues,
+                    borderWidth: 1.5,
+                    borderColor: randomColor,
+                    backgroundColor: randomColor,
+                    fill: false
+                }
+            })
+        )
+    }
+    if(mviewer.sensorthings.multidatastreams && mviewer.sensorthings.multidatastreams.length) {
+        streamsObs.map(data => {
+            let observations = props.observations[data].result;
+            let yValues = observations.map(o => o.result);
+            const streams = mviewer.sensorthings.multidatastreams;
+            let unitOfMeasures = mviewer.sensorthings.multidatastreams[0].unitOfMeasurements.map(x => x.name);
+            let unitOfMeasurementsDataset = unitOfMeasures.map(unit => {
+                let randomColor = getRandomColor();
+                return {
+                    data: observations.map(o => o.result[unit]),
+                    label: unit,
+                    borderWidth: 1.5,
+                    borderColor: randomColor,
+                    backgroundColor: randomColor,
+                    fill: false
+                }
+            });
+            datasets = [...datasets, ... unitOfMeasurementsDataset]
+        })
+        
+    }
 
     var config = {
         type: 'line',

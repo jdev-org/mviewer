@@ -81,6 +81,14 @@ mviewer.templates.sensorThings = `
                     </a>
                 </li>
             {{/datastreams}}
+            {{#multidatastreams}}
+                <li class="datastreams" onclick="mviewer.sensorDataStreamSelected(this, false)" data-datastreamid="{{id}}"">
+                    <a href="#" >
+                        <span class="state-icon far mv-unchecked" datastream-span-id={{id}}></span> {{name}}
+                        <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">
+                    </a>
+                </li>
+            {{/multidatastreams}}
         </ul>
     </li>
 `;

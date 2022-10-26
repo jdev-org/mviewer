@@ -95,12 +95,14 @@
                 legendurl="false"
                 queryable="true"
                 url="https://api.geosas.fr/lora/v1.0"
+                infopanel="bottom-panel"
                 style="sensorPoint"
                 top="200"
                 defaultSensor="ETP"
                 selector="id,description"
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements">
+                <template url="demo/sensor.mst"></template>
             </layer>
         </theme>
 
