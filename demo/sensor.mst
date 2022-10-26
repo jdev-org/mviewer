@@ -33,24 +33,25 @@
     const firstDatastreamObservation = props.observations[streamsId].result;
     let datesValues = firstDatastreamObservation.map(o => new Date(o.resultTime).toLocaleDateString());
     let datasets = [];
+    // DATASTREAM
     if(mviewer.sensorthings.datastreams && mviewer.sensorthings.datastreams.length) {
-        datasets.push(
-            streamsObs.map(data => {
-                let observations = props.observations[data].result;
-                let yValues = observations.map(o => o.result);
-                let randomColor = getRandomColor();
-                const streams = mviewer.sensorthings.datastreams;
-                return {
-                    label: streams.filter(x => x.id === data)[0]?.name,
-                    data: yValues,
-                    borderWidth: 1.5,
-                    borderColor: randomColor,
-                    backgroundColor: randomColor,
-                    fill: false
-                }
-            })
-        )
+        datastreamDataset = streamsObs.map(data => {
+            let observations = props.observations[data].result;
+            let yValues = observations.map(o => o.result);
+            let randomColor = getRandomColor();
+            const streams = mviewer.sensorthings.datastreams;
+            return {
+                label: streams.filter(x => x.id === data)[0]?.name,
+                data: yValues,
+                borderWidth: 1.5,
+                borderColor: randomColor,
+                backgroundColor: randomColor,
+                fill: false
+            }
+        });
+        datasets = [...datasets, ...datastreamDataset];
     }
+    // MULTIDATASTREAM
     if(mviewer.sensorthings.multidatastreams && mviewer.sensorthings.multidatastreams.length) {
         streamsObs.map(data => {
             let observations = props.observations[data].result;
