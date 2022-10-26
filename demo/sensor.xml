@@ -79,7 +79,7 @@
                 legendurl="false"
                 queryable="true"
                 url="https://api.geosas.fr/agri4cast/v1.0"
-                style="sensor"
+                style="sensorPolygon"
                 top="200"
                 defaultSensor="ETP"
                 selector="id,description"
@@ -87,7 +87,21 @@
                 multidatastreamsfilter="name,description,id,unitOfMeasurements"
             >
             </layer> -->
-            <layer id="lora" type="sensorthings" name="Lora" visible="true" legendurl="false" queryable="true" url="https://api.geosas.fr/lora/v1.0" style="sensor" top="200" defaultSensor="ETP" selector="id,description" datastreamsfilter="name,id" multidatastreamsfilter="name,description,id,unitOfMeasurements"> </layer>
+            <layer
+                id="lora"
+                type="sensorthings"
+                name="Lora"
+                visible="true"
+                legendurl="false"
+                queryable="true"
+                url="https://api.geosas.fr/lora/v1.0"
+                style="sensorPoint"
+                top="200"
+                defaultSensor="ETP"
+                selector="id,description"
+                datastreamsfilter="name,id"
+                multidatastreamsfilter="name,description,id,unitOfMeasurements">
+            </layer>
         </theme>
 
     </themes>
