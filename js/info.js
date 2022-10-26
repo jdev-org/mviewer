@@ -156,7 +156,7 @@ var info = (function () {
             });
     }
 
-    var _onDatastreamRender = ({ value, url, layer }) => {
+    var _onDatastreamRender = ({ value, feature, url, layer }) => {
         let clickedStreams = value[0];
         const dataStreams = clickedStreams && clickedStreams?.Datastreams || null;
         mviewer.sensorthings = {
@@ -165,11 +165,13 @@ var info = (function () {
                     ...x,
                     id: x["@iot.id"],
                     url: url,
-                    layer: layer
+                    layer: layer,
+                    feature: feature
                 }))
         };
         const event = new CustomEvent('sensorAvailable', { detail: dataStreams });
         document.dispatchEvent(event);
+        // Manage menu theme list
         _displaySensorList();
         // display datastreams list
         if (document.querySelector("#theme-layers-sensors ul").style.display != "block") {
@@ -210,7 +212,9 @@ var info = (function () {
             ids.forEach((id, idx) => {
                 feature[id] = values[idx];
             });
-            _displayPanel([{ ...feature, getProperties: () => feature }], layer);
+            values[0].feature.setProperties({ observations: feature });
+            mviewer.sensorthings.featureIdSelected = values[0].feature.ol_uid;
+            _displayPanel([values[0].feature], layer);
             _callback();
         });
     }
@@ -324,12 +328,19 @@ var info = (function () {
                     var l = _overLayers[originLayer];
                     var features = vectorLayers[layerid].features;
                     if (l && l.type === "sensorthings") {
-                        if (l.type === "sensorthings") {
+                        if (l.type === "sensorthings" && features) {
+                            mviewer.sensorthings = {};
                             // get things
+                            mviewer.sensorthings.features = features;
                             const urlsThing = features.map(x => _onThingRequested(x));
+                            let i = 0;
                             Promise.all(urlsThing).then(values => {
-                                _onDatastreamRender(values[0] ? { ...values[0], url: l.url, layer: l } : null);
+                                _onDatastreamRender(values[0] ? { ...values[i], feature: features[i], url: l.url, layer: l } : null);
+                                i++;
                             });
+                            document.addEventListener("observationReady", (e) => {
+                                console.log(e.detail)
+                            })
                         }
                     } else if (l) {
                         _displayPanel(features, l);

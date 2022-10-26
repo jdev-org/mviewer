@@ -74,7 +74,7 @@ mviewer.templates.sensorThings = `
     <li class="level-2">
         <ul class="nav-pills nav-stacked" style="list-style-type:none;">
             {{#datastreams}}
-                <li class="datastreams" onclick="mviewer.sensorDataStreamSelected(this)" data-datastreamid="{{id}}"">
+                <li class="datastreams" onclick="mviewer.sensorDataStreamSelected(this, false)" data-datastreamid="{{id}}"">
                     <a href="#" >
                         <span class="state-icon far mv-unchecked" datastream-span-id={{id}}></span> {{name}}
                         <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">

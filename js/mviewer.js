@@ -732,7 +732,7 @@ mviewer = (function () {
         _updateLegendsScaleDependancy(scale);
     };
 
-    var _sensorDataStreamSelected = (e) => {
+    var _sensorDataStreamSelected = (e, alreadySelected) => {
         const spanEl = e.getElementsByTagName("span")[0];
         if (e.getElementsByClassName("mv-unchecked").length) {
             spanEl.classList.remove("mv-unchecked");
@@ -742,7 +742,9 @@ mviewer = (function () {
             spanEl.classList.remove("mv-checked", "datastreams-checked");
         }
         const checkedCollection = [].slice.call(document.getElementsByClassName("datastreams-checked"));
-        info.dataStreamSelected(checkedCollection.map(i => i.getAttribute("datastream-span-id")));
+        if (!alreadySelected) {
+            info.dataStreamSelected(checkedCollection.map(i => i.getAttribute("datastream-span-id")));   
+        }
     }
 
     /**
@@ -950,6 +952,12 @@ mviewer = (function () {
                 info.displaySensorList();
                 let isVisible = document.querySelector("#theme-layers-sensors ul").style.display === "block";
                 document.querySelector("#theme-layers-sensors ul").style.display = isVisible ? "none" : "block";
+                if (mviewer.sensorthings?.selected) {
+                    mviewer.sensorthings?.selected.forEach(id => {
+                        // display list checked as previous state
+                        _sensorDataStreamSelected(document.querySelector(`[data-datastreamid='${id}']`), true);
+                    })   
+                }
             }
         });
     }

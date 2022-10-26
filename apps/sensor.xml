@@ -70,7 +70,8 @@
             <layer
                 id="agricast"
                 type="sensorthings"
-                name="Sensor" 
+                name="Sensor"
+                infopanel="bottom-panel"
                 visible="true"
                 legendurl="false"
                 queryable="true"
@@ -82,6 +83,7 @@
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements"
             >
+				<template url="apps/sensor.mst"></template>
             </layer>
         </theme>
 

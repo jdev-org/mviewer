@@ -1,0 +1,53 @@
+{{#features}}
+	<li id="{{feature_ol_uid}}" class="inventaire item" style="width:100%;">
+    <p>
+        <b>Feature ol uid : </b> {{feature_ol_uid}}
+    </p>
+    
+    {{#observations}}
+        <p>
+            <b>Datastreams sélectionnés : </b> {{dataStreamsNames}}
+        </p>
+    {{/observations}}
+    <div class="row">
+        <div class="col-12">
+            <canvas id="chartJSContainer" width="600" height="400"></canvas>
+        </div>
+    </div>
+    </li>
+    <script>
+    let featureWithObservations = mviewer.getLayer("agricast").layer.getSource().getFeatures().filter(x => x.ol_uid === mviewer.sensorthings.featureIdSelected);
+    const props = featureWithObservations[0].getProperties();
+    const firstDatastreamId = parseInt(mviewer.sensorthings.selected[0]);
+    console.log(props);
+    var options = {
+    type: 'line',
+    data: {
+        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        datasets: [
+            {
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            borderWidth: 1
+            },	
+                {
+                    label: '# of Points',
+                    data: [7, 11, 5, 8, 3, 7],
+                    borderWidth: 1
+                }
+            ]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+            ticks: {
+                        reverse: false
+            }
+        }]
+        }
+    }
+    }
+    var ctx = document.getElementById('chartJSContainer').getContext('2d');
+    new Chart(ctx, options);
+    </script>
+{{/features}}
