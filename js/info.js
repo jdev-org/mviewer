@@ -148,7 +148,7 @@ var info = (function () {
         let fullStreamsfilter = [datastreamsfilter, multidatastreamsfilter].join(",");
         fullStreamsfilter = fullStreamsfilter && `&$expand=${fullStreamsfilter}`;
         // get full URL
-        return fetch(`${feature.getProperties()["Things@iot.navigationLink"]}?${selector}${fullStreamsfilter}&`)
+        return fetch(`${feature.getProperties()["Things@iot.navigationLink"]}?${selector}${fullStreamsfilter}`)
             .then(r => r.json())
             .catch(r => {
                 console.log("Fail to request thing whith [" + feature.getProperties().mviewerid + "] layer");
