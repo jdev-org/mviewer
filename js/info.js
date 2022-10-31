@@ -189,7 +189,9 @@ var info = (function () {
         }
         // click first datastream if any selected
         if (!document.getElementsByClassName("datastreams-checked").length) {
-            document.getElementsByClassName("datastreams")[0].click();   
+            let defaultSelected = [...document.getElementsByClassName("datastreams")].filter(x => x.querySelector("a").innerText === layer.defaultSensor)[0];
+            defaultSelected = defaultSelected || document.getElementsByClassName("datastreams")[0];
+            defaultSelected.click();
         }
     }
 
