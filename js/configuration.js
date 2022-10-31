@@ -629,7 +629,8 @@ var configuration = (function () {
                     oLayer.queryable = (layer.queryable === "true") ? true : false;
                     oLayer.exclusive = (layer.exclusive === "true") ? true : false;
                     oLayer.searchable = (layer.searchable === "true") ? true : false;
-                    oLayer.top = layer.top;
+                    oLayer.top = layer?.top;
+                    defaultSensor = layer?.defaultSensor;
                     oLayer.selector = layer.selector;
                     oLayer.datastreamsfilter = layer.datastreamsfilter;
                     oLayer.multidatastreamsfilter = layer.multidatastreamsfilter;
