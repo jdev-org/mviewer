@@ -7,68 +7,51 @@ mviewer.templates.tooltip = [
         '<div class="mv-tooltip tooltip-inner popover-content"></div>',
     '</div>'].join("");
 
-mviewer.templates.theme = [
-    '<li class="{{cls}}" id="theme-layers-{{id}}" >',
-        '<a href="#">',
-            '<span class="fa-stack fa-lg pull-left col-sm-3">',
-                '<i class="{{icon}} fa-stack-1x "></i>',
-            '</span>{{name}}',
-        '{{#toggleAllLayers}}',
-            '<div class="toggle-theme-layers">',
-                '<span class="badge" title="Afficher/Masquer toutes les couches de la thématique" i18n="theme.display.layers">0/1</span>',
-            '</div>',
-        '{{/toggleAllLayers}}',
-        '</a>',
-        '<ul class="nav-pills nav-stacked" style="list-style-type:none;">',
-            '{{#groups}}',
-                '<li class="level-2">',
-                    '<a href="#">{{title}}</a>',
-                    '<ul class="nav-pills nav-stacked" style="list-style-type:none;">',
-                    '{{#layers}}',
-                        '<li class="mv-nav-item" onclick="mviewer.toggleLayer(this);"',
-                            ' data-layerid="{{layerid}}"">',
-                            '<a href="#" >',
-                                '<span class="state-icon far mv-unchecked"></span> {{title}}',
-                                '<input type="checkbox" class="hidden" value="false" >',
-                            '</a>',
-                        '</li>',
-                    '{{/layers}}',
-                    '</ul>',
-                '</li>',
-            '{{/groups}}',
-            '{{#isSensorsThingsTheme}}',
-            '{{/isSensorsThingsTheme}}',
-            '{{^isSensorsThingsTheme}}',
-                '{{#layers}}',
-                    '<li class="mv-nav-item" onclick="mviewer.toggleLayer(this);"',
-                        ' data-layerid="{{layerid}}"">',
-                        '<a href="#" >',
-                            '<span class="state-icon far mv-unchecked"></span> {{title}}',
-                            '<input type="checkbox" class="hidden" value="false" >',
-                        '</a>',
-                    '</li>',
-                '{{/layers}}',
-            '{{/isSensorsThingsTheme}}',
-        '</ul>',
-    '</li>'].join("");
+mviewer.templates.themeLayer = `
+    <li class="mv-nav-item" onclick="mviewer.toggleLayer(this);" data-layerid="{{layerid}}"">
+        <a href="#" >
+            <span class="state-icon far mv-unchecked"></span> {{title}}
+            <input type="checkbox" class="hidden" value="false" >
+        </a>
+    </li>`;
 
-mviewer.templates.sensorTheme = `
-    <li class="{{cls}}" id="theme-layers-{{id}}" data-layerid="{{layerid}}">
-        <a href="#" class="sensorTheme">
+mviewer.templates.theme = `
+    <li class="{{cls}}" id="theme-layers-{{id}}" >
+        <a href="#">
             <span class="fa-stack fa-lg pull-left col-sm-3">
                 <i class="{{icon}} fa-stack-1x "></i>
             </span>{{name}}
-            <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">
-            {{#toggleAllLayers}}
-                <div class="toggle-theme-layers">
-                    <span class="badge" title="Afficher/Masquer toutes les couches de la thématique" i18n="theme.display.layers">0/1</span>
-                </div>
-            {{/toggleAllLayers}}
+        {{#toggleAllLayers}}
+            <div class="toggle-theme-layers">
+                <span class="badge" title="Afficher/Masquer toutes les couches de la thématique" i18n="theme.display.layers">0/1</span>
+            </div>
+        {{/toggleAllLayers}}
         </a>
         <ul class="nav-pills nav-stacked" style="list-style-type:none;">
+            {{#groups}}
+                <li class="level-2">
+                    <a href="#">{{title}}</a>
+                    <ul class="nav-pills nav-stacked" style="list-style-type:none;">
+                    '{{#layers}}',
+                        ${mviewer.templates.themeLayer}
+                    {{/layers}}
+                    </ul>
+                </li>
+            {{/groups}}
+            {{#layers}}
+                {{#isSensorsThingsTheme}}
+                    <span class="hidden">
+                        ${mviewer.templates.themeLayer}
+                    </span>
+                    <span class="stream-list" style="list-style-type:none;">
+                    <span>
+                {{/isSensorsThingsTheme}}
+                {{^isSensorsThingsTheme}}
+                    ${mviewer.templates.themeLayer}
+                {{/isSensorsThingsTheme}}
+            {{/layers}}
         </ul>
-    </li>
-`;
+    </li>`;
 
 mviewer.templates.sensorThings = `
     <li class="level-2">

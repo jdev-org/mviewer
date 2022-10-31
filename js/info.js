@@ -184,9 +184,7 @@ var info = (function () {
         // Manage menu theme list
         _displaySensorList();
         // display datastreams list
-        if (document.querySelector("#theme-layers-sensors ul").style.display != "block") {
-            document.querySelector('[id="theme-layers-sensors"]').querySelector("a").click();
-        }
+        mviewer.showSensorList(true, layer.id);
         // click first datastream if any selected
         if (!document.getElementsByClassName("datastreams-checked").length) {
             let defaultSelected = [...document.getElementsByClassName("datastreams")].filter(x => x.querySelector("a").innerText === layer.defaultSensor)[0];
@@ -196,8 +194,8 @@ var info = (function () {
     }
 
     var _displaySensorList = () => {
-        const targetDOM = document.querySelector('[id="theme-layers-sensors"]').querySelector("ul");
-        document.querySelector("#theme-layers-sensors ul").innerHTML = "";
+        const targetDOM = document.querySelector('[id="theme-layers-sensors"]').querySelector(".stream-list");
+        targetDOM.innerHTML = "";
         var rendered = Mustache.render(mviewer.templates.sensorThings, mviewer.sensorthings);
         targetDOM.innerHTML = rendered;
     }

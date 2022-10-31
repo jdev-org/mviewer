@@ -943,23 +943,35 @@ mviewer = (function () {
 
     };
 
+    var _showSensorList = (isNew, layer) => {
+        if (mviewer.sensorthings) {
+            info.displaySensorList();
+            if (isNew && mviewer.getLayer(layer).layer.getVisible()) {
+                document.querySelector("#theme-layers-sensors ul").style.display = "block";
+            } else {
+                let isVisible = document.querySelector("#theme-layers-sensors ul").style.display === "block";
+                document.querySelector("#theme-layers-sensors ul").style.display = isVisible ? "none" : "block";
+            }
+            if (mviewer.sensorthings?.selected) {
+                mviewer.sensorthings?.selected.forEach(id => {
+                    // display list checked as previous state
+                    _sensorDataStreamSelected(document.querySelector(`[data-datastreamid='${id}']`), true);
+                })   
+            }
+        }
+    }
+
     var _initSensorMenu = () => {
+        let layerId = _.keys(mviewer.getLayers()).filter(k => mviewer.getLayer(k).type === "sensorthings")[0];
         // delete iniital click event
-        if (!document.querySelector("#theme-layers-sensors")) return;
+        let sensorThemeHandler = document.querySelector("#theme-layers-sensors");
+        let layerHandler = $(`.mv-nav-item[data-layerid='${layerId}']`);
+        if (!sensorThemeHandler) return;
         let outerHTML = document.querySelector("#theme-layers-sensors a").outerHTML;
         document.querySelector("#theme-layers-sensors a").outerHTML = outerHTML;
         document.querySelector("#theme-layers-sensors a").addEventListener("click", () => {
-            if (mviewer.sensorthings) {
-                info.displaySensorList();
-                let isVisible = document.querySelector("#theme-layers-sensors ul").style.display === "block";
-                document.querySelector("#theme-layers-sensors ul").style.display = isVisible ? "none" : "block";
-                if (mviewer.sensorthings?.selected) {
-                    mviewer.sensorthings?.selected.forEach(id => {
-                        // display list checked as previous state
-                        _sensorDataStreamSelected(document.querySelector(`[data-datastreamid='${id}']`), true);
-                    })   
-                }
-            }
+            mviewer.toggleLayer(layerHandler);
+            _showSensorList(false, layerId);
         });
     }
 
@@ -2802,6 +2814,7 @@ mviewer = (function () {
             // create tooltip for this layer legend UI
             _initTooltip();
         },
+        
         removeLayer: function (el) {
             var item;
             if ( !$(el).is( "li" ) ) {
@@ -3232,6 +3245,8 @@ mviewer = (function () {
         initToolTip: _initTooltip,
 
         sensorDataStreamSelected: _sensorDataStreamSelected,
+
+        showSensorList: _showSensorList,
 
         events: function () { return _events; }
 

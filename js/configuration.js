@@ -98,6 +98,51 @@ var configuration = (function () {
         return _conf;
     };
 
+    /**
+     * Get sensor vector features
+     * @param {any} oLayer mviewer layer
+     * @param {any} vecLayer ol.layer
+     */
+    var _getSensorFeatures = (oLayer, vecLayer) => {
+        let locationUrl = `${oLayer.url}/Locations`;
+        locationUrl = oLayer?.top ? `${locationUrl}?$top=${oLayer.top}` : locationUrl;
+        fetch(locationUrl).then(r => r.json()).then(data => {
+            const data_dl = data?.value;
+            return data_dl.map(location_th => {
+                if (location_th.location.geometry !== undefined) {
+                  return {
+                    type: 'Feature',
+                    geometry: location_th.location.geometry,
+                    properties:location_th
+                  };
+                } else {
+                  return {
+                    type: 'Feature',
+                    geometry: location_th.location,
+                    properties:location_th
+                  };
+                }
+              })
+        }).then(features => {
+            const geoJson = new ol.format.GeoJSON({
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            }).readFeatures({
+                'type': 'FeatureCollection',
+                'features': features
+            });
+            vecLayer.getSource().addFeatures(geoJson);
+            vecLayer.getSource().refresh = () => {
+                vecLayer.getSource().clear();
+                // override opneLayer refresh event
+                if (mviewer?.sensorthings?.featureIdSelected) {
+                    mviewer.sensorthings.featureIdSelected = null;
+                };
+                _getSensorFeatures(oLayer, vecLayer)
+            };
+        });
+    }
+
     var _getExtensions = function (conf) {
         //load javascript extensions and trigger applicationExtended when all is done
         var extensions = $(conf).find("extension[type='javascript']");
@@ -842,35 +887,7 @@ var configuration = (function () {
                             l.setStyle(mviewer.featureStyles[oLayer.style]);
                         }
                         mviewer.processLayer(oLayer, l);
-                        let locationUrl = `${oLayer.url}/Locations`;
-                        locationUrl = oLayer?.top ? `${locationUrl}?$top=${oLayer.top}` : locationUrl;
-                        fetch(locationUrl).then(r => r.json()).then(data => {
-                            const data_dl = data?.value;
-                            return data_dl.map(location_th => {
-                                if (location_th.location.geometry !== undefined) {
-                                  return {
-                                    type: 'Feature',
-                                    geometry: location_th.location.geometry,
-                                    properties:location_th
-                                  };
-                                } else {
-                                  return {
-                                    type: 'Feature',
-                                    geometry: location_th.location,
-                                    properties:location_th
-                                  };
-                                }
-                              })
-                        }).then(features => {
-                            const geoJson = new ol.format.GeoJSON({
-                                dataProjection: 'EPSG:4326',
-                                featureProjection: 'EPSG:3857'
-                            }).readFeatures({
-                                'type': 'FeatureCollection',
-                                'features': features
-                            });
-                            oLayer.layer.getSource().addFeatures(geoJson);
-                        });
+                        _getSensorFeatures(oLayer, l);
                     }
                     if (oLayer.type === 'kml') {
                         l = new ol.layer.Vector({
