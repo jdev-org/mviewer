@@ -161,6 +161,7 @@ var info = (function () {
         const dataStreams = clickedStreams && clickedStreams?.Datastreams || null;
         const multiDataStreams = clickedStreams && clickedStreams?.MultiDatastreams || null;
         mviewer.sensorthings = {
+            top: layer.top,
             datastreams: dataStreams.map(x => (
                 {
                     ...x,
@@ -210,11 +211,11 @@ var info = (function () {
             const multiDataStreamsInfos = mviewer.sensorthings.multidatastreams.filter(x => x.id == id)[0]
             if (dataStreamInfos) {
                 layer = dataStreamInfos.layer;
-                return fetch(`${dataStreamInfos.url}/Datastreams(${id})/Observations`).then(r => r.json()).then(r => ({...dataStreamInfos, result: r.value}));
+                return fetch(`${dataStreamInfos.url}/Datastreams(${id})/Observations${layer.top ? `?$top=${layer.top}` : ""}`).then(r => r.json()).then(r => ({...dataStreamInfos, result: r.value}));
             }
             if (multiDataStreamsInfos) {
                 layer = multiDataStreamsInfos.layer;
-                return fetch(`${multiDataStreamsInfos.url}/MultiDatastreams(${id})/Observations`).then(r => r.json()).then(r => ({...multiDataStreamsInfos, result: r.value}));
+                return fetch(`${multiDataStreamsInfos.url}/MultiDatastreams(${id})/Observations${layer.top ? `?$top=${layer.top}` : ""}`).then(r => r.json()).then(r => ({...multiDataStreamsInfos, result: r.value}));
             }
             return null;
         }).filter(x => x);
