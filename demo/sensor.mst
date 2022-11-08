@@ -36,6 +36,7 @@
     // DATASTREAM
     if(mviewer.sensorthings.datastreams && mviewer.sensorthings.datastreams.length) {
         datastreamDataset = streamsObs.map(data => {
+            if(!data && !props.observations[data]?.result) return;
             let observations = props.observations[data].result;
             let yValues = observations.map(o => o.result);
             let randomColor = getRandomColor();
