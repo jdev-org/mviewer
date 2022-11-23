@@ -82,7 +82,7 @@ Elément enfant de ``<baselayers>`` permettant le paramétrage de chaque fond de
 * ``title``: paramètre obligatoire de type texte pour définir le sous-titre du fond de plan. Utilisé avec le mode "gallery"
 * ``thumbgallery``: paramètre obligatoire de type url permettant de sélecionner l'imagette à associer au fond de plan.
 * ``url``: paramètre obligatoire de type url définissant l'URL du service web OSM, WMTS, WMS ou vector-tms.
-* ``styleurl``: paramètre optionnel de type url définitssant le fichier de style au format JSON à utiliser. (Obligatoire pour les couches de type vector-tms)
+* ``styleurl``: paramètre optionnel de type url définissant le fichier de style au format JSON à utiliser. (Obligatoire pour les couches de type vector-tms)
 * ``layers``: paramètre optionnel de type texte définissant l'identifiant technique de la couche. (Obligatoire pour les couches de type WMS et WMTS)
 * ``format``: paramètre optionnel de type texte définissant le Format d'image retourné par le serveur. (Obligatoire pour les couches de type WMS et WMTS)
 * ``visible`` :guilabel:`studio` : paramètre obligatoire de type booléen (true/false) précisant si la couche est visible au démarrage. Il s'agit d'un paramètre exclusif. Une seule couche de fond peut être affichée sur la carte. Attention un baseselayer et un seul doit disposer du paramètre visible="true".

@@ -77,7 +77,7 @@ Configurer - Les couches
                 infopanel=""
                 index=""
 		minzoom=""
-		maxzoom=""
+		maxzoom="">
                 <template url=""></template>
         </layer>
 
@@ -111,8 +111,8 @@ Paramètres pour gérer l'affichage de la couche
 * ``toplayer``: Précise si la couche demeure figée. Booléen. Défaut = true. Si plusieurs couches sont en toplayer, elles seront affichées dans l'ordre d'écriture du XML.
 * ``expanded`` :guilabel:`studio` : Booléan précisant si le panneau de la couche est agrandi au démarrage. La valeur par défaut est false.
 * ``showintoc`` :  Booléen stipulant si la couche est affichée dans la légende. La valeur par défaut est true.
-* ``minzoom`` :  pour les couches de type vector-tms, la valeur correspond au niveau de zoom minimal de visibilité de la couche. Par défaut, la valeur est récupérée à partir du fichier de style au format JSON. Pour plus de détail, voir https://openlayers.org/en/latest/apidoc/module-ol_layer_VectorTile-VectorTileLayer.html.
-* ``maxzoom`` :  pour les couches de type vector-tms, la valeur correpond au niveau de zoom maximal de visibilité de la couche. Par défaut, la valeur est récupérée à partir du fichier de style au format JSON. Pour plus de détail, voir https://openlayers.org/en/latest/apidoc/module-ol_layer_VectorTile-VectorTileLayer.html.
+* ``minzoom`` :  pour les couches de type vector-tms, la valeur correspond au niveau de zoom minimal de visibilité de la couche. Par défaut, la valeur est récupérée à partir du fichier de style au format JSON. Pour plus de détail, voir la `documentation Openlayers <https://openlayers.org/en/latest/apidoc/module-ol_layer_VectorTile-VectorTileLayer.html>`_.
+* ``maxzoom`` :  pour les couches de type vector-tms, la valeur correpond au niveau de zoom maximal de visibilité de la couche. Par défaut, la valeur est récupérée à partir du fichier de style au format JSON. Pour plus de détail, voir la `documentation Openlayers <https://openlayers.org/en/latest/apidoc/module-ol_layer_VectorTile-VectorTileLayer.html>`_.
 
 Paramètres pour gérer attributions et métadonnées
 =====================================================
