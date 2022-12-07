@@ -69,11 +69,11 @@
                 fusesearchresult="{{nom}} ({{type_etabl}})"
                 attribution="Région Bretagne" />
 		</theme>
-        <theme id="sensors" name="sensors">
+        <theme id="sensors" name="Capteurs">
             <layer
                 id="agricast"
                 type="sensorthings"
-                name="Sensor"
+                name="API Geosas"
                 infopanel="bottom-panel"
                 visible="true"
                 legendurl="false"
@@ -88,10 +88,10 @@
             >
                 <template url="demo/sensor.mst"></template>
             </layer>
-            <!-- <layer
+            <layer
                 id="lora"
                 type="sensorthings"
-                name="Lora"
+                name="API Lora"
                 visible="true"
                 legendurl="false"
                 queryable="true"
@@ -103,8 +103,8 @@
                 selector="id,description"
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements">
-                <template url="demo/sensor.mst"></template> 
-            </layer> -->
+            </layer>
+            <template url="demo/sensorB.mst"></template>
         </theme>
 
     </themes>

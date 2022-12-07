@@ -24,23 +24,24 @@
         return color;
     }
 
-    const mvLayer = _.keys(mviewer.getLayers()).filter(k => mviewer.getLayer(k).type === "sensorthings")[0];
-    let featureWithObservations = mviewer.getLayer(mvLayer).layer.getSource().getFeatures().filter(x => x.ol_uid === mviewer.sensorthings.featureIdSelected);
+    const mvLayer = "lora";
+    const sensorthingsData = mviewer.sensorthings[mvLayer];
+    let featureWithObservations = mviewer.getLayer(mvLayer).layer.getSource().getFeatures().filter(x => x.ol_uid === sensorthingsData.featureIdSelected);
     const props = featureWithObservations[0].getProperties();
     
-    const streamsObs = mviewer.sensorthings.selected.map(x => parseInt(x));
+    const streamsObs = sensorthingsData.selected.map(x => parseInt(x));
     let streamsId = streamsObs[0];
     const firstDatastreamObservation = props.observations[streamsId].result;
     let datesValues = firstDatastreamObservation.map(o => new Date(o.resultTime).toLocaleDateString());
     let datasets = [];
     // DATASTREAM
-    if(mviewer.sensorthings.datastreams && mviewer.sensorthings.datastreams.length) {
+    if(sensorthingsData.datastreams && sensorthingsData.datastreams.length) {
         datastreamDataset = streamsObs.map(data => {
             if(!data && !props.observations[data]?.result) return;
             let observations = props.observations[data].result;
             let yValues = observations.map(o => o.result);
             let randomColor = getRandomColor();
-            const streams = mviewer.sensorthings.datastreams;
+            const streams = sensorthingsData.datastreams;
             return {
                 label: streams.filter(x => x.id === data)[0]?.name,
                 data: yValues,
@@ -53,12 +54,12 @@
         datasets = [...datasets, ...datastreamDataset];
     }
     // MULTIDATASTREAM
-    if(mviewer.sensorthings.multidatastreams && mviewer.sensorthings.multidatastreams.length) {
+    if(sensorthingsData.multidatastreams && sensorthingsData.multidatastreams.length) {
         streamsObs.map(data => {
             let observations = props.observations[data].result;
             let yValues = observations.map(o => o.result);
-            const streams = mviewer.sensorthings.multidatastreams;
-            let unitOfMeasures = mviewer.sensorthings.multidatastreams[0].unitOfMeasurements.map(x => x.name);
+            const streams = sensorthingsData.multidatastreams;
+            let unitOfMeasures = sensorthingsData.multidatastreams[0].unitOfMeasurements.map(x => x.name);
             let unitOfMeasurementsDataset = unitOfMeasures.map(unit => {
                 let randomColor = getRandomColor();
                 return {

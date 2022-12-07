@@ -1193,6 +1193,11 @@ li.mv-nav-item {
   padding-right: 10px;
 }
 
+/*Sensorthing control only*/
+#sensorthings-list ul.nav-pills.nav-stacked {
+  padding-left: 0px;
+}
+
 .level-2 .mv-nav-item a{
     padding-top: 5px;
     padding-bottom: 5px;

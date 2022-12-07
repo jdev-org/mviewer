@@ -108,21 +108,13 @@ var configuration = (function () {
         locationUrl = oLayer?.top ? `${locationUrl}?$top=${oLayer.top}` : locationUrl;
         fetch(locationUrl).then(r => r.json()).then(data => {
             const data_dl = data?.value;
-            return data_dl.map(location_th => {
-                if (location_th.location.geometry !== undefined) {
-                  return {
+            return data_dl.map(location_th => (
+                {
                     type: 'Feature',
-                    geometry: location_th.location.geometry,
-                    properties:location_th
-                  };
-                } else {
-                  return {
-                    type: 'Feature',
-                    geometry: location_th.location,
-                    properties:location_th
-                  };
+                    geometry: location_th.location.geometry || location_th.location,
+                    properties: location_th
                 }
-              })
+            ))
         }).then(features => {
             const geoJson = new ol.format.GeoJSON({
                 dataProjection: 'EPSG:4326',
@@ -135,8 +127,8 @@ var configuration = (function () {
             vecLayer.getSource().refresh = () => {
                 vecLayer.getSource().clear();
                 // override opneLayer refresh event
-                if (mviewer?.sensorthings?.featureIdSelected) {
-                    mviewer.sensorthings.featureIdSelected = null;
+                if (mviewer?.sensorthings[oLayer.id]?.featureIdSelected) {
+                    mviewer.sensorthings[oLayer.id].featureIdSelected = null;
                 };
                 _getSensorFeatures(oLayer, vecLayer)
             };
@@ -623,6 +615,7 @@ var configuration = (function () {
                         oLayer.timeinterval = layer.timeinterval || "day";
                     }
                     oLayer.timecontrol = layer.timecontrol || "calendar";
+                    oLayer.sensorthings = layer.type === "sensorthings";
                     if (layer.timevalues && layer.timevalues.search(",")) {
                         oLayer.timevalues = layer.timevalues.split(",");
                     }

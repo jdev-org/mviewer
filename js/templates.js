@@ -39,42 +39,31 @@ mviewer.templates.theme = `
                 </li>
             {{/groups}}
             {{#layers}}
-                {{#isSensorsThingsTheme}}
-                    <span class="hidden">
-                        ${mviewer.templates.themeLayer}
-                    </span>
-                    <span class="stream-list" style="list-style-type:none;">
-                    <span>
-                {{/isSensorsThingsTheme}}
-                {{^isSensorsThingsTheme}}
-                    ${mviewer.templates.themeLayer}
-                {{/isSensorsThingsTheme}}
+                ${mviewer.templates.themeLayer}
             {{/layers}}
         </ul>
     </li>`;
 
-mviewer.templates.sensorThings = `
-    <li class="level-2">
-        <ul class="nav-pills nav-stacked" style="list-style-type:none;">
-            {{#datastreams}}
-                <li class="datastreams" onclick="mviewer.sensorDataStreamSelected(this, false)" data-datastreamid="{{id}}">
-                    <a href="#">
-                        <span class="state-icon far mv-unchecked" datastream-span-id="{{id}}"></span> {{name}}
-                        <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">
-                    </a>
-                </li>
-            {{/datastreams}}
-            {{#multidatastreams}}
-                <li class="datastreams" onclick="mviewer.sensorDataStreamSelected(this, false)" data-datastreamid="{{id}}">
-                    <a href="#">
-                        <span class="state-icon far mv-unchecked" datastream-span-id="{{id}}"></span> {{name}}
-                        <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">
-                    </a>
-                </li>
-            {{/multidatastreams}}
-        </ul>
+mviewer.templates.ctrlSensor = `
+<ul class="nav-pills nav-stacked" style="list-style-type:none;">
+{{#datastreams}}
+    <li class="datastreams" onclick="mviewer.sensorDataStreamSelected(this, false, '{{idLayer}}')" data-datastreamid="{{id}}">
+        <a href="#">
+            <span class="state-icon far mv-unchecked" datastream-span-id="{{id}}"></span> {{name}}
+            <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">
+        </a>
     </li>
-`;
+{{/datastreams}}
+{{#multidatastreams}}
+    <li class="datastreams" onclick="mviewer.sensorDataStreamSelected(this, false, '{{idLayer}}')" data-datastreamid="{{id}}">
+        <a href="#">
+            <span class="state-icon far mv-unchecked" datastream-span-id="{{id}}"></span> {{name}}
+            <input type="checkbox" class="hidden" value="false" datastream-input-id="{{id}}">
+        </a>
+    </li>
+{{/multidatastreams}}
+</ul>
+`
 
 
 mviewer.templates.layerControl = [
@@ -207,12 +196,27 @@ mviewer.templates.layerControl = [
                 '</div>',
             '</div>',
         '{{/timeControl}}',
-            '<div class="mv-custom-controls" data-layerid="{{layerid}}"></div>',
-            '</div>',
-            '<a href="#" aria-label="Options" onclick="mviewer.toggleLayerOptions(this);" title="Options" i18n="theme.layers.options" class="icon-options">',
-                '<span class="state-icon glyphicon glyphicon-chevron-down"></span>',
-            '</a>',
-    '</li>'].join("");
+        '{{#sensorthings}}',
+            `<div class="row">
+                '<div class="col-md-12">
+                    <div class="form-group form-group-timer ">
+                        <label for="{{layerid}}-layer-sensorthings" i18n="legend.label.sensorthings">SensorThings</label>
+                        <span class="fas fa-satellite-dish" data-layerid="{{layerid}}" style="margin-left: 3px;"></span>
+                        <div class="panel panel-default">
+                            <div class="panel-body" id="sensorthings-list">
+                                Veuillez sélectionner un capteur...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`,
+            '{{/sensorthings}}',
+        '<div class="mv-custom-controls" data-layerid="{{layerid}}"></div>',
+    '</div>',
+    '<a href="#" aria-label="Options" onclick="mviewer.toggleLayerOptions(this);" title="Options" i18n="theme.layers.options" class="icon-options">',
+        '<span class="state-icon glyphicon glyphicon-chevron-down"></span>',
+    '</a>',
+'</li>'].join("");
 
 mviewer.templates.backgroundLayerControlGallery = [
         '<li data-original-title="{{label}}" title="{{label}}"',

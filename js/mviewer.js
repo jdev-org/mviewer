@@ -732,7 +732,7 @@ mviewer = (function () {
         _updateLegendsScaleDependancy(scale);
     };
 
-    var _sensorDataStreamSelected = (e, alreadySelected) => {
+    var _sensorDataStreamSelected = (e, alreadySelected, idLayer) => {
         const spanEl = e.getElementsByTagName("span")[0];
         if (e.getElementsByClassName("mv-unchecked").length) {
             spanEl.classList.remove("mv-unchecked");
@@ -743,7 +743,7 @@ mviewer = (function () {
         }
         const checkedCollection = [].slice.call(document.getElementsByClassName("datastreams-checked"));
         if (!alreadySelected) {
-            info.dataStreamSelected(checkedCollection.map(i => i.getAttribute("datastream-span-id")));   
+            info.dataStreamSelected(idLayer, checkedCollection.map(i => i.getAttribute("datastream-span-id")));   
         }
     }
 
@@ -943,36 +943,16 @@ mviewer = (function () {
 
     };
 
-    var _showSensorList = (isNew, layer) => {
-        if (mviewer.sensorthings) {
-            info.displaySensorList();
-            if (isNew && mviewer.getLayer(layer).layer.getVisible()) {
-                document.querySelector("#theme-layers-sensors ul").style.display = "block";
-            } else {
-                let isVisible = document.querySelector("#theme-layers-sensors ul").style.display === "block";
-                document.querySelector("#theme-layers-sensors ul").style.display = isVisible ? "none" : "block";
-            }
-            if (mviewer.sensorthings?.selected) {
-                mviewer.sensorthings?.selected.forEach(id => {
+    var _showSensorList = (idLayer) => {
+        if (mviewer.sensorthings[idLayer]) {
+            info.displaySensorList(idLayer);
+            if (mviewer.sensorthings[idLayer]?.selected) {
+                mviewer.sensorthings[idLayer]?.selected.forEach(id => {
                     // display list checked as previous state
-                    _sensorDataStreamSelected(document.querySelector(`[data-datastreamid='${id}']`), true);
+                    _sensorDataStreamSelected(document.querySelector(`[data-datastreamid='${id}']`), true, idLayer);
                 })   
             }
         }
-    }
-
-    var _initSensorMenu = () => {
-        let layerId = _.keys(mviewer.getLayers()).filter(k => mviewer.getLayer(k).type === "sensorthings")[0];
-        // delete iniital click event
-        let sensorThemeHandler = document.querySelector("#theme-layers-sensors");
-        let layerHandler = $(`.mv-nav-item[data-layerid='${layerId}']`);
-        if (!sensorThemeHandler) return;
-        let outerHTML = document.querySelector("#theme-layers-sensors a").outerHTML;
-        document.querySelector("#theme-layers-sensors a").outerHTML = outerHTML;
-        document.querySelector("#theme-layers-sensors a").addEventListener("click", () => {
-            mviewer.toggleLayer(layerHandler);
-            _showSensorList(false, layerId);
-        });
     }
 
     /**
@@ -1019,8 +999,7 @@ mviewer = (function () {
                 layers: false,
                 groups: false,
                 toggleAllLayers: false,
-                cls: "",
-                isSensorsThingsTheme: !notSensorThingsThemes.includes(theme.id)
+                cls: ""
             };
             if (configuration.getConfiguration().application.togglealllayersfromtheme === "true") {
                 view.toggleAllLayers = true;
@@ -1073,7 +1052,6 @@ mviewer = (function () {
         }
         $("#menu").html(htmlListGroup);
         initMenu();
-        _initSensorMenu();
         // Open theme item if set to collapsed=false
         if (configuration.getConfiguration().themes.theme !== undefined) {
             var expanded_theme = $.grep(configuration.getConfiguration().themes.theme, function(obj){return obj.collapsed === "false";});
@@ -2514,7 +2492,8 @@ mviewer = (function () {
                 tooltipControl: false,
                 styleControl: false,
                 attributeControl: false,
-                timeControl: false
+                timeControl: false,
+                sensorthings: layer.type === "sensorthings"
             };
 
             if (layer.type === 'customlayer' && layer.tooltip) {

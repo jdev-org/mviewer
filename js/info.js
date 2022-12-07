@@ -133,8 +133,8 @@ var info = (function () {
      * Private Method: _onThingRequested
      */
 
-    var _onThingRequested = (feature) => {
-        const lyrConfig = mviewer.getLayer(feature.getProperties().mviewerid);
+    var _onThingRequested = (feature, layerId) => {
+        const lyrConfig = mviewer.getLayer(layerId);
         // selector
         let selector = lyrConfig.selector;
         selector = selector && `$select=${selector}` || "";
@@ -160,7 +160,7 @@ var info = (function () {
         let clickedStreams = value[0];
         const dataStreams = clickedStreams && clickedStreams?.Datastreams || null;
         const multiDataStreams = clickedStreams && clickedStreams?.MultiDatastreams || null;
-        mviewer.sensorthings = {
+        mviewer.sensorthings[layer.id] = {
             top: layer.top,
             datastreams: dataStreams.map(x => (
                 {
@@ -168,7 +168,8 @@ var info = (function () {
                     id: x["@iot.id"],
                     url: url,
                     layer: layer,
-                    feature: feature
+                    feature: feature,
+                    idLayer: layer.id
                 })),
             multidatastreams: multiDataStreams.map(x => (
                 {
@@ -176,15 +177,16 @@ var info = (function () {
                     id: x["@iot.id"],
                     url: url,
                     layer: layer,
-                    feature: feature
+                    feature: feature,
+                    idLayer: layer.id
                 }))
         };
-        const event = new CustomEvent('sensorAvailable', { detail: mviewer.sensorthings });
+        const event = new CustomEvent('sensorAvailable', { detail: mviewer.sensorthings[layer.id] });
         document.dispatchEvent(event);
         // Manage menu theme list
-        _displaySensorList();
+        _displaySensorList(layer.id);
         // display datastreams list
-        mviewer.showSensorList(true, layer.id);
+        mviewer.showSensorList(layer.id);
         // click first datastream if any selected
         if (!document.getElementsByClassName("datastreams-checked").length) {
             let defaultSelected = [...document.getElementsByClassName("datastreams")].filter(x => x.querySelector("a").innerText === layer.defaultSensor)[0];
@@ -193,22 +195,23 @@ var info = (function () {
         }
     }
 
-    var _displaySensorList = () => {
-        const targetDOM = document.querySelector('[id="theme-layers-sensors"]').querySelector(".stream-list");
-        targetDOM.innerHTML = "";
-        var rendered = Mustache.render(mviewer.templates.sensorThings, mviewer.sensorthings);
-        targetDOM.innerHTML = rendered;
+    var _displaySensorList = (idLayer) => {
+        // nativ custom control
+        const targetDOMCtrl = document.querySelector('#sensorthings-list');
+        targetDOMCtrl.innerHTML = "";
+        var rendered = Mustache.render(mviewer.templates.ctrlSensor, {...mviewer.sensorthings[idLayer], id: idLayer});
+        targetDOMCtrl.innerHTML = rendered;
     }
 
-    var _dataStreamSelected = (ids) => {
+    var _dataStreamSelected = (idLayer, ids) => {
         let layer = null;
-        mviewer.sensorthings.selected = ids;
+        mviewer.sensorthings[idLayer].selected = ids;
         if (!ids.length) {
             return $(".popup-content").html('');
         }
         let urlsObservation = ids.map(id => {
-            const dataStreamInfos = mviewer.sensorthings.datastreams.filter(x => x.id == id)[0];
-            const multiDataStreamsInfos = mviewer.sensorthings.multidatastreams.filter(x => x.id == id)[0]
+            const dataStreamInfos = mviewer.sensorthings[idLayer].datastreams.filter(x => x.id == id)[0];
+            const multiDataStreamsInfos = mviewer.sensorthings[idLayer].multidatastreams.filter(x => x.id == id)[0]
             if (dataStreamInfos) {
                 layer = dataStreamInfos.layer;
                 return fetch(`${dataStreamInfos.url}/Datastreams(${id})/Observations${layer.top ? `?$top=${layer.top}` : ""}`).then(r => r.json()).then(r => ({...dataStreamInfos, result: r.value}));
@@ -231,7 +234,7 @@ var info = (function () {
                 feature[id] = values[idx];
             });
             values[0].feature.setProperties({ observations: feature });
-            mviewer.sensorthings.featureIdSelected = values[0].feature.ol_uid;
+            mviewer.sensorthings[idLayer].featureIdSelected = values[0].feature.ol_uid;
             _displayPanel([values[0].feature], layer);
             _callback();
         });
@@ -347,10 +350,10 @@ var info = (function () {
                     var features = vectorLayers[layerid].features;
                     if (l && l.type === "sensorthings") {
                         if (l.type === "sensorthings" && features) {
-                            mviewer.sensorthings = {};
+                            mviewer.sensorthings = {[layerid]: {}};
                             // get things
-                            mviewer.sensorthings.features = features;
-                            const urlsThing = features.map(x => _onThingRequested(x));
+                            mviewer.sensorthings[layerid].features = features;
+                            const urlsThing = features.map(x => _onThingRequested(x, layerid));
                             let i = 0;
                             Promise.all(urlsThing).then(values => {
                                 _onDatastreamRender(values[0] ? { ...values[i], feature: features[i], url: l.url, layer: l } : null);
