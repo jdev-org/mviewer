@@ -84,8 +84,7 @@
                 defaultSensor=""
                 selector="id,description"
                 datastreamsfilter="name,id"
-                multidatastreamsfilter="name,description,id,unitOfMeasurements"
-            >
+                multidatastreamsfilter="name,description,id,unitOfMeasurements">
                 <template url="demo/sensorGeosas.mst"></template>
             </layer>
             <layer
@@ -103,8 +102,8 @@
                 selector="id,description"
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements">
+                <template url="demo/sensorLora.mst"></template>
             </layer>
-            <template url="demo/sensorLora.mst"></template>
         </theme>
 
     </themes>
