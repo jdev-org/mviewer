@@ -742,6 +742,7 @@ mviewer = (function () {
             spanEl.classList.remove("mv-checked", "datastreams-checked");
         }
         const checkedCollection = [].slice.call(document.getElementsByClassName("datastreams-checked"));
+        
         if (!alreadySelected) {
             info.dataStreamSelected(idLayer, checkedCollection.map(i => i.getAttribute("datastream-span-id")));   
         }

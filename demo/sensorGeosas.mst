@@ -26,7 +26,6 @@
 
     const mvLayer = "agricast";
     const sensorthingsData = mviewer.sensorthings[mvLayer];
-    console.log("OK");
     let featureWithObservations = mviewer.getLayer(mvLayer).layer.getSource().getFeatures().filter(x => x.ol_uid === sensorthingsData.featureIdSelected);
     const props = featureWithObservations[0].getProperties();
     

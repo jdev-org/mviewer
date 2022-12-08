@@ -148,12 +148,15 @@ var info = (function () {
         let fullStreamsfilter = [datastreamsfilter, multidatastreamsfilter].join(",");
         fullStreamsfilter = fullStreamsfilter && `&$expand=${fullStreamsfilter}`;
         // get full URL
-        return fetch(`${feature.getProperties()["Things@iot.navigationLink"]}?${selector}${fullStreamsfilter}`)
-            .then(r => r.json())
+        return new Promise((resolve, reject) => {
+            return fetch(`${ feature.getProperties()["Things@iot.navigationLink"] }?${ selector }${ fullStreamsfilter }`)
+            .then(r => r.json()).then(r => resolve(r))
             .catch(r => {
+                reject();
                 console.log("Fail to request thing whith [" + feature.getProperties().mviewerid + "] layer");
                 return null;
             });
+        });
     }
 
     var _onDatastreamRender = ({ value, feature, url, layer }) => {
@@ -197,7 +200,7 @@ var info = (function () {
 
     var _displaySensorList = (idLayer) => {
         // nativ custom control
-        const targetDOMCtrl = document.querySelector('#sensorthings-list');
+        const targetDOMCtrl = document.querySelector(`#sensorthings-list-${idLayer}`);
         targetDOMCtrl.innerHTML = "";
         var rendered = Mustache.render(mviewer.templates.ctrlSensor, {...mviewer.sensorthings[idLayer], id: idLayer});
         targetDOMCtrl.innerHTML = rendered;
@@ -353,6 +356,8 @@ var info = (function () {
                             mviewer.sensorthings = {[layerid]: {}};
                             // get things
                             mviewer.sensorthings[layerid].features = features;
+                            // clean panel selector
+                            [...document.querySelectorAll(".list-streams")].map(x => {x.innerHTML = "Veuillez cliquer la couche..."})
                             const urlsThing = features.map(x => _onThingRequested(x, layerid));
                             let i = 0;
                             Promise.all(urlsThing).then(values => {

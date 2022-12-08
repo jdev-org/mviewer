@@ -203,7 +203,7 @@ mviewer.templates.layerControl = [
                         <label for="{{layerid}}-layer-sensorthings" i18n="legend.label.sensorthings">SensorThings</label>
                         <span class="fas fa-satellite-dish" data-layerid="{{layerid}}" style="margin-left: 3px;"></span>
                         <div class="panel panel-default">
-                            <div class="panel-body" id="sensorthings-list">
+                            <div class="panel-body list-streams" id="sensorthings-list-{{layerid}}">
                                 Veuillez sélectionner un capteur...
                             </div>
                         </div>

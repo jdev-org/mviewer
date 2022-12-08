@@ -1194,7 +1194,7 @@ li.mv-nav-item {
 }
 
 /*Sensorthing control only*/
-#sensorthings-list ul.nav-pills.nav-stacked {
+.list-streams ul.nav-pills.nav-stacked {
   padding-left: 0px;
 }
 
