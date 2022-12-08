@@ -86,7 +86,7 @@
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements"
             >
-                <template url="demo/sensor.mst"></template>
+                <template url="demo/sensorGeosas.mst"></template>
             </layer>
             <layer
                 id="lora"
@@ -104,7 +104,7 @@
                 datastreamsfilter="name,id"
                 multidatastreamsfilter="name,description,id,unitOfMeasurements">
             </layer>
-            <template url="demo/sensorB.mst"></template>
+            <template url="demo/sensorLora.mst"></template>
         </theme>
 
     </themes>
