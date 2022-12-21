@@ -1,0 +1,10 @@
+{
+    "js": ["main.js"],
+    "css": "main.css",
+    "html": "main.html",
+    "target": "mv-navbar",
+    "options": {
+      "replay": 15000
+    }
+  }
+  
