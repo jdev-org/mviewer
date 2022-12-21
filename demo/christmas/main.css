@@ -32,18 +32,19 @@
 	from { background-position: 0 0; }
 	to { background-position: 0 413px; }
 }
-
-/* #mv-navbar {
-	background-color: #bb051f !important
-} */
-
-.navbar-header, .fixed-brand, .navbar-collapse {
+.navbar-header, mv-logo, .menu-toggle, .fixed-brand, .navbar-collapse {
 	z-index: 2000 !important;
 	position: relative !important;
 }
 
-.me
+.mirror {
+	transform: scale(-1, 1);
+}
 
 img.mv-logo {
     display: none;
+}
+
+#map {
+	cursor: url("./img/santa2.svg"), pointer; 
 }
