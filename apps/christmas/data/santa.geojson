@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "name": "santa",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": 1, "name": "Santa Clause" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [2991653.15160749386996, 10441041.35372450016439]
+      }
+    }
+  ]
+}
