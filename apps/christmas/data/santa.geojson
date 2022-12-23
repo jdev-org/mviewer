@@ -5,7 +5,11 @@
   "features": [
     {
       "type": "Feature",
-      "properties": { "id": 1, "name": "Santa Clause" },
+      "properties": {
+        "id": 1,
+        "name": "Santa Clause",
+        "say": "Oh! Oh! Oh ! Ecrivez 'penguin' avec votre clavier pour voir !"
+      },
       "geometry": {
         "type": "Point",
         "coordinates": [2991653.15160749386996, 10441041.35372450016439]
