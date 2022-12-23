@@ -35,7 +35,7 @@
         <extension type="javascript" src="https://rawgit.com/WeiChiaChang/Easter-egg/master/easter-eggs-collection.js"/>
     </extensions>
     <themes>
-        <theme name="santa" collapsed="false" id="santa" icon="fas fa-sleigh">
+        <theme name="Données de Noël" collapsed="false" id="santa" icon="fas fa-sleigh">
             <layer 
                 id="santa"
                 name="Localisation du Père Noël 🤶🎅"
