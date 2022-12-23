@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <application 
-        title="🤶 Oh! Oh! Oh! 🎅 🦌🦌🦌🦌 &lt;i style=&quot;color: #edab27&quot; class=&quot; mirror fas fa-sleigh&quot;&gt;&lt;/i&gt;" 
+    <application
+        htmltitle=" 🤶🎅 Êtes-vous loin du Père Noël ? 🦌🦌🦌🦌 &lt;i style=&quot;color: #edab27&quot; class=&quot; mirror fas fa-sleigh&quot;&gt;&lt;/i&gt;"
+        title="🤶 Êtes-vous loin du Père Noël ? 🎅"
         mouseposition="false" 
         logo="apps/christmas/img/christmas-tree.svg" 
         help="mviewer_help.html" 
@@ -31,12 +32,26 @@
     <searchparameters bbox="false" localities="true" features="false" />
     <extensions>
         <extension type="component" id="christmas" path="apps"/>
+        <extension type="javascript" src="https://rawgit.com/WeiChiaChang/Easter-egg/master/easter-eggs-collection.js"/>
     </extensions>
     <themes>
         <theme name="santa" collapsed="false" id="santa" icon="fas fa-sleigh">
             <layer 
+                id="school"
+                legendurl="apps/christmas/img/legend.png"
+                name="Distance des écoles de Bretagne avec le Père Noël"
+                visible="true"
+                queryable="false"
+                type="customlayer"
+                opacity="1"
+                url="apps/christmas/customlayers/school.js"
+                tooltip="true"
+                tooltipenabled="false"
+                attribution="Source: Fabrique du Père Noël - Pôle Livraison - Santa Noth. Inc."
+            />
+            <layer 
                 id="santa"
-                name="Maison du Père Noël"
+                name="Localisation du Père Noël 🤶🎅"
                 visible="true"
                 legendurl="apps/christmas/img/santa1.png"
                 queryable="false"
@@ -45,19 +60,6 @@
                 tooltip="true"
                 tooltipenabled="true"
                 attribution="Source: Maison mère du Père Noël - Santa Noth. Inc."
-            />
-            <layer 
-                id="school"
-                vectorlegend="true"
-                name="Distance des écoles de Bretagne avec le Père Noël"
-                visible="true"
-                queryable="false"
-                type="customlayer"
-                opacity="1"
-                url="apps/christmas/customlayers/school.js"
-                tooltip="true"
-                tooltipenabled="true"
-                attribution="Source: Fabrique du Père Noël - Pôle Livraison - Santa Noth. Inc."
             />
         </theme>
         <theme name="Découpages territoriaux"  collapsed="true" id="territoire" icon="fas fa-gifts">
