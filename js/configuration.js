@@ -809,13 +809,29 @@ var configuration = (function () {
             if (oLayer.searchable) {
               oLayer = search.configSearchableLayer(oLayer, layer);
             }
+            // ->- sensorthings params
+            oLayer.top = layer?.top;
+            oLayer.defaultSensor = layer?.defaultSensor;
+            oLayer.selector = layer.selector;
+            oLayer.customstyle = layer.customstyle;
+            oLayer.datastreamsfilter = layer.datastreamsfilter;
+            oLayer.multidatastreamsfilter = layer.multidatastreamsfilter;
+            oLayer.sensorserviceurl = layer.sensorserviceurl;
+            oLayer.sensorthingsfield = layer.sensorthingsfield;
+            oLayer.sensorserviceurl = layer.sensorserviceurl;
+            oLayer.sensorthingsid = layer.sensorthingsid;
+            // -X- sensorthings params
             oLayer.checked = layer.visible === "true" ? true : false;
             oLayer.visiblebydefault = oLayer.checked ? true : false;
             oLayer.tiled = layer.tiled === "true" ? true : false;
             oLayer.dynamiclegend = layer.dynamiclegend === "true" ? true : false;
             oLayer.vectorlegend = layer.vectorlegend === "true" ? true : false;
-            oLayer.nohighlight = layer.nohighlight === "true" ? true : false;
-            oLayer.infohighlight = layer.infohighlight === "false" ? false : true;
+            oLayer.nohighlight =
+              layer.type != "sensorthings" || layer.nohighlight === "true" ? true : false;
+            oLayer.infohighlight =
+              layer.type === "sensorthings" || layer.infohighlight === "false"
+                ? false
+                : true;
             oLayer.showintoc =
               layer.showintoc && layer.showintoc === "false" ? false : true;
             oLayer.legendurl = layer.legendurl
@@ -943,7 +959,12 @@ var configuration = (function () {
               }
               mviewer.processLayer(oLayer, l);
             } // end geojson
-
+            // ->- sensortings layer
+            if (oLayer.type === "sensorthings") {
+              l = new SensorLayer(oLayer);
+              l.initLayer();
+            }
+            // -X- sensortings layer
             if (oLayer.type === "kml") {
               l = new ol.layer.Vector({
                 source: new ol.source.Vector({
@@ -1199,6 +1220,9 @@ var configuration = (function () {
     source.on("tileloaderror", function (event) {
       $("#loading-" + event.target.get("layerid")).hide();
     });
+    if (oLayer.sensorserviceurl) {
+      l.sensorthings = new Sensorthings(oLayer);
+    }
     mviewer.processLayer(oLayer, l);
   };
 
