@@ -809,6 +809,7 @@ mviewer = (function () {
     l.set("name", oLayer.name);
     l.set("mviewerid", oLayer.id);
     l.set("infohighlight", oLayer.infohighlight);
+    l.set("type", oLayer.type);
 
     if (oLayer.searchable) {
       search.processSearchableLayer(oLayer);
@@ -996,6 +997,7 @@ mviewer = (function () {
       }
     });
   };
+
   /**
    * Private Method: _initDataList
    *
@@ -1027,6 +1029,7 @@ mviewer = (function () {
       var classes = [];
       var view = {
         id: theme.id,
+        // layerid: !_.isEmpty(theme?.layers) && _.keys(theme.layers)[0],
         name: theme.name,
         icon: theme.icon,
         layers: false,
@@ -2644,6 +2647,7 @@ mviewer = (function () {
         styleControl: false,
         attributeControl: false,
         timeControl: false,
+        sensorthings: layer.type === "sensorthings"
       };
 
       if (layer.type === "customlayer" && layer.tooltip) {
@@ -3513,6 +3517,10 @@ mviewer = (function () {
 
     initToolTip: _initTooltip,
 
+    dispatchEvent: (name, detail) => {
+      const event = new CustomEvent(name, { detail: detail });
+      document.dispatchEvent(event);
+    },
     events: function () {
       return _events;
     },
