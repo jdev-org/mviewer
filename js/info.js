@@ -135,7 +135,6 @@ var info = (function () {
     // TODO : Clear search results
     //_clearSearchResults();
     _queryMap(evt);
-    console.log(evt);
   };
 
   /**
