@@ -339,6 +339,37 @@ var configuration = (function () {
 
     _configuration = conf;
     utils.testConfiguration(conf);
+
+    //add meta apps to share
+    // app title
+    var metatitle = conf.application.title
+      ? conf.application.title
+      : "Mon application Mviewer";
+    $("head").prepend(`<meta property="og:title" content="${metatitle}">`);
+    // app description
+    var metadescription = conf.application.metadescription
+      ? conf.application.metadescription
+      : "Consulter des données à l'aide du visualiseur cartographique Mviewer";
+    $("head").prepend(`<meta property="og:description" content="${metadescription}">`);
+    $("head").prepend(`<meta name="description" content="${metadescription}">`);
+    // Preview
+    var metaimgurl = conf.application.metaimgurl
+      ? conf.application.metaimgurl
+      : "img/mviewer_preview.jpg";
+    // test full url to img preview
+    if (metaimgurl.indexOf("http://") === 0 || metaimgurl.indexOf("https://") === 0) {
+      console.log("url absolu");
+    } else {
+      const urlPre =
+        window.location.protocol +
+        "//" +
+        window.location.host +
+        "/" +
+        window.location.pathname;
+      const urlPreview = urlPre + metaimgurl;
+      $("head").prepend(`<meta property="og:image" content="${urlPreview}">`);
+    }
+
     //apply application customization
     if (conf.application.lang) {
       // default lang from config file
