@@ -345,29 +345,25 @@ var configuration = (function () {
     var metatitle = conf.application.title
       ? conf.application.title
       : "Mon application Mviewer";
-    $("head").prepend(`<meta property="og:title" content="${metatitle}">`);
+    document.querySelector("meta[property='og:title']").content = metatitle;
     // app description
     var metadescription = conf.application.metadescription
       ? conf.application.metadescription
       : "Consulter des données à l'aide du visualiseur cartographique Mviewer";
-    $("head").prepend(`<meta property="og:description" content="${metadescription}">`);
-    $("head").prepend(`<meta name="description" content="${metadescription}">`);
-    // Preview
+    document.querySelector('meta[name="description"]').content = metadescription;
+    document.querySelector("meta[property='og:description']").content = metadescription;
+    // app preview
     var metaimgurl = conf.application.metaimgurl
       ? conf.application.metaimgurl
       : "img/mviewer_preview.jpg";
     // test full url to img preview
     if (metaimgurl.indexOf("http://") === 0 || metaimgurl.indexOf("https://") === 0) {
-      console.log("url absolu");
+      document.querySelector("meta[property='og:image']").content = metaimgurl;
     } else {
       const urlPre =
-        window.location.protocol +
-        "//" +
-        window.location.host +
-        "/" +
-        window.location.pathname;
+        window.location.protocol + "//" + window.location.host + window.location.pathname;
       const urlPreview = urlPre + metaimgurl;
-      $("head").prepend(`<meta property="og:image" content="${urlPreview}">`);
+      document.querySelector("meta[property='og:image']").content = urlPreview;
     }
 
     //apply application customization
