@@ -126,7 +126,7 @@ class Sensorthings {
         // read openLayers features from previous formated GeoJSON
         const geojsonFeatures = new ol.format.GeoJSON({
           dataProjection: `EPSG:${this.srs}`,
-          featureProjection: "EPSG:3857",
+          featureProjection: mviewer.getMap().getView().getProjection().getCode(),
         }).readFeatures({
           type: "FeatureCollection",
           features: features,
