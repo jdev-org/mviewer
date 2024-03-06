@@ -813,6 +813,7 @@ var configuration = (function () {
             oLayer.top = layer?.top;
             oLayer.defaultSensor = layer?.defaultSensor;
             oLayer.selector = layer.selector;
+            oLayer.customstyle = layer.customstyle;
             oLayer.datastreamsfilter = layer.datastreamsfilter;
             oLayer.multidatastreamsfilter = layer.multidatastreamsfilter;
             // -X- sensorthings params

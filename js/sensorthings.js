@@ -10,10 +10,12 @@ class Sensorthings {
     this.initialized = false;
     this.streamEvent = `${this.config.id}-select-stream`;
     this.onClickEvent = null;
+    this.srs = config.srs || "4326";
     // usefull to create and update custom control list
     this.selectedStreams = [];
     this.datastreams = [];
     this.multidatastreams = [];
+    this.customstyle = config.customstyle ? JSON.parse(config.customstyle) : "";
 
     this.initLayer();
   }
@@ -123,7 +125,7 @@ class Sensorthings {
       .then((features) => {
         // read openLayers features from previous formated GeoJSON
         const geojsonFeatures = new ol.format.GeoJSON({
-          dataProjection: "EPSG:4326",
+          dataProjection: `EPSG:${this.srs}`,
           featureProjection: "EPSG:3857",
         }).readFeatures({
           type: "FeatureCollection",
@@ -143,9 +145,36 @@ class Sensorthings {
       });
   }
 
+  /**
+   *
+   * @param {Object} style from stringify layer.customstyle param
+   */
+  setPersonnalStyle(style) {
+    const rules = style || this.customstyle;
+    const type = Object.keys(rules)[0];
+    let olStyle;
+    const rulesOl = {
+      stroke: _.get(rules[type], "stroke"),
+      fill: _.get(rules[type], "fill"),
+      radius: _.get(rules[type], "radius"),
+    };
+    if (type == "point") {
+      olStyle = () => mviewer.featureStyles.sensorPoint(rulesOl);
+      this.layer.setStyle(olStyle);
+    } else if (type == "polygon") {
+      olStyle = () => mviewer.featureStyles.sensorPolygon(rulesOl);
+      this.layer.setStyle(olStyle);
+    }
+  }
+
   initLayer() {
     this.setVectorSource([]);
-    this.setMviewerStyle(this.config.style);
+    if (this.config.style) {
+      this.setMviewerStyle(this.config.style, this.customstyle);
+    }
+    if (this.customstyle) {
+      this.setPersonnalStyle();
+    }
     mviewer.processLayer(this.config, this.layer);
     this.getSensorFeatures(this.config, this.layer);
     this.layer.sensorthings = this;
