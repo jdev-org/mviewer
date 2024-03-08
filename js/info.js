@@ -177,7 +177,6 @@ var info = (function () {
   async function _queryMap(evt, options) {
     var isClick = evt.type === "singleclick";
     var requests = [];
-    var sensorPromises = [];
     $(".popup-content").html("");
     _queriedFeatures = [];
     _firstlayerFeatures = [];
@@ -534,6 +533,7 @@ var info = (function () {
                 let parentDomEl = document.querySelector(
                   `#layers-container [data-layerid='${layerid}']`
                 );
+                response.layerinfos.layer.sensorthings.setLastQuery(response.evt);
                 features = await waitAllSensorWmsFeatures(features, response.layerinfos);
                 response.layerinfos.layer.sensorthings.features = features;
                 if (
@@ -760,6 +760,7 @@ var info = (function () {
               layerinfos: this.layer,
               contenttype: request.getResponseHeader("Content-Type"),
               sensorRequestUrl: this.layer.sensorserviceurl,
+              evt: evt,
             });
           },
         })
