@@ -275,7 +275,7 @@ var addlayers = (function () {
 
       var button = `<li class="half" id="addLayerMenuBtn">
             <a href="#" onclick="mviewer.tools.addlayers.toggle();">
-            <span class="fa-stack fa-lg pull-left col-sm-3">
+            <span class="fa-stack">
               <i class="fas fa-plus fa-solid "></i>
             </span>Ajouter des données</a>
             </li>`;

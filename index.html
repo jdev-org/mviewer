@@ -11,7 +11,7 @@
 
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="lib/flag-icons-4.1.4/css/flag-icons.css" rel="stylesheet" />
-    <link href="lib/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="lib/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
     <link href="lib/simple-slidebar/simple_slidebar.css" rel="stylesheet" />
     <link
       href="lib/bootstrap-datepicker-1.6.1/css/bootstrap-datepicker3.min.css"
@@ -25,26 +25,13 @@
     <link rel="stylesheet" href="css/mviewer.css" type="text/css" />
     <link rel="stylesheet" href="css/print.css" type="text/css" media="print" />
     <style>
-      @import url("https://fonts.googleapis.com/css?family=Roboto");
 
       div#loading-page {
         color: #999;
-        font-family: "Roboto", sans-serif;
         font-size: 16px;
         text-align: center;
-        padding-top: 25%;
       }
-
-      #loader-title {
-        margin-top: 20px;
-      }
-
-      #loader-subtitle {
-        margin-top: 5px;
-        font-weight: 700;
-        text-transform: uppercase;
-      }
-
+      
       .single4 {
         display: inline-block;
         width: 50px;
@@ -84,7 +71,7 @@
   </head>
 
   <body>
-    <div id="loading-page">
+    <div id="loading-page" class="h-100">
       <div class="single4"></div>
       <div id="loader-title" i18n="loader.text">Chargement de l'application ...</div>
       <div id="loader-subtitle"></div>
@@ -92,97 +79,25 @@
     <div id="error">
       <h1></h1>
     </div>
-    <div id="main" style="opacity: 0.01">
-      <!-- Ajax Loader -->
-      <div id="loading-indicator" style="display: none">
-        <div class="loader">Loading...</div>
-      </div>
+    <div id="main" class="h-100" style="opacity: 0.01">      
       <!-- NAVBAR -->
-      <!-- NAVBAR -->
-      <nav class="navbar navbar-default no-margin navbar-fixed-top" id="mv-navbar">
-        <div class="navbar-header fixed-brand">
-          <a
-            type="button"
-            class="navbar-brand menu-toggle"
-            href="#"
-            title="Afficher/masquer les thématiques"
-            i18n="navbar.toggle">
-            <span class="glyphicon glyphicon-menu-hamburger"></span>
-          </a>
-          <a class="navbar-brand" href="#">
-            <img alt="Logo" src="img/logo/earth-globe.svg" class="mv-logo" />
-          </a>
-          <a class="navbar-brand mv-title" href="#">mViewer</a>
-          <a
-            type="button"
-            class="navbar-toggle"
-            data-toggle="collapse"
-            data-target="#bs-example-navbar-collapse-1"
-            href="#">
-            <span class="glyphicon glyphicon-menu-hamburger"></span>
-          </a>
-        </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav mv-nav">
-            <li class="hidden-lg hidden-md">
-              <a
-                href="#"
-                data-toggle="modal"
-                data-target="#thematic-modal"
-                i18n="nav.responsive.topics">
-                Thématiques
-              </a>
-            </li>
-            <li class="hidden-lg hidden-md">
-              <a
-                href="#"
-                data-toggle="modal"
-                data-target="#legend-modal"
-                i18n="nav.responsive.legend">
-                Légende
-              </a>
-            </li>
-            <li class="hidden-lg hidden-md">
-              <a
-                href="#"
-                data-toggle="modal"
-                data-target="#help"
-                i18n="nav.responsive.about">
-                A propos
-              </a>
-            </li>
-            <li class="hidden-xs hidden-sm hidden-md">
-              <div class="navbar-form navbar-left" id="coordinates">
-                <span class=""></span>
-              </div>
-            </li>
-            <!--LANG SELECTOR-->
-            <li id="lang-button" class="hidden-lg hidden-md">
-              <a
-                href="#"
-                data-toggle="modal"
-                data-target="#lang-popup"
-                i18n="nav.down.lang">
-                Langues
-              </a>
-            </li>
-            <li id="lang-selector" class="dropdown hidden-xs hidden-sm">
-              <a
-                href="#"
-                class="dropdown-toggle"
-                data-toggle="dropdown"
-                role="button"
-                aria-expanded="true">
-                <span i18n="nav.down.lang">Langue</span>
-                <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu mv-translate">
-                <!--insert languages-->
-              </ul>
-            </li>
-            <!--//LANG SELECTOR-->
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
+      <nav class="navbar" id="mv-navbar">
+        <div class="container-fluid p-0">    
+          <div class="navbar-header fixed-brand">
+            <a
+              type="button"
+              class="navbar-brand menu-toggle"
+              href="#"
+              title="Afficher/masquer les thématiques"
+              i18n="navbar.toggle">
+              <i class="ri-menu-line"></i>
+            </a>
+            <a class="navbar-brand" href="#">
+              <img alt="Logo" src="img/logo/navbar__nologo.svg" class="mv-logo" />
+            </a>
+            <a class="navbar-brand mv-title" href="#">mViewer</a>            
+          </div>
+          <div class="nav navbar-nav navbar-right">
             <li>
               <div id="login-box" class="navbar-form" style="display: none">
                 <span></span>
@@ -200,6 +115,12 @@
               </div>
             </li>
             <li>
+              <!-- Ajax Loader -->
+              <div id="loading-indicator" style="display: none">
+                  <i class="ri-loader-4-line"></i>
+              </div>
+            </li>
+            <li>
               <div class="navbar-form" role="search" id="searchtool">
                 <div class="form-group input-group">
                   <input
@@ -208,18 +129,16 @@
                     placeholder="Rechercher"
                     i18n="navbar.search.placeholder"
                     id="searchfield" />
-                  <div class="input-group-btn">
                     <button
                       type="button"
-                      class="btn btn-default"
+                      class="btn btn-light"
                       aria-label="Help"
-                      data-toggle="modal"
-                      data-target="#parameterspanel"
+                      data-bs-toggle="modal"
+                      data-bs-target="#parameterspanel"
                       i18n="search.panel.title"
                       title="Paramètres de recherche">
-                      <span class="glyphicon glyphicon-option-vertical"></span>
+                      <i class="ri-more-2-fill"></i>
                     </button>
-                  </div>
                 </div>
               </div>
             </li>
@@ -228,16 +147,87 @@
                 <button
                   id="iconhelp"
                   type="button"
-                  class="btn btn-default navbar-btn mv-navbar-btn"
-                  data-toggle="modal"
-                  data-target="#help"
+                  class="btn btn-light mv-navbar-btn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#help"
                   i18n="help.modal.doc"
                   title="Lien vers la documentation">
-                  <span class="fas fa-question"></span>
+                  <i class="ri-home-5-line"></i>
                 </button>
               </div>
             </li>
-          </ul>
+          </div>
+          <a
+              id="navbar-btn-menu-mobile"
+              type="button"
+              class="navbar-toggle"
+              data-bs-toggle="collapse"
+              data-bs-target="#bs-example-navbar-collapse-1"
+              href="#">
+              <i class="ri-menu-line"></i>
+            </a>
+          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav mv-nav">
+              <li class="hidden-lg hidden-md">
+                <a
+                  href="#"
+                  data-bs-toggle="modal"
+                  data-bs-target="#thematic-modal"
+                  i18n="nav.responsive.topics">
+                  Thématiques
+                </a>
+              </li>
+              <li class="hidden-lg hidden-md">
+                <a
+                  href="#"
+                  data-bs-toggle="modal"
+                  data-bs-target="#legend-modal"
+                  i18n="nav.responsive.legend">
+                  Légende
+                </a>
+              </li>
+              <li class="hidden-lg hidden-md">
+                <a
+                  href="#"
+                  data-bs-toggle="modal"
+                  data-bs-target="#help"
+                  i18n="nav.responsive.about">
+                  A propos
+                </a>
+              </li>
+              <li class="hidden-xs hidden-sm hidden-md">
+                <div class="navbar-form navbar-left" id="coordinates">
+                  <span class=""></span>
+                </div>
+              </li>
+              <!--LANG SELECTOR-->
+              <li id="lang-button" class="hidden-lg hidden-md">
+                <a
+                  href="#"
+                  data-bs-toggle="modal"
+                  data-bs-target="#lang-popup"
+                  i18n="nav.down.lang">
+                  Langues
+                </a>
+              </li>
+              <li id="lang-selector" class="dropdown hidden-xs hidden-sm">
+                <a
+                  href="#"
+                  class="dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  role="button"
+                  aria-expanded="true">
+                  <span i18n="nav.down.lang">Langue</span>
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu mv-translate">
+                  <!--insert languages-->
+                </ul>
+              </li>
+              <!--//LANG SELECTOR-->
+            </ul>
+            
+          </div>
         </div>
       </nav>
       <div id="wrapper">
@@ -251,21 +241,25 @@
               <div id="map"></div>
               <div id="layers-container-box" class="">
                 <div id="legend" class="active">
-                  <div id="layers-container-box-header">
+                  <div class="btn-group btn-group-sm" role="group" id="layers-container-box-header">
                     <a
+                      class="btn btn-primary"
+                      type="button"
                       onclick="mviewer.toggleLegend();"
                       title="Afficher/masquer la légende"
                       i18n="legend.title"
                       href="#">
-                      <span class="glyphicon glyphicon-list"></span>
+                      <i class="ri-list-unordered"></i>
                     </a>
                     <a
+                      class="btn btn-primary"
+                      type="button"
                       id="btn-remove-layers"
                       onclick="mviewer.removeAllLayers();"
                       title="Supprimer toutes les couches"
                       i18n="legend.remove.all"
                       href="#">
-                      <span class="glyphicon glyphicon-trash"></span>
+                      <i class="ri-delete-bin-2-line"></i>
                     </a>
                   </div>
                   <ul id="layers-container" class="list-group"></ul>
@@ -274,34 +268,19 @@
               <div id="feature-info"></div>
               <!-- BOTTOM PANEL -->
               <div id="bottom-panel">
-                <div id="bottom-panel-btn">
-                  <i
-                    class="mv-close fas fa-chevron-down"
-                    title="Fermer ce panneau"
-                    i18n="bottom.panel.close"
-                    onclick="$('#bottom-panel').toggleClass('active')"></i>
-                </div>
                 <div class="mv-header">
-                  <h5 i18n="bottom.panel.title">Informations</h5>
+                  <h6 i18n="bottom.panel.title">Informations</h6>
+                  <button type="button" class="btn-close" title="Fermer" i18n="right.panel.close" aria-label="Close" onclick="$('#bottom-panel').toggleClass('active')"></button>
                 </div>
-                <div class="popup-content"></div>
+                <div class="popup-content mv-panel-queryable"></div>
               </div>
               <!-- RIGHT PANEL -->
               <div id="right-panel">
                 <div class="mv-header">
-                  <h5 i18n="right.panel.title">Informations</h5>
-                  <a
-                    href="#"
-                    class="close"
-                    data-dismiss="alert"
-                    aria-label="close"
-                    onclick="$('#right-panel').toggleClass('active')"
-                    title="Fermer"
-                    i18n="right.panel.close">
-                    ×
-                  </a>
+                  <h6 i18n="right.panel.title">Informations</h6>
+                  <button type="button" class="btn-close" title="Fermer" i18n="right.panel.close" aria-label="Close" onclick="$('#right-panel').toggleClass('active')"></button>       
                 </div>
-                <div class="popup-content"></div>
+                <div class="popup-content mv-panel-queryable"></div>
               </div>
             </div>
           </div>
@@ -342,9 +321,9 @@
           </svg>
           <!-- SEARCH RESULTS  -->
           <div id="searchresults" class="list-group">
-            <div class="searchresults-title">
+            <div class="searchresults-title search-header list-group-item">
               <span i18n="search.result.title">Résultats</span>
-              <button type="button" class="close">&times;</button>
+              <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <a
               i18n="search.result.locations"
@@ -375,53 +354,53 @@
           <!-- SECOND VERTICAL RIGHT TOOLBAR -->
           <div
             id="toolstoolbar"
-            class="btn-group-vertical btn-group-sm"
+            class="btn-group-vertical"
             role="group"
             aria-label="true">
             <button
-              data-toggle="modal"
-              data-target="#sharepanel"
+              data-bs-toggle="modal"
+              data-bs-target="#sharepanel"
               onclick="mviewer.mapShare();"
               id="sharebtn"
               title="Partager cette carte"
               i18n="tbar.right.share"
               tabindex="111"
               accesskey="11"
-              class="btn btn-default btn-raised">
-              <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+              type="button" class="btn btn-light">
+              <i class="ri-share-line"></i>
             </button>
             <button
               id="geolocbtn"
               type="button"
-              class="btn btn-default btn-raised"
+              class="btn btn-light"
               onclick="mviewer.geoloc();"
               title="Se localiser"
               i18n="tbar.right.location"
               tabindex="103"
               accesskey="3">
-              <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+              <i class="ri-map-pin-line"></i>
             </button>
             <button
               id="northbtn"
               type="button"
-              class="btn btn-default btn-raised"
+              class="btn btn-light"
               onclick="mviewer.northRotate();"
               title="Orienté au nord"
               i18n="tbar.right.rotation"
               tabindex="106"
               accesskey="6">
-              <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>
+              <i class="ri-compass-3-line"></i>
             </button>
             <button
               id="studiolink"
               type="button"
-              class="btn btn-default btn-raised"
+              class="btn btn-light"
               onclick="mviewer.openStudio();"
               title="Modifier la carte"
               i18n="tbar.right.studio"
               tabindex="106"
               accesskey="6">
-              <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+              <i class="ri-edit-line"></i>
             </button>
             <a
               href="#"
@@ -429,22 +408,22 @@
               title="Exporter carte au format image"
               i18n="tbar.right.png"
               download="carte.png"
-              class="btn btn-default btn-raised"
+              class="btn btn-light"
               tabindex="113"
               accesskey="13"
               style="display: none">
-              <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+              <i class="ri-image-line"></i>
             </a>
             <button
               id="mapprint"
               type="button"
-              class="btn btn-default btn-raised"
+              class="btn btn-light"
               onclick="window.print();"
               title="Imprimer la vue courante"
               i18n="tbar.right.mapprint"
               tabindex="106"
               accesskey="6">
-              <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+              <i class="ri-printer-line"></i>
             </button>
           </div>
           <div
@@ -461,7 +440,6 @@
               tabindex="103"
               accesskey="3"
               class="btn-lg btn-default btn-raised">
-              <!--<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>-->
             </button>
           </div>
         </div>
@@ -472,19 +450,10 @@
       <div id="parameterspanel" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-sm">
           <div class="modal-content">
-            <div class="modal-header">
-              <button
-                type="button"
-                title="Fermer"
-                i18n="search.panel.close"
-                class="close"
-                data-dismiss="modal">
-                &times;
-              </button>
-              <h5 class="modal-title" i18n="search.panel.title">
-                Paramètres de recherche
-              </h5>
-            </div>
+              <div class="modal-header">
+                <h5 class="modal-title" i18n="search.panel.title">Paramètres de recherche</h5>
+                <button type="button" title="Fermer" i18n="search.panel.close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>   
             <div class="modal-body">
               <ul id="searchparameters">
                 <li class="mv-param-item" onclick="search.toggleParameter(this)">
@@ -530,15 +499,15 @@
         <div class="modal-dialog modal-sm">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
               <h5 class="modal-title" id="login-panel-title" i18n="layer.authent.title">
                 Configurer l'accès au service
               </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>              
+            </div>
+            <div class="modal-body">
               <span id="login-panel-service-url">
                 <small><i i18n="layer.authent.title">URL du service</i></small>
               </span>
-            </div>
-            <div class="modal-body">
               <div class="loginmodal-container">
                 <form>
                   <input type="hidden" id="service-url" />
@@ -571,10 +540,10 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content" role="document">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" i18n="addlayers.modal.title">
+              <h5 class="modal-title" i18n="addlayers.modal.title">
                 Ajouter des données
-              </h4>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <ul class="nav nav-tabs" role="tablist">
@@ -583,7 +552,7 @@
                     href="#add_ogc"
                     aria-controls="profile"
                     role="tab"
-                    data-toggle="tab"
+                    data-bs-toggle="tab"
                     i18n="addlayers.modal.ogc">
                     OGC
                   </a>
@@ -593,7 +562,7 @@
                     href="#add_csw"
                     aria-controls="messages"
                     role="tab"
-                    data-toggle="tab"
+                    data-bs-toggle="tab"
                     i18n="addlayers.modal.csw">
                     CSW
                   </a>
@@ -621,7 +590,7 @@
                           onclick="mviewer.tools.addlayers.connect();"
                           type="button">
                           Connexion&nbsp;
-                          <span class="glyphicon glyphicon-chevron-right"></span>
+                          <i class="ri-arrow-right-s-line"></i>
                         </button>
                       </div>
                     </div>
@@ -654,7 +623,7 @@
 
                   <button onclick="mviewer.tools.addlayers.connectCsw();" type="button">
                     Connexion&nbsp;
-                    <span class="glyphicon glyphicon-chevron-right"></span>
+                    <i class="ri-arrow-right-s-line"></i>
                   </button>
                 </div>
               </div>
@@ -682,13 +651,13 @@
       </div>
       <!-- SHARE PANEL -->
       <div id="sharepanel" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-sm">
+        <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title">
+            <div class="modal-header">              
+              <h5 class="modal-title">
                 <span i18n="share.panel.title">Partager cette carte</span>
-              </h4>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <h5 class="modal-share-title">
@@ -797,8 +766,8 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title"></h4>
+              <h5 class="modal-title"></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <div class="row">
@@ -816,11 +785,11 @@
       </div>
       <!-- LANG POPUP -->
       <div id="lang-popup" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-sm">
           <div class="modal-content" role="document">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" i18n="lang.modal.title">Langues</h4>
+              <h5 class="modal-title" i18n="lang.modal.title">Langues</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div id="lang-body" class="modal-body">
               <ul></ul>
@@ -833,8 +802,8 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content" role="document">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" i18n="help.modal.title">DOCUMENTATION</h4>
+              <h5 class="modal-title" i18n="help.modal.title">Documentation</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body"></div>
           </div>
@@ -845,8 +814,8 @@
         <div class="modal-dialog modal-sm">
           <div class="modal-content" role="document">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" i18n="thematic.modal.title">Thématiques</h4>
+              <h5 class="modal-title" i18n="thematic.modal.title">Thématiques</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body"></div>
           </div>
@@ -857,8 +826,8 @@
         <div class="modal-dialog modal-sm">
           <div class="modal-content" role="document">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" i18n="legend.modal.title">Options d'affichage</h4>
+              <h5 class="modal-title" i18n="legend.modal.title">Options d'affichage</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body"></div>
           </div>
@@ -869,8 +838,8 @@
         <div class="modal-dialog modal-md">
           <div class="modal-content" role="document">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" i18n="featureinfo.modal.title">Informations</h4>
+              <h5 class="modal-title" i18n="featureinfo.modal.title">Informations</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <div class="popup-content"></div>
@@ -881,18 +850,23 @@
       <!--ALERTS AREA -->
       <div id="alerts-zone"></div>
     </div>
+    <link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="lib/mustache-2.3.0/mustache.min.js"></script>
     <script type="text/javascript" src="lib/proj4js/2.3.6/proj4.js"></script>
     <script
       type="text/javascript"
-      src="lib/jquery/base/1.10.2/jquery-1.10.2.min.js"></script>
+      src="lib/jquery/base/3.7.1/jquery-3.7.1.min.js"></script>
     <script type="text/javascript" src="lib/geotiff/geotiff.js"></script>
     <script type="text/javascript" src="lib/ol8.2/ol.js"></script>
     <script
       type="text/javascript"
       src="lib/jquery/base/plugins/xml2json/jquery.xml2json.js"></script>
     <script type="text/javascript" src="lib/Sortable/1.4.2/Sortable.min.js"></script>
-    <script type="text/javascript" src="lib/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    
+    <script type="text/javascript" src="lib/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrap/5.3.3/js/bootstrap.min.js"></script>
     <script
       type="text/javascript"
       src="lib/bootstrap-datepicker-1.6.1/js/bootstrap-datepicker.min.js"></script>
@@ -936,6 +910,8 @@
     <script type="text/javascript" src="lib/olms/8.2.1/olms.js"></script>
 
     <script type="text/javascript">
+      const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
       var API = {};
       $(document).ready(function () {
         "use strict";

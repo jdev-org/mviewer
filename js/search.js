@@ -183,7 +183,7 @@ var search = (function () {
     }
     if (_searchparams.closeafterclick) {
       $("#searchresults .list-group-item").click(function () {
-        $(".searchresults-title .close").trigger("click");
+        $(".searchresults-title .btn-close").trigger("click");
       });
     }
     $("#searchresults").show();
@@ -207,7 +207,7 @@ var search = (function () {
       _map.addLayer(vector);
     }
 
-    $(".searchresults-title .close").click(function () {
+    $(".searchresults-title .btn-close").click(function () {
       _clearSearchField();
       if (_sourceEls) {
         _sourceEls.clear();
@@ -261,7 +261,7 @@ var search = (function () {
         7: 17,
       };
       const zoom = zoomByType[res[i].classification] || 12;
-      str += `<a class="${type}-location list-group-item" href="#" onclick="
+      str += `<a class="${type}-location list-group-item list-group-item-action" href="#" onclick="
           mviewer.zoomToLocation(${res[i].x}, ${res[i].y}, ${zoom}, ${_searchparams.querymaponclick});
           mviewer.showLocation('EPSG:4326',${res[i].x}, ${res[i].y}, ${_searchparams.banmarker});">
           ${res[i].fulltext}
@@ -295,7 +295,7 @@ var search = (function () {
         housenumber: 18,
       };
       const zoom = zoomByType[props.type] || 14;
-      str += `<a class="geoportail list-group-item" href="#" title="${props.context} - ${props.type}"
+      str += `<a class="geoportail list-group-item list-group-item-action" href="#" title="${props.context} - ${props.type}"
           onclick="mviewer.zoomToLocation(
               ${geom.coordinates[0]},
               ${geom.coordinates[1]},
@@ -431,7 +431,7 @@ var search = (function () {
           var geom = new ol.format.GeoJSON().readGeometry(element.geometry);
           var xyz = mviewer.getLonLatZfromGeometry(geom, "EPSG:4326", zoom);
           str +=
-            '<a class="fuse list-group-item" title="' +
+            '<a class="fuse list-group-item list-group-item-action" title="' +
             result_label +
             '" ' +
             'href="#" onclick="mviewer.zoomToLocation(' +
@@ -654,7 +654,7 @@ var search = (function () {
               }
 
               str +=
-                '<a class="elasticsearch list-group-item" href="#" ' +
+                '<a class="elasticsearch list-group-item list-group-item-action" href="#" ' +
                 'onclick="' +
                 action_click +
                 '" ' +

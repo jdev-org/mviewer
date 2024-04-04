@@ -369,8 +369,7 @@ mviewer = (function () {
     var item = $(
       [
         '<div class="alert ' + cls + ' alert-dismissible" role="alert">',
-        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">',
-        '<span aria-hidden="true">&times;</span></button>',
+        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
         mviewer.tr(msg),
         "</div>",
       ].join("")
@@ -860,7 +859,7 @@ mviewer = (function () {
           }
 
           //update visible layers on the map
-          $(`#${this.layer}-layer-summary`).attr("data-content", summary);
+          $(`#${this.layer}-layer-summary`).attr("data-bs-content", summary);
           $(`#${this.layer}-date`).text(modifiedDate);
         },
       });
@@ -914,8 +913,8 @@ mviewer = (function () {
                         class="btn btn-sm btn-default"
                         type="button"
                         href="#"
-                        data-toggle="modal"
-                        data-target="#legend-modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#legend-modal"
                         title="Afficher la légende"
                         i18n="data.toggle">
                         <i class="fas fa-layer-group"></i>
@@ -1899,13 +1898,13 @@ mviewer = (function () {
         $(el).text(tr);
       }
     });
-    _element.find("[data-content]").each((i, el) => {
-      var content = $("<div></div>").append($(el).attr("data-content"));
+    _element.find("[data-bs-content]").each((i, el) => {
+      var content = $("<div></div>").append($(el).attr("data-bs-content"));
       content.find("[i18n]").each((i, contentEl) => {
         let tr = mviewer.lang[lang]($(contentEl).attr("i18n"));
         if ($(contentEl).text().indexOf("{{") === -1) {
           $(contentEl).text(tr);
-          $(el).attr("data-content", content[0].outerHTML);
+          $(el).attr("data-bs-content", content[0].outerHTML);
         }
       });
     });
@@ -2748,11 +2747,12 @@ mviewer = (function () {
 
       _setLayerScaleStatus(layer, _calculateScale(_map.getView().getResolution()));
       $("#" + layer.layerid + "-layer-opacity").slider({});
+      $("#" + layer.layerid + "-layer-summary").attr("data-bs-content", layer.summary);
       $("#" + layer.layerid + "-layer-summary").popover({
         container: "body",
         html: true,
-      });
-      $("#" + layer.layerid + "-layer-summary").attr("data-content", layer.summary);
+        titile:""
+      });      
       if (layer.attributefilterenabled === true) {
         //Activate  CQL for this layer
       }
@@ -3137,16 +3137,16 @@ mviewer = (function () {
       $(el).closest("li").find(".mv-layer-options").slideToggle();
       //hack slider js
       $(el).closest("li").find(".mv-slider-timer").slider("relayout");
-      if ($(el).find("span.state-icon").hasClass("glyphicon glyphicon-chevron-down")) {
+      if ($(el).find("i.state-icon").hasClass("ri-arrow-down-line")) {
         $(el)
-          .find("span.state-icon")
-          .removeClass("glyphicon glyphicon-chevron-down")
-          .addClass("glyphicon glyphicon-chevron-up");
+          .find("i.state-icon")
+          .removeClass("ri-arrow-down-line")
+          .addClass("ri-arrow-up-line");
       } else {
         $(el)
-          .find("span.state-icon")
-          .removeClass("glyphicon glyphicon-chevron-up")
-          .addClass("glyphicon glyphicon-chevron-down");
+          .find("i.state-icon")
+          .removeClass("ri-arrow-up-line")
+          .addClass("ri-arrow-down-line");
       }
     },
 
@@ -3325,7 +3325,7 @@ mviewer = (function () {
 
     setInfoPanelTitle: function (el, panel) {
       var title = $(el).attr("data-original-title");
-      $("#" + panel + " .mv-header h5").text(title);
+      $("#" + panel + " .mv-header h6").text(title);
     },
 
     nextBackgroundLayer: function () {
@@ -3434,7 +3434,7 @@ mviewer = (function () {
             '<span onclick="mviewer.popupPhoto(' +
               "this.parentElement.getElementsByTagName('img')[0].src)\" " +
               'class="text-big-legend"><span><span class="glyphicon glyphicon-resize-full" aria-hidden="true">' +
-              "</span> Agrandir la légende</span></span>"
+              "</span> Agrandir la légende</span></span>"              
           );
       }
     },
