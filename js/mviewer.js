@@ -2842,7 +2842,7 @@ mviewer = (function () {
             mviewer.setLayerTime(layer.layerid, wms_timefilter);
           };
         } else if (layer.timemin && layer.timemax) {
-          default_value = parseInt(layer.timemax);
+                    default_value = parseInt(layer.timemax);
           ticks_labels = [layer.timemin];
           ticks = [parseInt(layer.timemin)];
           for (var i = parseInt(layer.timemin) + 1; i < parseInt(layer.timemax); i++) {
@@ -2919,25 +2919,31 @@ mviewer = (function () {
         };
         if (layer.timeshowavailable) {
           const dateFormat = "DD/MM/YYYY";
-          options.beforeShowDay = (day) => {
-            const isEnabled = datesToDisplay.includes(moment(day).format(dateFormat));
-            return { enabled: isEnabled };
-          };
+          if(layer.timeinterval === "day") {
+            options.beforeShowDay = (day) => {
+              const isEnabled = datesToDisplay.includes(moment(day).format(dateFormat));
+              return { enabled: isEnabled };
+            };
+          }
           fetch(getCapRequestUrl)
             .then((x) => x.text())
             .then((z) => {
               const reader = new ol.format.WMSCapabilities();
               const capa = reader.read(z);
-              const layer = _.find(_.get(capa, "Capability.Layer.Layer"), [
+              const layerCapa = _.find(_.get(capa, "Capability.Layer.Layer"), [
                 "Name",
                 "humidite_bzh",
               ]);
-              const timeValues = _.find(layer.Dimension, [
+              const timeValues = _.find(layerCapa.Dimension, [
                 "name",
                 "time",
               ])?.values?.split?.(",");
               datesToDisplay = timeValues.map((time) => moment(time).format(dateFormat));
-            });
+              if(layer.timeinterval === "day") {
+                layer.timedefault = moment(_.last(timeValues)).format("YYYY-MM-DD");
+                document.getElementById(layer.layerid + "-layer-timefilter").value = layer.timedefault;
+              }
+          });
         }
         if (layer.timemin && layer.timemax) {
           options.startDate = new Date(layer.timemin);
@@ -2966,11 +2972,17 @@ mviewer = (function () {
           .append(
             '<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>'
           )
-          .datepicker(options);
+          .datepicker(options).on("hide", (x) => {
+            const defaultTime = mviewer.getLayer(layer.layerid).timedefault;
+            if(!document.getElementById(layer.layerid + "-layer-timefilter").value) {
+              x.target.value = defaultTime
+              document.getElementById(layer.layerid + "-layer-timefilter").value = defaultTime;
+            }
+          });
         $("#" + layer.layerid + "-layer-timefilter").on("change", function (data, cc) {
           mviewer.setLayerTime(layer.layerid, data.currentTarget.value);
         });
-      }
+              }
       //End Time filter
       if ($("#layers-container").find("li").length > 1) {
         //set Layer to top on the map
@@ -3330,7 +3342,7 @@ mviewer = (function () {
       }
       var _layerDefinition = _overLayers[layerid];
       var _source = _layerDefinition.layer.getSource();
-      _source.getParams()["TIME"] = filter_time;
+            _source.getParams()["TIME"] = filter_time;
       $(".mv-time-player-selection[data-layerid='" + layerid + "']").text("Patientez...");
       var key = _source.on("imageloadend", function () {
         ol.Observable.unByKey(key);
