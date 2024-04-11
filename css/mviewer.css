@@ -232,11 +232,6 @@ a {
 	transition: 0.5s;
 }
 
-#sidebar-wrapper {
-  z-index: 0;
-  top:0px;
-  background-color: white;
-}
 
 #mv-navbar {
   z-index: 100;
@@ -722,8 +717,11 @@ a#searchparams {
 /* Sidebar */
 
 #sidebar-wrapper {
-  padding-top: 13px;
+  padding-top: 12px;
   font-size: 0.8em;
+  z-index: 0;
+  top:0px;
+  background-color: white;
 }
 
 #menu>li>a {
