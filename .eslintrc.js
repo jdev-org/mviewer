@@ -1,9 +1,13 @@
 // eslint.config.js
-export default [
-    {
+module.exports = 
+{
+    extends: [
+        "eslint"
+    ],
+    overrides: [
         files: ["demo/addons/trackview/**/*.js"],
         rules: {
             semi: "error"
-        }
-    }
-];
+        },       
+    ]
+};
