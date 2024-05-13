@@ -11,10 +11,10 @@ name: ESLint
 
 on:
   push:
-    branches: [ "TrackView" ]
+    branches: [ "TrackView", "main", "codeci-trackview" ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "TrackView" ]
+    branches: [ "TrackView", "main", "codeci-trackview" ]
   schedule:
     - cron: '19 1 * * 0'
 
