@@ -368,6 +368,7 @@ var trackview = (function () {
   mviewer.addLayer(parcoursLayer); // setVisible(true) => n'ajoute pas la légende
 
   var _initTool = function () {
+    // TODO : use console.info instead
     console.log("Initialisation de l'outil"); // Affichage dans les logs
 
     mviewer.getMap().once("rendercomplete", function (e) {
