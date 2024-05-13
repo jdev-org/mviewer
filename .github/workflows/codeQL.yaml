@@ -14,8 +14,12 @@ name: "CodeQL"
 on:
   push:
     branches: [ "TrackView" ]
+    paths:
+      - demo/addons/trackview/*.js
   pull_request:
     branches: [ "TrackView" ]
+    paths:
+      - demo/addons/trackview/*.js
   schedule:
     - cron: '41 23 * * 6'
 
