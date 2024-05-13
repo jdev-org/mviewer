@@ -4,10 +4,10 @@ module.exports =
     extends: [
         "eslint"
     ],
-    overrides: [
+    overrides: [{
         files: ["demo/addons/trackview/**/*.js"],
         rules: {
             semi: "error"
-        },       
-    ]
+        }
+    }]
 };
