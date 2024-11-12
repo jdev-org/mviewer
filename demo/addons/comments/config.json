@@ -1,0 +1,12 @@
+{
+    "type": "module",
+    "js": "js/comments.js",
+    "css": "css/style.css",
+    "html": "comments.html",
+    "target": "page-content-wrapper",
+    "options": {
+        "mviewer": {
+            "comments": {}
+        }
+    }
+}
