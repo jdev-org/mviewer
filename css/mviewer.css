@@ -811,6 +811,13 @@ ul#layers-container {
   top: 160px;
 }
 
+#commentstoolsoptions {
+  position: fixed;
+  right: 70px;
+  float: right;
+  top: 270px;
+}
+
 #drawoptions {
   position: fixed;
   right: 70px;
