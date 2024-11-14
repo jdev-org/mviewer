@@ -6,9 +6,7 @@
     "target": "toolstoolbar",
     "options": {
         "mviewer": {
-            "comments": {
-                "test": "test"
-            }
+            "comments": {}
         }
     }
 }
