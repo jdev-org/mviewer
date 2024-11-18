@@ -6,7 +6,18 @@
     "target": "toolstoolbar",
     "options": {
         "mviewer": {
-            "comments": {}
+            "comments": {
+                "data": {
+                    "features": {
+                        "types": [
+                            "Test 1",
+                            "Test 2",
+                            "Test 3",
+                            "Test 4"
+                        ]
+                    }
+                }
+            }
         }
     }
 }

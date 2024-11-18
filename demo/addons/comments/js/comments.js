@@ -29,9 +29,7 @@ var comments = (function () {
             },
         });
 
-        _vectorDrawCmt.set('mviewerid', 'testId');
-
-        mviewer.getMap().addLayer(_vectorDrawCmt);
+        _map.addLayer(_vectorDrawCmt);
 
         _initButtons();
 
@@ -41,7 +39,7 @@ var comments = (function () {
                 console.log(event.key);
                 if (_drawIntCmt) {
                     console.log("remove");
-                    mviewer.getMap().removeInteraction(_drawIntCmt);
+                    _map.removeInteraction(_drawIntCmt);
                 }
             }
         });
@@ -85,7 +83,7 @@ var comments = (function () {
 
             divCommentsBtn.addEventListener("click", function () {
                 if (_drawIntCmt) {
-                    mviewer.getMap().removeInteraction(_drawIntCmt);
+                    _map.removeInteraction(_drawIntCmt);
                 }
                 _addDrawInteractionCmt(type);
             });
@@ -124,36 +122,40 @@ var comments = (function () {
         
         return {
             "Polygon": [
+                // Polygon line style
                 new ol.style.Style({
                     stroke: commonLineStrokeCmt,
                     fill: commonFillCmt,
                 }),
-                // new ol.style.Style({
-                //     image: new ol.style.Circle({
-                //         radius: 5,
-                //         fill: pointFillCmt,
-                //         stroke: commonPointStrokeCmt,
-                //     }),
-                //     geometry: function (feature) {
-                //         const coordinates = feature.getGeometry().getCoordinates()[0];
-                //         if (coordinates.length > 2) {
-                //             return new ol.geom.MultiPoint(coordinates);
-                //         }
-                //     },
-                // }),
+                // Polygon point style 
+                new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 5,
+                        fill: pointFillCmt,
+                        stroke: commonPointStrokeCmt,
+                    }),
+                    geometry: function (feature) {
+                        const coordinates = feature.getGeometry().getCoordinates()[0];
+                        if (coordinates.length > 2) {
+                            return new ol.geom.MultiPoint(coordinates);
+                        }
+                    },
+                }),
             ],
             "LineString": [
+                // LineString line style
                 new ol.style.Style({
                     stroke: commonLineStrokeCmt,
                     // fill: commonFillCmt,
                 }),
-                // new ol.style.Style({
-                //     image: new ol.style.Circle({
-                //         radius: 5,
-                //         fill: pointFillCmt,
-                //         stroke: commonPointStrokeCmt,
-                //     }),
-                // }),
+                // LineString point style
+                new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 5,
+                        fill: pointFillCmt,
+                        stroke: commonPointStrokeCmt,
+                    }),
+                }),
             ],
             "Point": new ol.style.Style({
                 image: new ol.style.Circle({
@@ -173,17 +175,178 @@ var comments = (function () {
             style: _commonDrawStyleCmt[type],
         });
 
-        mviewer.getMap().addInteraction(_drawIntCmt);
+        _map.addInteraction(_drawIntCmt);
+
+        _drawIntCmt.on(
+            "drawend", 
+            function (event) {
+                let currentFeature = event.feature;
+
+                _createCommentsPanel(currentFeature);
+            },
+            this
+        );
+    };
+
+    var _createCommentsPanel = (feature) => {
+        let featureUid = feature.getGeometry().ol_uid;
+        let featureType = feature.getGeometry().getType();
+        let featurePos;
+
+        if (featureType === "Point") {
+            featurePos = feature.getGeometry().getCoordinates();
+        }
+
+        let divCommentsPanel = document.createElement("div");
+        // Add the uid feature to the div id to make it unique 
+        divCommentsPanel.id = `commentsPanel_${featureUid}`;
+        
+        if (featurePos) {
+            const featPosPixel = _map.getPixelFromCoordinate(featurePos);
+
+            // Div position if point
+            divCommentsPanel.style.position = "fixed";
+            divCommentsPanel.style.top = `${featPosPixel[1] + 20}px`;
+            divCommentsPanel.style.left = `${featPosPixel[0]}px`;
+        } else {
+            // Div position if linestring or polygon
+            divCommentsPanel.style.position = "fixed";
+            divCommentsPanel.style.top = "100px";
+            divCommentsPanel.style.left = "100px";
+        }
+
+        // Div style
+        divCommentsPanel.style.width = "200px";
+        divCommentsPanel.style.height = "100px";
+        divCommentsPanel.style.borderRadius = "5px";
+        divCommentsPanel.style.border = "1px solid black"
+        divCommentsPanel.style.backgroundColor = "white";
+
+        // Make the div flexible
+        divCommentsPanel.style.display = "flex";
+        divCommentsPanel.style.flexDirection = "column";
+        divCommentsPanel.style.alignItems = "center";
+
+        // Title for the comment div
+        let divCommentsP = document.createElement("p");
+        divCommentsP.innerHTML = "Ajout de commentaires";
+        
+        divCommentsPanel.appendChild(divCommentsP);
+
+        // Dropdown list => custom select
+        let customSelectComments = _createSelectComments(featureUid);
+
+        divCommentsPanel.appendChild(customSelectComments);
+
+        // Add the div to the "page-content-wrapper"
+        document.getElementById("page-content-wrapper").appendChild(divCommentsPanel);
+    };
+
+    var _createSelectComments = (featUid) => {
+        // Custom select
+        let contentSelectComments = _config.data.features.types;
+
+        console.log(contentSelectComments);
+
+        // let divDropdown = document.createElement("div");
+        // divDropdown.className = "dropdown";
+        // divDropdown.id = ""; // Useless for now
+
+        // let divDropdownSelect = document.createElement("div");
+        // divDropdownSelect.className = "select";
+
+        // let span = document.createElement("span");
+        // span.className = "selected";
+        // span.innerHTML = "Choisir un type";
+
+        // let spanDiv = document.createElement("div");
+        // spanDiv.className = "caret";
+
+        // let divDropdownUl = document.createElement("ul");
+        // divDropdownUl.className = "menu";
+
+        // divDropdownSelect.appendChild(span);
+        // divDropdownSelect.appendChild(spanDiv);
+
+        // divDropdown.appendChild(divDropdownSelect);
+        // divDropdown.appendChild(divDropdownUl);
+
+        // return divDropdown;
+
+        let divDropdown = document.createElement("div");
+        divDropdown.className = "dropdown";
+
+        // Select style
+        divDropdown.style.display = "inline-block";
+        divDropdown.style.width = "auto";
+        divDropdown.style.width = "100%";
+
+        let divDropdownButton = document.createElement("button");
+        divDropdownButton.className = "btn btn-default dropdown-toggle";
+        divDropdownButton.type = "button";
+        divDropdownButton.id = `dropdown_${featUid}`;
+        divDropdownButton.setAttribute("data-toggle", "dropdown");
+        divDropdownButton.setAttribute("aria-haspopup", "true");
+        divDropdownButton.setAttribute("aria-expanded", "false");
+        divDropdownButton.textContent = "Choisir un type";
+
+        //divDropdownButton.style.width = "100%";
+        
+        let span = document.createElement("span");
+        span.className = "caret";
+
+        let divDropdownUl = document.createElement("ul");
+        divDropdownUl.className = "dropdown-menu";
+        divDropdownUl.setAttribute("aria-labelledby", `dropdown_${featUid}`);
+
+        divDropdownUl.style.minWidth = 0;
+
+        for (const value of contentSelectComments) {
+            console.log(value);
+            let divDropdownLi = document.createElement("li");
+
+            let divDropdownA = document.createElement("a");
+            divDropdownA.href = "#";
+            divDropdownA.textContent = value;
+
+            divDropdownLi.appendChild(divDropdownA);
+
+            divDropdownUl.appendChild(divDropdownLi);
+        }
+
+        let divider = document.createElement("li");
+        divider.role = "separator";
+        divider.className = "divider";
+
+        divDropdownUl.appendChild(divider);
+
+        let addTypeLi = document.createElement("li");
+        
+        let addTypeA = document.createElement("a");
+        addTypeA.href = "#";
+        addTypeA.textContent = "Ajouter un type";
+
+        addTypeLi.appendChild(addTypeA);
+
+        divDropdownUl.appendChild(addTypeLi);   
+
+        divDropdownButton.appendChild(span);
+        divDropdown.appendChild(divDropdownButton);
+        divDropdown.appendChild(divDropdownUl);
+        
+        return divDropdown;
     };
 
     var _toggle = function () {
         if (_modCommentsEnabled) {
           // If the module comments is active
-          // Launch comments.disable
+          // Useless to call this method below 
+          // Todo => find out why?
+          //mviewer.tools.info.enable();
           _disableDrawToolCmt();
         } else {
           // If the module comments is not active
-          // Launch comments.enable
+          mviewer.tools.info.disable();
           _enableDrawToolCmt();
         }
     };
@@ -202,7 +365,7 @@ var comments = (function () {
     var _disableDrawToolCmt = () => {
         _modCommentsEnabled = false;
 
-        mviewer.getMap().removeInteraction(_drawIntCmt);
+        _map.removeInteraction(_drawIntCmt);
 
         _sourceDrawCmt.clear();
 
