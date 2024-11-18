@@ -6,6 +6,8 @@ var comments = (function () {
 
     let _map;
 
+    let _nbTextArea = 0;
+
     let _drawIntCmt;
 
     let _vectorDrawCmt;
@@ -188,6 +190,8 @@ var comments = (function () {
         );
     };
 
+    let divCommentsPanel;
+
     var _createCommentsPanel = (feature) => {
         let featureUid = feature.getGeometry().ol_uid;
         let featureType = feature.getGeometry().getType();
@@ -197,7 +201,7 @@ var comments = (function () {
             featurePos = feature.getGeometry().getCoordinates();
         }
 
-        let divCommentsPanel = document.createElement("div");
+        divCommentsPanel = document.createElement("div");
         // Add the uid feature to the div id to make it unique 
         divCommentsPanel.id = `commentsPanel_${featureUid}`;
         
@@ -216,8 +220,8 @@ var comments = (function () {
         }
 
         // Div style
-        divCommentsPanel.style.width = "200px";
-        divCommentsPanel.style.height = "100px";
+        divCommentsPanel.style.width = "400px";
+        divCommentsPanel.style.height = "400px";
         divCommentsPanel.style.borderRadius = "5px";
         divCommentsPanel.style.border = "1px solid black"
         divCommentsPanel.style.backgroundColor = "white";
@@ -230,6 +234,8 @@ var comments = (function () {
         // Title for the comment div
         let divCommentsP = document.createElement("p");
         divCommentsP.innerHTML = "Ajout de commentaires";
+        divCommentsP.style.fontSize = "16px";
+        divCommentsP.style.margin = "10px";
         
         divCommentsPanel.appendChild(divCommentsP);
 
@@ -238,6 +244,11 @@ var comments = (function () {
 
         divCommentsPanel.appendChild(customSelectComments);
 
+        // Dropdown list => comments
+        let divCommentsSection = _createCommentsSection(featureUid);
+
+        divCommentsPanel.appendChild(divCommentsSection);
+
         // Add the div to the "page-content-wrapper"
         document.getElementById("page-content-wrapper").appendChild(divCommentsPanel);
     };
@@ -245,8 +256,6 @@ var comments = (function () {
     var _createSelectComments = (featUid) => {
         // Custom select
         let contentSelectComments = _config.data.features.types;
-
-        console.log(contentSelectComments);
 
         // let divDropdown = document.createElement("div");
         // divDropdown.className = "dropdown";
@@ -278,8 +287,6 @@ var comments = (function () {
 
         // Select style
         divDropdown.style.display = "inline-block";
-        divDropdown.style.width = "auto";
-        divDropdown.style.width = "100%";
 
         let divDropdownButton = document.createElement("button");
         divDropdownButton.className = "btn btn-default dropdown-toggle";
@@ -291,6 +298,10 @@ var comments = (function () {
         divDropdownButton.textContent = "Choisir un type";
 
         //divDropdownButton.style.width = "100%";
+        divDropdownButton.style.marginBottom = "10px";
+        divDropdownButton.style.boxSizing = "border-box";
+        divDropdownButton.style.alignItems = "center";
+        divDropdownButton.style.width = "158px";
         
         let span = document.createElement("span");
         span.className = "caret";
@@ -299,13 +310,16 @@ var comments = (function () {
         divDropdownUl.className = "dropdown-menu";
         divDropdownUl.setAttribute("aria-labelledby", `dropdown_${featUid}`);
 
-        divDropdownUl.style.minWidth = 0;
+        // Style ul dropdown
+        divDropdownUl.style.width = "100%";
+        divDropdownUl.style.boxSizing = "border-box";
 
         for (const value of contentSelectComments) {
-            console.log(value);
             let divDropdownLi = document.createElement("li");
 
             let divDropdownA = document.createElement("a");
+            divDropdownA.className = "dropdown-item";
+            divDropdownA.value = value;
             divDropdownA.href = "#";
             divDropdownA.textContent = value;
 
@@ -336,6 +350,76 @@ var comments = (function () {
         
         return divDropdown;
     };
+
+    let listTextArea = [];
+
+    var _createCommentsSection = (featUid) => {
+
+        _nbTextArea += 1;
+
+        let divTextArea = document.createElement("div");
+        divTextArea.id = `textArea_${featUid}`;
+        divTextArea.style.flexDirection = "column";
+        divTextArea.style.alignItems = "center";
+
+        let smallCountsTextArea = document.createElement("small");
+        smallCountsTextArea.id = "countsTextArea";
+        smallCountsTextArea.textContent = "0/254 caractères utilisés";
+        smallCountsTextArea.style.display = "block";
+        smallCountsTextArea.style.marginTop = "0px";
+        smallCountsTextArea.style.color = "gray";
+        smallCountsTextArea.style.textAlign = "center";
+
+        let textArea = document.createElement("textarea");
+        textArea.placeholder = "Saisir un commentaire...";
+        textArea.id = "commentsArea";
+        textArea.maxLength = "254";
+        textArea.cols = "45";
+        textArea.rows = "5";
+        
+        textArea.addEventListener("input", function () {
+            updateCharacterCount();
+        });
+
+        // Style comments
+        textArea.style.resize = "none";
+
+        divTextArea.appendChild(textArea);
+        divTextArea.appendChild(smallCountsTextArea);
+        
+        let addTextArea = document.createElement("div");
+        addTextArea.className = "glyphicon glyphicon-plus";
+        addTextArea.style.cursor = "pointer";
+
+        addTextArea.addEventListener("click", function() {
+            const newFeatUid = `${featUid + 1}`;
+            _createCommentsSection(newFeatUid);
+        });
+
+        if (_nbTextArea < 4) { 
+            divTextArea.appendChild(addTextArea);
+        }
+
+        divCommentsPanel.appendChild(divTextArea);
+
+        listTextArea.push(
+            divTextArea
+        );
+        
+        return divTextArea;
+    };
+
+    function updateCharacterCount() {
+        const contentTextArea = document.getElementById("commentsArea").value;
+        const charCount = document.getElementById("countsTextArea");
+        charCount.textContent = `${contentTextArea.length}/254 caractères utilisés`;
+        if (contentTextArea.length === 254) {
+            charCount.style.color = "red";
+        } else {
+            charCount.style.color = "gray";
+        }
+        
+    }
 
     var _toggle = function () {
         if (_modCommentsEnabled) {
@@ -391,9 +475,6 @@ var comments = (function () {
 
     return {
         init: _initCommentsTool,
-        // toggle: _initButtons,
-        // enable: _enableCommentsTool,
-        // disable: _disableCommentsTool,
     };
 })();
 
