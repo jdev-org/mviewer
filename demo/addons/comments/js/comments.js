@@ -6,6 +6,8 @@ var comments = (function () {
 
     let _map;
 
+    let _panelComments = false;
+
     let _nbTextArea = 0;
 
     let _drawIntCmt;
@@ -171,23 +173,29 @@ var comments = (function () {
 
     var _addDrawInteractionCmt = (type) => {
            
-        _drawIntCmt = new ol.interaction.Draw({
-            source: _sourceDrawCmt,
-            type: type,
-            style: _commonDrawStyleCmt[type],
-        });
+        if (!_panelComments) {
+            _drawIntCmt = new ol.interaction.Draw({
+                source: _sourceDrawCmt,
+                type: type,
+                style: _commonDrawStyleCmt[type],
+            });
+    
+            _map.addInteraction(_drawIntCmt);
 
-        _map.addInteraction(_drawIntCmt);
+            _panelComments = true;
+    
+            _drawIntCmt.on(
+                "drawend", 
+                function (event) {
+                    _map.removeInteraction(_drawIntCmt);
 
-        _drawIntCmt.on(
-            "drawend", 
-            function (event) {
-                let currentFeature = event.feature;
-
-                _createCommentsPanel(currentFeature);
-            },
-            this
-        );
+                    let currentFeature = event.feature;
+    
+                    _createCommentsPanel(currentFeature);
+                },
+                this
+            );
+        }
     };
 
     let divCommentsPanel;
@@ -249,8 +257,36 @@ var comments = (function () {
 
         divCommentsPanel.appendChild(divCommentsSection);
 
+        // Dropdown list => save and cancel button
+        let buttonSaveCancel = _createSaveCancelButton();
+
+        divCommentsPanel.appendChild(buttonSaveCancel);
+
         // Add the div to the "page-content-wrapper"
         document.getElementById("page-content-wrapper").appendChild(divCommentsPanel);
+    };
+
+    var _createSaveCancelButton = () => {
+        let buttonSave = document.createElement("button");
+        buttonSave.type = "button";
+        buttonSave.className = "btn btn-success";
+        buttonSave.textContent = "Sauvegarder";
+
+        let buttonCancel = document.createElement("button");
+        buttonCancel.type = "button";
+        buttonCancel.className = "btn btn-danger";
+        buttonCancel.textContent = "Annuler";
+
+        let divButton = document.createElement("div");
+        divButton.style.display = "absolute";
+        divButton.style.justifyContent = "space-between";
+        divButton.style.width = "calc(100% - 20px)";
+        divButton.style.padding = "10px";
+
+        divButton.appendChild(buttonCancel);
+        divButton.appendChild(buttonSave);
+
+        return divButton;
     };
 
     var _createSelectComments = (featUid) => {
@@ -351,8 +387,6 @@ var comments = (function () {
         return divDropdown;
     };
 
-    let listTextArea = [];
-
     var _createCommentsSection = (featUid) => {
 
         _nbTextArea += 1;
@@ -392,7 +426,7 @@ var comments = (function () {
         addTextArea.style.cursor = "pointer";
 
         addTextArea.addEventListener("click", function() {
-            const newFeatUid = `${featUid + 1}`;
+            const newFeatUid = parseInt(featUid) + 1;
             _createCommentsSection(newFeatUid);
         });
 
@@ -401,10 +435,6 @@ var comments = (function () {
         }
 
         divCommentsPanel.appendChild(divTextArea);
-
-        listTextArea.push(
-            divTextArea
-        );
         
         return divTextArea;
     };
