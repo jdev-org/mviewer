@@ -200,7 +200,10 @@ var comments = (function () {
 
     let divCommentsPanel;
 
+    let buttonSaveCancel;
+
     var _createCommentsPanel = (feature) => {
+
         let featureUid = feature.getGeometry().ol_uid;
         let featureType = feature.getGeometry().getType();
         let featurePos;
@@ -228,8 +231,9 @@ var comments = (function () {
         }
 
         // Div style
-        divCommentsPanel.style.width = "400px";
-        divCommentsPanel.style.height = "400px";
+        // divCommentsPanel.style.width = "400px";
+        // divCommentsPanel.style.height = "400px";
+        divCommentsPanel.style.padding = "4px";
         divCommentsPanel.style.borderRadius = "5px";
         divCommentsPanel.style.border = "1px solid black"
         divCommentsPanel.style.backgroundColor = "white";
@@ -238,6 +242,7 @@ var comments = (function () {
         divCommentsPanel.style.display = "flex";
         divCommentsPanel.style.flexDirection = "column";
         divCommentsPanel.style.alignItems = "center";
+        divCommentsPanel.style.justifyContent = "space-between";
 
         // Title for the comment div
         let divCommentsP = document.createElement("p");
@@ -252,15 +257,15 @@ var comments = (function () {
 
         divCommentsPanel.appendChild(customSelectComments);
 
-        // Dropdown list => comments
-        let divCommentsSection = _createCommentsSection(featureUid);
-
-        divCommentsPanel.appendChild(divCommentsSection);
-
         // Dropdown list => save and cancel button
-        let buttonSaveCancel = _createSaveCancelButton();
+        buttonSaveCancel = _createSaveCancelButton();
 
         divCommentsPanel.appendChild(buttonSaveCancel);
+
+        // Dropdown list => comments
+        let divCommentsSection = _createCommentsSection();
+
+        divCommentsPanel.insertBefore(divCommentsSection, buttonSaveCancel);
 
         // Add the div to the "page-content-wrapper"
         document.getElementById("page-content-wrapper").appendChild(divCommentsPanel);
@@ -278,10 +283,20 @@ var comments = (function () {
         buttonCancel.textContent = "Annuler";
 
         let divButton = document.createElement("div");
-        divButton.style.display = "absolute";
+        divButton.style.position = "relative";
+        divButton.style.display = "flex";
         divButton.style.justifyContent = "space-between";
-        divButton.style.width = "calc(100% - 20px)";
+        divButton.style.width = "100%";
         divButton.style.padding = "10px";
+        divButton.style.marginTop = "auto";
+
+        buttonSave.addEventListener("click", function () {
+            _saveModification();
+        });
+
+        buttonCancel.addEventListener("click", function () {
+            _disableDrawToolCmt();
+        });
 
         divButton.appendChild(buttonCancel);
         divButton.appendChild(buttonSave);
@@ -289,115 +304,87 @@ var comments = (function () {
         return divButton;
     };
 
-    var _createSelectComments = (featUid) => {
+    var _saveModification = () => {
+
+    };
+
+    var _createSelectComments = () => {
         // Custom select
         let contentSelectComments = _config.data.features.types;
-
-        // let divDropdown = document.createElement("div");
-        // divDropdown.className = "dropdown";
-        // divDropdown.id = ""; // Useless for now
-
-        // let divDropdownSelect = document.createElement("div");
-        // divDropdownSelect.className = "select";
-
-        // let span = document.createElement("span");
-        // span.className = "selected";
-        // span.innerHTML = "Choisir un type";
-
-        // let spanDiv = document.createElement("div");
-        // spanDiv.className = "caret";
-
-        // let divDropdownUl = document.createElement("ul");
-        // divDropdownUl.className = "menu";
-
-        // divDropdownSelect.appendChild(span);
-        // divDropdownSelect.appendChild(spanDiv);
-
-        // divDropdown.appendChild(divDropdownSelect);
-        // divDropdown.appendChild(divDropdownUl);
-
-        // return divDropdown;
 
         let divDropdown = document.createElement("div");
         divDropdown.className = "dropdown";
 
-        // Select style
-        divDropdown.style.display = "inline-block";
+        let divDropdownSelect = document.createElement("div");
+        divDropdownSelect.className = "select";
 
-        let divDropdownButton = document.createElement("button");
-        divDropdownButton.className = "btn btn-default dropdown-toggle";
-        divDropdownButton.type = "button";
-        divDropdownButton.id = `dropdown_${featUid}`;
-        divDropdownButton.setAttribute("data-toggle", "dropdown");
-        divDropdownButton.setAttribute("aria-haspopup", "true");
-        divDropdownButton.setAttribute("aria-expanded", "false");
-        divDropdownButton.textContent = "Choisir un type";
-
-        //divDropdownButton.style.width = "100%";
-        divDropdownButton.style.marginBottom = "10px";
-        divDropdownButton.style.boxSizing = "border-box";
-        divDropdownButton.style.alignItems = "center";
-        divDropdownButton.style.width = "158px";
-        
         let span = document.createElement("span");
-        span.className = "caret";
+        span.className = "selected";
+        span.innerHTML = "Choisir un type";
+
+        let spanDiv = document.createElement("div");
+        spanDiv.className = "caret";
 
         let divDropdownUl = document.createElement("ul");
-        divDropdownUl.className = "dropdown-menu";
-        divDropdownUl.setAttribute("aria-labelledby", `dropdown_${featUid}`);
+        divDropdownUl.className = "menu";
 
-        // Style ul dropdown
-        divDropdownUl.style.width = "100%";
-        divDropdownUl.style.boxSizing = "border-box";
+        divDropdownSelect.appendChild(span);
+        divDropdownSelect.appendChild(spanDiv);
+
+        divDropdown.appendChild(divDropdownSelect);
+        divDropdown.appendChild(divDropdownUl);
 
         for (const value of contentSelectComments) {
             let divDropdownLi = document.createElement("li");
-
-            let divDropdownA = document.createElement("a");
-            divDropdownA.className = "dropdown-item";
-            divDropdownA.value = value;
-            divDropdownA.href = "#";
-            divDropdownA.textContent = value;
-
-            divDropdownLi.appendChild(divDropdownA);
+            divDropdownLi.textContent = value;
 
             divDropdownUl.appendChild(divDropdownLi);
         }
-
-        let divider = document.createElement("li");
-        divider.role = "separator";
-        divider.className = "divider";
-
-        divDropdownUl.appendChild(divider);
-
-        let addTypeLi = document.createElement("li");
         
-        let addTypeA = document.createElement("a");
-        addTypeA.href = "#";
-        addTypeA.textContent = "Ajouter un type";
+        const select = divDropdown.querySelector(".select");
+        const caret = divDropdown.querySelector(".caret");
+        const menu = divDropdown.querySelector(".menu");
+        const options = divDropdown.querySelectorAll(".menu li");
+        const selected = divDropdown.querySelector(".selected");
 
-        addTypeLi.appendChild(addTypeA);
+        select.addEventListener("click", () => {
+            select.classList.toggle("select-clicked");
 
-        divDropdownUl.appendChild(addTypeLi);   
+            caret.classList.toggle("caret-rotate");
 
-        divDropdownButton.appendChild(span);
-        divDropdown.appendChild(divDropdownButton);
-        divDropdown.appendChild(divDropdownUl);
-        
+            menu.classList.toggle("menu-open");
+        });
+
+        options.forEach((option) => {
+            option.addEventListener("click", () => {
+            selected.innerText = option.innerText;
+            select.classList.remove("selected-clicked");
+            caret.classList.remove("caret-rotate");
+            menu.classList.remove("menu-open");
+
+            options.forEach((option) => {
+                option.classList.remove("active");
+            });
+
+            option.classList.add("active");
+            });
+        });
+
         return divDropdown;
     };
 
-    var _createCommentsSection = (featUid) => {
+    var _createCommentsSection = () => {
 
         _nbTextArea += 1;
 
         let divTextArea = document.createElement("div");
-        divTextArea.id = `textArea_${featUid}`;
+        divTextArea.id = `textArea_${_nbTextArea}`;
         divTextArea.style.flexDirection = "column";
         divTextArea.style.alignItems = "center";
+        divTextArea.style.display = "flex";
 
         let smallCountsTextArea = document.createElement("small");
-        smallCountsTextArea.id = "countsTextArea";
+        smallCountsTextArea.id = `countsTextArea_${_nbTextArea}`;
         smallCountsTextArea.textContent = "0/254 caractères utilisés";
         smallCountsTextArea.style.display = "block";
         smallCountsTextArea.style.marginTop = "0px";
@@ -406,13 +393,13 @@ var comments = (function () {
 
         let textArea = document.createElement("textarea");
         textArea.placeholder = "Saisir un commentaire...";
-        textArea.id = "commentsArea";
+        textArea.id = `commentsArea_${_nbTextArea}`;
         textArea.maxLength = "254";
         textArea.cols = "45";
         textArea.rows = "5";
         
-        textArea.addEventListener("input", function () {
-            updateCharacterCount();
+        textArea.addEventListener("input", function (event) {
+            updateCharacterCount(event);
         });
 
         // Style comments
@@ -422,33 +409,36 @@ var comments = (function () {
         divTextArea.appendChild(smallCountsTextArea);
         
         let addTextArea = document.createElement("div");
+        addTextArea.id = `plusComments_${_nbTextArea}`;
         addTextArea.className = "glyphicon glyphicon-plus";
         addTextArea.style.cursor = "pointer";
+        addTextArea.style.marginBottom = "4px";
 
         addTextArea.addEventListener("click", function() {
-            const newFeatUid = parseInt(featUid) + 1;
-            _createCommentsSection(newFeatUid);
+            addTextArea.style.display = "none";
+            _createCommentsSection();
         });
 
         if (_nbTextArea < 4) { 
             divTextArea.appendChild(addTextArea);
         }
 
-        divCommentsPanel.appendChild(divTextArea);
+        divCommentsPanel.insertBefore(divTextArea, buttonSaveCancel);
         
         return divTextArea;
     };
 
-    function updateCharacterCount() {
-        const contentTextArea = document.getElementById("commentsArea").value;
-        const charCount = document.getElementById("countsTextArea");
+    function updateCharacterCount(event) {
+        const id = event.currentTarget.id;
+        const number = id.split("_")[1];
+        const contentTextArea = document.getElementById(`commentsArea_${number}`).value;
+        let charCount = document.getElementById(`countsTextArea_${number}`);
         charCount.textContent = `${contentTextArea.length}/254 caractères utilisés`;
         if (contentTextArea.length === 254) {
             charCount.style.color = "red";
         } else {
             charCount.style.color = "gray";
         }
-        
     }
 
     var _toggle = function () {
@@ -501,6 +491,12 @@ var comments = (function () {
         }
 
         document.getElementById("commentstoolsoptions").style.display = "none";
+        
+        if (divCommentsPanel) {
+            divCommentsPanel.remove();
+        }
+        _panelComments = false;
+        _nbTextArea = 0;
     };
 
     return {
