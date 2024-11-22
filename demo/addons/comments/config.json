@@ -1,23 +1,24 @@
 {
-    "type": "module",
-    "js": ["js/comments.js"],
-    "css": "css/style.css",
-    "html": "comments.html",
-    "target": "toolstoolbar",
-    "options": {
-        "mviewer": {
-            "comments": {
-                "data": {
-                    "features": {
-                        "types": [
-                            "Test 1",
-                            "Test 2",
-                            "Test 3",
-                            "Test 4"
-                        ]
-                    }
-                }
-            }
+  "type": "module",
+  "js": ["js/comments.js"],
+  "css": "css/style.css",
+  "html": "comments.html",
+  "target": "toolstoolbar",
+  "options": {
+    "mviewer": {
+      "comments": {
+        "data": {
+          "features": {
+            "types": ["Test 1", "Test 2", "Test 3", "Test 4"]
+          }
+        },
+        "layer": {
+          "url": "https://gis.jdev.fr/geoserver/",
+          "namespace": "bthd",
+          "id": "commentaire",
+          "type_geom": "LineString"
         }
+      }
     }
+  }
 }
