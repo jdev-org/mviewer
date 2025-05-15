@@ -1362,22 +1362,39 @@ var search = (function () {
   };
 
   /**
+   * Private Method: _triggerQueryMap
+   * Trigger queryMap function with a (optionnal) delay.
+   *
+   * @param {Array} coordinate
+   * @param {number} duration
+   */
+  const _triggerQueryMap = (coordinate, duration) => {
+    setTimeout(() => {
+      info.queryMap({
+        coordinate: coordinate,
+        pixel: _map.getPixelFromCoordinate(coordinate),
+      });
+    }, duration || 0);
+  };
+
+  /**
    * Private Method: zoomToFeature
    *
    */
   var _zoomToFeature = function (featureId, zoom, sourceProjection, queryMap) {
+    // get the feature from the source
     var feature = _sourceEls.getFeatureById(featureId).clone();
+    // get the geometry of the feature
     var geom = feature.getGeometry();
 
     var mapView = _map.getView();
-    var mapProjection = _map.getView().getProjection();
+    var mapProjection = _map.getView().getProjection().getCode();
 
     sourceProjection = sourceProjection || "EPSG:4326";
 
-    var innerPoint; 
+    var innerPoint;
+    // get the type of the geometry
     var geomType = geom.getType();
-
-    console.log(geomType);
     
     // get the inner point of the geometry
     if (geomType === "Polygon") {
@@ -1395,10 +1412,10 @@ var search = (function () {
       innerPoint = ol.proj.transform(innerPoint, sourceProjection, mapProjection);
     };
 
-    // _sourceEls.clear();
     _sourceOverlay.clear();
     _sourceOverlay.addFeature(feature);
     
+    // set the duration of the animation
     var duration = 3000;
 
     // zoom to the feature
@@ -1413,6 +1430,11 @@ var search = (function () {
         zoom: targetZoom,
         duration: duration,
       });
+
+      // if queryMap is true, call the queryMap function
+      if (queryMap) {
+        _triggerQueryMap(innerPoint, duration + 100);
+      } 
     } else {
       let extent = geom.getExtent();
       let viewExtent = (sourceProjection && sourceProjection !== mapProjection)
@@ -1423,20 +1445,10 @@ var search = (function () {
         size: _map.getSize(),
         padding: [0, $("#sidebar-wrapper").width(), 0, 0],
         duration: duration,
+        callback: queryMap ? () => 
+          _triggerQueryMap(innerPoint, duration) : null
       });
     }
-
-    // if queryMap is true, call the queryMap function
-    if (queryMap) {
-      var i = function () {
-        var e = {
-          coordinate: innerPoint,
-          pixel: _map.getPixelFromCoordinate(innerPoint),
-        };
-        info.queryMap(e);
-      };
-      setTimeout(i, 250);
-    };
 
     function clear() {
       _sourceOverlay.clear();
