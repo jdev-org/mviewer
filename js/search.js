@@ -462,36 +462,61 @@ var search = (function () {
             // a Mustache template
             result_label = Mustache.render(_fuseSearchResult, element);
           }
+
+          _sourceEls.id = "sourceEls";
+
+          var geoJsonFeature = {
+            type: "Feature",
+            geometry: element.geometry,
+            propreties: element
+          };
+
+          var feature = new ol.format.GeoJSON().readFeature(geoJsonFeature);
+          feature.set("id", element.id);
+          feature.setId(element.id);
+
+          _sourceEls.addFeature(feature);
+
           var geom = new ol.format.GeoJSON().readGeometry(element.geometry);
           var xyz = mviewer.getLonLatZfromGeometry(geom, _elasticSearchProj, zoom);
-          str +=
-            '<a class="fuse list-group-item" title="' +
-            result_label +
-            '" ' +
-            'href="#" onclick="mviewer.zoomToLocation(' +
-            xyz.lon +
-            "," +
-            xyz.lat +
-            "," +
-            xyz.zoom +
-            "," +
-            _searchparams.querymaponclick +
-            ");mviewer.showLocation('_elasticSearchProj'," +
-            xyz.lon +
-            "," +
-            xyz.lat +
-            ', false);" ' +
-            "onmouseover=\"mviewer.flash('_elasticSearchProj'," +
-            xyz.lon +
-            "," +
-            xyz.lat +
-            ', false);" >' +
-            result_label +
-            "</a>";
+
+          let coords = _getOuterRingCoordinates(element.geometry);
+
+          var extent = ol.extent.boundingExtent(coords);
+
+          var centerExtent = ol.extent.getCenter(extent);
+
+          let lon = centerExtent[0];
+          let lat = centerExtent[1];
+
+          let featureId = feature.get("id");
+
+          str += `
+            <a class="fuse list-group-item" title="${result_label}" 
+              href="#"
+              onclick="mviewer.zoomToFeature(${featureId},${xyz.zoom}, undefined, ${_searchparams.querymaponclick});" 
+              onmouseover="mviewer.flash('${_elasticSearchProj}',${lon},${lat}, false);">
+              ${result_label}
+            </a>`;
+
+          // mviewer.showLocation('${_elasticSearchProj}',${featureId}, ${_searchparams.banmarker});
         });
       }
       _showResults(str);
     }
+  };
+
+  var _getOuterRingCoordinates = (geometry) => {
+    const coords = geometry.coordinates;
+    res = [];
+
+    if (geometry.type === "Polygon") {
+      res = coords[0];
+    } else if (geometry.type === "MultiPolygon") {
+      res = coords[0][0];
+    };
+
+    return res;
   };
 
   /**
@@ -1340,19 +1365,78 @@ var search = (function () {
    * Private Method: zoomToFeature
    *
    */
-  var _zoomToFeature = function (featureid, zoom) {
-    var feature = _sourceEls.getFeatureById(featureid).clone();
-    _sourceEls.clear();
+  var _zoomToFeature = function (featureId, zoom, sourceProjection, queryMap) {
+    var feature = _sourceEls.getFeatureById(featureId).clone();
+    var geom = feature.getGeometry();
+
+    var mapView = _map.getView();
+    var mapProjection = _map.getView().getProjection();
+
+    sourceProjection = sourceProjection || "EPSG:4326";
+
+    var innerPoint; 
+    var geomType = geom.getType();
+
+    console.log(geomType);
+    
+    // get the inner point of the geometry
+    if (geomType === "Polygon") {
+      innerPoint = geom.getInteriorPoints().getCoordinates();
+    } else if (geomType === "MultiPolygon") {
+      innerPoint = geom.getInteriorPoints().getPoint(0).getCoordinates();
+    } else {
+      innerPoint = geomType === "Point"
+        ? geom.getCoordinates()
+        : ol.extent.getCenter(geom.getExtent());
+    };
+
+    // transform the inner point to the map projection
+    if (sourceProjection && sourceProjection !== mapProjection) {
+      innerPoint = ol.proj.transform(innerPoint, sourceProjection, mapProjection);
+    };
+
+    // _sourceEls.clear();
     _sourceOverlay.clear();
     _sourceOverlay.addFeature(feature);
-    var boundingExtent = feature.getGeometry().getExtent();
-    var duration = 2000;
+    
+    var duration = 3000;
 
-    _map.getView().fit(boundingExtent, {
-      size: _map.getSize(),
-      padding: [0, $("#sidebar-wrapper").width(), 0, 0],
-      duration: duration,
-    });
+    // zoom to the feature
+    if (zoom) {
+      let targetZoom = zoom;
+      if (geomType === "Polygon" || geomType === "MultiPolygon") {
+        targetZoom = zoom - 1;
+      };
+
+      mapView.animate({
+        center: innerPoint,
+        zoom: targetZoom,
+        duration: duration,
+      });
+    } else {
+      let extent = geom.getExtent();
+      let viewExtent = (sourceProjection && sourceProjection !== mapProjection)
+        ? ol.proj.transformExtent(extent, sourceProjection, mapProjection)
+        : extent;
+
+      mapView.fit(viewExtent, {
+        size: _map.getSize(),
+        padding: [0, $("#sidebar-wrapper").width(), 0, 0],
+        duration: duration,
+      });
+    }
+
+    // if queryMap is true, call the queryMap function
+    if (queryMap) {
+      var i = function () {
+        var e = {
+          coordinate: innerPoint,
+          pixel: _map.getPixelFromCoordinate(innerPoint),
+        };
+        info.queryMap(e);
+      };
+      setTimeout(i, 250);
+    };
 
     function clear() {
       _sourceOverlay.clear();

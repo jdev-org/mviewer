@@ -1990,6 +1990,20 @@ mviewer = (function () {
     return result;
   };
 
+  var getSourceById = (sourceId) => {
+    var allLayers = mviewer.getMap().getAllLayers();
+    var source;
+
+    for (const layer of allLayers) {
+      if (layer.getProperties().source.id === sourceId) {
+        source = layer.getSource();
+        break;
+      };
+    };
+
+    return source;
+  };
+
   /*
    * Public
    */
@@ -2534,7 +2548,56 @@ mviewer = (function () {
      */
 
     showLocation: function (proj, x, y, showMarker) {
-      //marker
+
+      // var sourceEls = getSourceById("sourceEls");
+
+      // var feature = sourceEls.getFeatureById(featureId);
+      // if (!feature) {
+      //   console.error("No feature from source with id : sourceEls");
+      //   return;
+      // };
+
+      // let geom = feature.getGeometry();
+
+      // let coord = geom.getInteriorPoint().getCoordinates()[0];
+
+      // const marker = new ol.feature.Feature({
+      //   geometry: new ol.geom.Point(coord)
+      // });
+
+      // marker.setStyle(new ol.style.Style({
+      //   image: new ol.style.CircleStyle({
+      //     radius: 7,
+      //     fill: new ol.style.Fill({ color: 'black' }),
+      //     stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+      //   })
+      // }));
+
+      // const markerLayer = new ol.layer.Vector({
+      //   source: new ol.source.Vector({
+      //     features: [marker]
+      //   }),
+      // });
+
+      // _map.addLayer(markerLayer);
+
+      // var mapProjection = _map.getView().getProjection();
+      // var geometry = feature.getGeometry();
+      // var coord;
+
+      // if (geometry.getType() === "Point") {
+      //   coord = feature.getCoordinates();
+      // } else {
+      //   var extent = geometry.getExtent();
+      //   var bufferExtent = ol.extent.buffer(extent, ol.extent.getWidth(extent) * 0.2);
+      //   coord = ol.extent.getCenter(bufferExtent);
+      // };
+
+      // var ptResult = coord;
+      // if (proj && proj !== mapProjection) {
+      //   ptResult = ol.proj.transform(coord, proj, mapProjection);
+      // };
+
       $("#mv_marker").hide();
       var ptResult = ol.proj.transform([x, y], proj, _projection.getCode());
       if (showMarker != false || showMarker === undefined) {
