@@ -122,7 +122,7 @@ var search = (function () {
    * ElasticSearch use only 4326 projection
    * Transformation in Mviewer projection is needed
    */
-  const _elasticSearchProj = "EPSG:4326";
+  const _proj4326 = "EPSG:4326";
 
   /**
    * Property: _fuseSearchData
@@ -299,7 +299,7 @@ var search = (function () {
       const zoom = zoomByType[res[i].classification] || 12;
       str += `<a class="${type}-location list-group-item" href="#" onclick="
           mviewer.zoomToLocation(${res[i].x}, ${res[i].y}, ${zoom}, ${_searchparams.querymaponclick});
-          mviewer.showLocation('EPSG:4326',${res[i].x}, ${res[i].y}, ${_searchparams.banmarker});">
+          mviewer.showLocation(${_proj4326},${res[i].x}, ${res[i].y}, ${_searchparams.banmarker});">
           ${res[i].fulltext}
       </a>`;
     }
@@ -337,7 +337,7 @@ var search = (function () {
                   ${zoom},
                   ${_searchparams.querymaponclick}
               );
-              mviewer.showLocation('EPSG:4326', ${geom.coordinates[0]}, ${geom.coordinates[1]}, ${_searchparams.banmarker});">
+              mviewer.showLocation(${_proj4326}, ${geom.coordinates[0]}, ${geom.coordinates[1]}, ${_searchparams.banmarker});">
               ${props.label}
           </a>`;
     }
@@ -361,7 +361,7 @@ var search = (function () {
         var parameters = { q: value, limit: 5 };
         if (_searchparams.bbox) {
           var center = _map.getView().getCenter();
-          var center = ol.proj.transform(center, _projection.getCode(), "EPSG:4326");
+          var center = ol.proj.transform(center, _projection.getCode(), _proj4326);
           parameters.lon = center[0];
           parameters.lat = center[1];
         }
@@ -463,7 +463,7 @@ var search = (function () {
             result_label = Mustache.render(_fuseSearchResult, element);
           }
           var geom = new ol.format.GeoJSON().readGeometry(element.geometry);
-          var xyz = mviewer.getLonLatZfromGeometry(geom, _elasticSearchProj, zoom);
+          var xyz = mviewer.getLonLatZfromGeometry(geom, _proj4326, zoom);
           str +=
             '<a class="fuse list-group-item" title="' +
             result_label +
@@ -476,12 +476,12 @@ var search = (function () {
             xyz.zoom +
             "," +
             _searchparams.querymaponclick +
-            ");mviewer.showLocation('_elasticSearchProj'," +
+            ");mviewer.showLocation('"+_proj4326 +"'," +
             xyz.lon +
             "," +
             xyz.lat +
             ', false);" ' +
-            "onmouseover=\"mviewer.flash('_elasticSearchProj'," +
+            "onmouseover=\"mviewer.flash('"+_proj4326 +"'," +
             xyz.lon +
             "," +
             xyz.lat +
@@ -910,7 +910,7 @@ var search = (function () {
             var projectedMapExtent = ol.proj.transformExtent(
               currentExtent,
               _projection.getCode(),
-              _elasticSearchProj
+              _proj4326
             );
             var geometryfield = _elasticSearchGeometryfield.get(layerId) || "location";
             var geofilter = { geo_shape: {} };
@@ -963,7 +963,7 @@ var search = (function () {
 
                   let xyz = mviewer.getLonLatZfromGeometry(
                     geom,
-                    _elasticSearchProj,
+                    _proj4326,
                     zoom
                   );
 
@@ -981,7 +981,7 @@ var search = (function () {
                   // always zoom on feature
                   let feature = new ol.Feature({
                     geometry: geom.transform(
-                      _elasticSearchProj,
+                      _proj4326,
                       _map.getView().getProjection()
                     ),
                     title: title,
@@ -1001,7 +1001,7 @@ var search = (function () {
                       "," +
                       xyz.lat +
                       ",'" +
-                      _elasticSearchProj +
+                      _proj4326 +
                       "','" +
                       indexId +
                       "','" +
@@ -1019,7 +1019,7 @@ var search = (function () {
                   action_over +=
                     "mviewer.flash(" +
                     "'" +
-                    _elasticSearchProj +
+                    _proj4326 +
                     "'," +
                     xyz.lon +
                     "," +
