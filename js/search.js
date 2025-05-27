@@ -760,92 +760,68 @@ var search = (function () {
       if (sendQuery) {
         // Fix IE9 "No transport error" with cors
         jQuery.support.cors = true;
-        $.ajax({
-          type: "POST",
-          url: _elasticSearchUrl,
-          crossDomain: true,
-          data: JSON.stringify(queryFilter),
-          dataType: "json",
-          contentType: contentType,
-          success: function (data) {
+        fetch(_elasticSearchUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": contentType,
+          },
+          body: JSON.stringify(queryFilter),
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Elasticsearch fetch failed");
+            }
+            return response.json();
+          })
+          .then(data => {
             _sourceEls.clear();
-            var str = "";
-            var format = new ol.format.GeoJSON();
-            var nb = data.hits.hits.length;
-            for (var i = 0, nb; i < nb && i < 5; i++) {
-              var point = _shapeToPoint(data.hits.hits[i]._source.geometry);
-              var geom = new ol.format.GeoJSON().readGeometry(
-                data.hits.hits[i]._source.geometry
-              );
-              var geomtype = geom.getType();
-              var action_click = "";
-              var action_over = "";
-              var title = data.hits.hits[i]._source.title;
+            let str = "";
+            let format = new ol.format.GeoJSON();
+            let nb = data.hits.hits.length;
+            for (let i = 0; i < nb && i < 5; i++) {
+              let hit = data.hits.hits[i];
+              let point = _shapeToPoint(hit._source.geometry);
+              let geom = new ol.format.GeoJSON().readGeometry(hit._source.geometry);
+              let geomtype = geom.getType();
+              let action_click = "";
+              let action_over = "";
+              let title = hit._source.title;
+        
               if (geomtype !== "Point") {
-                var feature = new ol.Feature({
+                let feature = new ol.Feature({
                   geometry: geom.transform("EPSG:4326", "EPSG:3857"),
                   title: title,
                 });
-                action_click = "mviewer.zoomToFeature('feature." + i + "');";
-                feature.setId("feature." + i);
+                action_click = `mviewer.zoomToFeature('feature.${i}');`;
+                feature.setId(`feature.${i}`);
                 _sourceEls.addFeature(feature);
-                action_over = "mviewer.showFeature('feature." + i + "');";
+                action_over = `mviewer.showFeature('feature.${i}');`;
               } else {
-                action_click =
-                  "mviewer.zoomToLocation(" +
-                  point[0] +
-                  "," +
-                  point[1] +
-                  ",14," +
-                  _searchparams.querymaponclick +
-                  ");";
-                action_over =
-                  "mviewer.flash(" + "'EPSG:4326'," + point[0] + "," + point[1] + ");";
+                action_click = `mviewer.zoomToLocation(${point[0]},${point[1]},14,${_searchparams.querymaponclick});`;
+                action_over = `mviewer.flash('EPSG:4326',${point[0]},${point[1]});`;
               }
-              if (_overLayers[data.hits.hits[i]._type]) {
-                action_click +=
-                  "mviewer.tools.info.queryLayer(" +
-                  point[0] +
-                  "," +
-                  point[1] +
-                  ",'EPSG:4326','" +
-                  data.hits.hits[i]._type +
-                  "','" +
-                  data.hits.hits[i]._id +
-                  "');";
-                action_over =
-                  "mviewer.flash(" + "'EPSG:4326'," + point[0] + "," + point[1] + ");";
+        
+              if (_overLayers[hit._type]) {
+                action_click += `mviewer.tools.info.queryLayer(${point[0]},${point[1]},'EPSG:4326','${hit._type}','${hit._id}');`;
+                action_over = `mviewer.flash('EPSG:4326',${point[0]},${point[1]});`;
               }
-
-              str +=
-                '<a class="elasticsearch list-group-item" href="#" ' +
-                'onclick="' +
-                action_click +
-                '" ' +
-                'onmouseover="' +
-                action_over +
-                '" ' +
-                'title="(' +
-                data.hits.hits[i]._type +
-                ") " +
-                $.map(data.hits.hits[i]._source, function (el) {
-                  if (typeof el === "string") {
-                    return el;
-                  }
-                }).join(", \n") +
-                '">' +
-                title +
-                "</a>";
+        
+              str += `<a class="elasticsearch list-group-item" href="#" onclick="${action_click}" onmouseover="${action_over}" title="(${hit._type}) ${
+                Object.values(hit._source)
+                  .filter(el => typeof el === "string")
+                  .join(", \n")
+              }">${title}</a>`;
             }
+        
             $(".elasticsearch").remove();
             if (nb > 0) {
               _showResults(str, "entities");
             }
-          },
-          error: function (xhr, ajaxOptions, thrownError) {
+          })
+          .catch(error => {
             mviewer.alert(
               "Problème avec l'instance Elasticsearch.\n" +
-                thrownError +
+                error.message +
                 "\n Désactivation du service.",
               "alert-warning"
             );
@@ -854,8 +830,7 @@ var search = (function () {
             $("#param_search_features span")
               .removeClass("mv-checked")
               .addClass("mv-unchecked");
-          },
-        });
+          });        
       }
     }
   };
@@ -938,123 +913,94 @@ var search = (function () {
           if (sendQuery) {
             // Fix IE9 "No transport error" with cors
             jQuery.support.cors = true;
-            $.ajax({
-              type: "POST",
-              url: _elasticSearchUrl.get(layerId),
-              crossDomain: true,
-              data: JSON.stringify(queryFilter),
-              dataType: "json",
-              contentType: contentType,
-              success: function (data) {
+            fetch(_elasticSearchUrl.get(layerId), {
+              method: "POST",
+              headers: {
+                "Content-Type": contentType
+              },
+              body: JSON.stringify(queryFilter)
+            })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Erreur HTTP " + response.status);
+                }
+                return response.json();
+              })
+              .then(data => {
                 let str = "";
                 let indexId = "";
                 let mouseOverField = "";
                 let titleDisplayKey = "id";
-                var nb = data.hits.hits.length;
+                let nb = data.hits.hits.length;
                 let formatELS = new ol.format.GeoJSON();
-
+            
                 if (nb > 0) {
                   indexId = data.hits.hits[0]._index;
                   mouseOverField = _elasticSearchmouseoverfields.get(indexId).split(",");
                   titleDisplayKey = _elasticSearchdisplayfields.get(indexId).split(",");
-
-                  // get format from conf but defaut GeoJSON
+            
                   if (_elasticSearchGeomtype.get(indexId) === "WKT") {
                     formatELS = new ol.format.WKT();
                   }
                 }
-
-                for (var j = 0, nb; j < nb && j < 10; j++) {
+            
+                for (let j = 0; j < nb && j < 10; j++) {
                   let currentFeature = data.hits.hits[j];
-
                   let geom = formatELS.readGeometry(currentFeature._source.location);
-
                   let xyz = mviewer.getLonLatZfromGeometry(geom, _proj4326, zoom);
-
-                  var title = "";
-                  title += $.map(currentFeature._source, function (value, key) {
-                    if (!mouseOverField.length || mouseOverField.includes(key)) {
-                      if (typeof value === "string") {
-                        return value;
-                      }
-                    }
-                  }).join(" - ");
-
+            
+                  let title = Object.entries(currentFeature._source)
+                    .filter(([key, value]) => !mouseOverField.length || mouseOverField.includes(key))
+                    .map(([key, value]) => (typeof value === "string" ? value : null))
+                    .filter(Boolean)
+                    .join(" - ");
+            
                   let action_click = "";
-
-                  // always zoom on feature
+            
                   let feature = new ol.Feature({
                     geometry: geom.transform(_proj4326, _map.getView().getProjection()),
                     title: title,
                   });
                   feature.setId("feature." + indexId + "." + j);
                   _sourceEls.addFeature(feature);
-
-                  action_click +=
-                    "mviewer.zoomToFeature('feature." + indexId + "." + j + "', 16);";
-
-                  //If index has the same name than a mviewer layer make the query on layer
+            
+                  action_click += `mviewer.zoomToFeature('feature.${indexId}.${j}', 16);`;
+            
                   if (_overLayers[indexId]) {
                     _overLayers[indexId].searchid = _elasticSearchLinkid.get(indexId);
-                    action_click +=
-                      "mviewer.tools.info.queryLayer(" +
-                      xyz.lon +
-                      "," +
-                      xyz.lat +
-                      ",'" +
-                      _proj4326 +
-                      "','" +
-                      indexId +
-                      "','" +
-                      currentFeature._source[_elasticSearchLinkid.get(indexId)] +
-                      "');";
+                    action_click += `mviewer.tools.info.queryLayer(${xyz.lon},${xyz.lat},'${_proj4326}','${indexId}','${currentFeature._source[_elasticSearchLinkid.get(indexId)]}');`;
                   }
-
+            
                   let action_over = "";
-
-                  // if search not filter by current bbox
                   if (!_searchparams.bbox) {
-                    //action_over = "mviewer.zoomToInitialExtent();";
+                    // action_over = "mviewer.zoomToInitialExtent();";
                   }
-
-                  action_over +=
-                    "mviewer.flash(" +
-                    "'" +
-                    _proj4326 +
-                    "'," +
-                    xyz.lon +
-                    "," +
-                    xyz.lat +
-                    ");";
-                  str +=
-                    '<a class="elasticsearch list-group-item" href="#" ' +
-                    'onclick="' +
-                    action_click +
-                    '" ' +
-                    'onmouseover="' +
-                    action_over +
-                    '" ' +
-                    'title="' +
-                    $.map(currentFeature._source, function (value, key) {
-                      if (!titleDisplayKey.length || titleDisplayKey.includes(key)) {
-                        if (typeof value === "string") {
-                          return value;
-                        }
-                      }
-                    }).join(" \n") +
-                    '">' +
-                    title +
-                    "</a>";
+            
+                  action_over += `mviewer.flash('${_proj4326}',${xyz.lon},${xyz.lat});`;
+            
+                  let titleAttr = Object.entries(currentFeature._source)
+                    .filter(([key, value]) => !titleDisplayKey.length || titleDisplayKey.includes(key))
+                    .map(([key, value]) => (typeof value === "string" ? value : null))
+                    .filter(Boolean)
+                    .join(" \n");
+            
+                  str += `
+                    <a class="elasticsearch list-group-item" href="#"
+                       onclick="${action_click}"
+                       onmouseover="${action_over}"
+                       title="${titleAttr}">
+                      ${title}
+                    </a>`;
                 }
-
+            
                 if (nb > 0) {
                   _showResults(str, "entities");
                 }
-              },
-              error: function (xhr, ajaxOptions, thrownError) {
+              })
+              .catch(error => {
                 mviewer.alert(
                   "Problème avec l'instance Elasticsearch.\n" +
-                    thrownError +
+                    error.message +
                     "\n Désactivation du service.",
                   "alert-warning"
                 );
@@ -1063,8 +1009,7 @@ var search = (function () {
                 $("#param_search_features span")
                   .removeClass("mv-checked")
                   .addClass("mv-unchecked");
-              },
-            });
+              });            
           }
         }
       }

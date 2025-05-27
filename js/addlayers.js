@@ -401,12 +401,30 @@ var addlayers = (function () {
     // parentDiv.append(item);
   };
   /**
-   * private Method: _ajaxPromise. Used to get a Promise from an ajax call
+   * private Method: _fetchRequest. Makes an HTTP request to get a Promise using fetch call.
    */
-  var _ajaxPromise = function (options) {
-    return new Promise(function (resolve, reject) {
-      $.ajax(options).done(resolve).fail(reject);
-    });
+  var _fetchRequest = async function (options) {
+    const fetchOptions = {
+      method: options.method || "GET",
+      headers: options.headers || {},
+      body: options.data || null,
+    };
+
+    if (fetchOptions.body && !fetchOptions.headers["Content-Type"]) {
+      fetchOptions.headers["Content-Type"] = "application/json";
+    }
+
+    const response = await fetch(options.url, fetchOptions);
+    if (!response.ok) {
+      const errorData = response.json().catch(() => ({}));
+      throw { status: response.status, ...errorData };
+    }
+
+    if (options.dataType === "text") {
+      return await response.text();
+    } else {
+      return await response.json();
+    }
   };
 
   /**
@@ -523,7 +541,7 @@ var addlayers = (function () {
    */
   var _getCapabilities = function (url) {
     $("#addlayers_results_loading").show();
-    _ajaxPromise({
+    _fetchRequest({
       url: url,
       type: "get",
       dataType: "text",
@@ -592,7 +610,7 @@ var addlayers = (function () {
       filter;
     // Show
     addLayersResultsLoading.style.display = "block";
-    _ajaxPromise({
+    _fetchRequest({
       url: url,
       type: "get",
       dataType: "text",

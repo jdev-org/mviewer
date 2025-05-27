@@ -705,20 +705,29 @@ var info = (function () {
     urls.forEach(function (request) {
       var _ba_ident = sessionStorage.getItem(request.layerinfos.url);
       requests.push(
-        $.ajax({
-          url: mviewer.ajaxURL(request.url),
-          layer: request.layerinfos,
-          beforeSend: function (req) {
-            if (_ba_ident)
-              req.setRequestHeader("Authorization", "Basic " + btoa(_ba_ident));
-          },
-          success: function (response, textStatus, request) {
-            featureInfoByLayer.push({
-              response: response,
-              layerinfos: this.layer,
-              contenttype: request.getResponseHeader("Content-Type"),
-            });
-          },
+        fetch(mviewer.ajaxURL(request.url), {
+          headers: _ba_ident
+          ? {
+            Authorization: "Basic " + btoa(_ba_ident),
+            }
+          : {},
+        })
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const text = await response.text();
+          return ({
+            response: text,
+            layerinfos: request.layerinfos,
+            contenttype: response.headers.get("Content-Type"),
+          });
+        })
+        .then((data) => {
+          featureInfoByLayer.push(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
         })
       );
     });

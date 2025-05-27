@@ -766,13 +766,19 @@ mviewer = (function () {
 
   var _initPanelsPopup = function () {
     if (configuration.getConfiguration().application.help) {
-      $.ajax({
-        url: configuration.getConfiguration().application.help,
-        dataType: "text",
-        success: function (html) {
-          $("#help .modal-body").append(html);
-        },
-      });
+      fetch(configuration.getConfiguration().application.help)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Erreur HTTP : " + response.status);
+          }
+          return response.text();
+        })
+        .then(html => {
+          document.querySelector("#help .modal-body").insertAdjacentHTML("beforeend", html);
+        })
+        .catch(error => {
+          console.error("Erreur lors du fetch :", error);
+        });
     }
   };
 
@@ -854,11 +860,16 @@ mviewer = (function () {
     _overLayers[oLayer.id] = oLayer;
 
     if (oLayer.metadatacsw && oLayer.metadatacsw.search("http") >= 0) {
-      $.ajax({
-        dataType: "xml",
-        layer: oLayer.id,
-        url: _ajaxURL(oLayer.metadatacsw),
-        success: function (result) {
+      fetch(_ajaxURL(oLayer.metadatacsw))
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Erreur HTTP : " + response.status);
+          }
+          return response.text();
+        })
+        .then(xmlString => {
+          const result = new window.DOMParser().parseFromString(xmlString, "application/xml");
+
           var summary = "";
           if ($(result).find("dct\\:abstract, abstract").length > 0) {
             summary = "<p>" + $(result).find("dct\\:abstract, abstract").text() + "</p>";
@@ -873,31 +884,32 @@ mviewer = (function () {
                 .text() +
               "</p>";
           }
-          if (_overLayers[this.layer].metadata) {
+
+          if (_overLayers[oLayer.id].metadata) {
             summary +=
               '<a href="' +
-              _overLayers[this.layer].metadata +
+              _overLayers[oLayer.id].metadata +
               '" i18n="legend.moreinfo" target="_blank">En savoir plus</a>';
           }
-          _overLayers[this.layer].summary = summary;
+          _overLayers[oLayer.id].summary = summary;
 
           var modifiedDate =
             $(result).find("dct\\:modified, modified").text() ||
             $(result).find("dct\\:created, created").text();
-          _overLayers[this.layer].modifiedDate = modifiedDate;
+          _overLayers[oLayer.id].modifiedDate = modifiedDate;
 
-          //use source from metadata as attribution if conf is set to "metadata"
-          if (_overLayers[this.layer].attribution === "metadata") {
+          if (_overLayers[oLayer.id].attribution === "metadata") {
             var source = $(result).find("dc\\:source, source").text();
-            _overLayers[this.layer].attribution = `Source : ${source}`;
-            $(`#${this.layer}-attribution`).text(`Source : ${source}`);
+            _overLayers[oLayer.id].attribution = `Source : ${source}`;
+            $(`#${oLayer.id}-attribution`).text(`Source : ${source}`);
           }
 
-          //update visible layers on the map
-          $(`#${this.layer}-layer-summary`).attr("data-content", summary);
-          $(`#${this.layer}-date`).text(modifiedDate);
-        },
-      });
+          $(`#${oLayer.id}-layer-summary`).attr("data-content", summary);
+          $(`#${oLayer.id}-date`).text(modifiedDate);
+        })
+        .catch(error => {
+          console.error("Erreur lors du fetch :", error);
+        });
     }
     _map.addLayer(l);
     if (oLayer.type === "customlayer" && mviewer.customLayers[oLayer.id]) {
@@ -1352,39 +1364,49 @@ mviewer = (function () {
           _map.addLayer(l);
           _backgroundLayers.push(l);
         } else {
-          $.ajax({
-            url: _ajaxURL(baselayer.url),
-            dataType: "xml",
-            data: {
-              SERVICE: "WMTS",
-              VERSION: "1.0.0",
-              REQUEST: "GetCapabilities",
-            },
-            success: function (xml) {
-              var getCapabilitiesResult = new ol.format.WMTSCapabilities().read(xml);
-              var WMTSOptions = ol.source.WMTS.optionsFromCapabilities(
-                getCapabilitiesResult,
-                {
-                  layer: baselayer.layers,
-                  matrixSet: baselayer.matrixset,
-                  format: baselayer.format,
-                  style: baselayer.style,
-                }
-              );
+          const params = new URLSearchParams({
+            SERVICE: "WMTS",
+            VERSION: "1.0.0",
+            REQUEST: "GetCapabilities"
+          });
+          
+          fetch(_ajaxURL(baselayer.url) + "?" + params.toString())
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Erreur HTTP : " + response.status);
+              }
+              return response.text();
+            })
+            .then(xmlString => {
+              const parser = new DOMParser();
+              const xml = parser.parseFromString(xmlString, "application/xml");
+          
+              const getCapabilitiesResult = new ol.format.WMTSCapabilities().read(xml);
+              const WMTSOptions = ol.source.WMTS.optionsFromCapabilities(getCapabilitiesResult, {
+                layer: baselayer.layers,
+                matrixSet: baselayer.matrixset,
+                format: baselayer.format,
+                style: baselayer.style,
+              });
+          
               WMTSOptions.attributions = baselayer.attribution;
-              l = new ol.layer.Tile({ source: new ol.source.WMTS(WMTSOptions) });
+          
+              const l = new ol.layer.Tile({
+                source: new ol.source.WMTS(WMTSOptions)
+              });
+          
               l.set("name", baselayer.label);
               l.set("blid", baselayer.id);
               setBaseOpacity(l, baselayer.opacity);
+          
               _map.getLayers().insertAt(0, l);
               _backgroundLayers.push(l);
-              if (baselayer.visible === "true") {
-                l.setVisible(true);
-              } else {
-                l.setVisible(false);
-              }
-            },
-          });
+          
+              l.setVisible(baselayer.visible === "true");
+            })
+            .catch(error => {
+              console.error("Erreur lors du fetch WMTS GetCapabilities :", error);
+            });
         }
         break;
 
@@ -1906,26 +1928,35 @@ mviewer = (function () {
       var extraFile = configuration.getConfiguration().application.langfile;
       var defaultFile = "mviewer.i18n.json";
       if (!extraFile) {
-        $.ajax({
-          url: defaultFile,
-          dataType: "json",
-          success: _configureTranslate,
-          error: function () {
+        fetch(defaultFile)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Failed to load default JSON lang file");
+            }
+            return response.json();
+          })
+          .then(_configureTranslate)
+          .catch(() => {
             console.log("Error: can't load JSON lang file!");
-          },
-        });
+          });
       } else {
-        $.when($.getJSON(defaultFile), $.getJSON(extraFile)).then(
-          function (a, b) {
-            var globalDic = a[0];
-            var extraDic = b[0];
-            $.extend(true, globalDic, extraDic);
+        Promise.all([
+          fetch(defaultFile).then(response => {
+            if (!response.ok) throw new Error("Default file failed");
+            return response.json();
+          }),
+          fetch(extraFile).then(response => {
+            if (!response.ok) throw new Error("Extra file failed");
+            return response.json();
+          }),
+        ])
+          .then(([globalDic, extraDic]) => {
+            Object.assign(globalDic, extraDic);
             _configureTranslate(globalDic);
-          },
-          function () {
+          })
+          .catch(() => {
             console.log("Error: can't load all JSON lang files!");
-          }
-        );
+          });
       }
     }
   };
