@@ -340,12 +340,12 @@ var search = (function () {
   var _search = function (value) {
     // OpenLS or IGN services
     if (_searchparams.localities) {
-      if (["completion", "geoportail"].includes(_olsCompletionType)) {
+      if (["ign", "completion", "geoportail"].includes(_olsCompletionType)) {
         displaySearchList(
           `${_olsCompletionUrl}?text=${value}&type=StreetAddress,PositionOfInterest&ter=5`,
           _olsCompletionType
         );
-      } else if (_olsCompletionType === "search") {
+      } else if (["ban", "search"].includes(_olsCompletionType)) {
         var parameters = { q: value, limit: 5 };
         if (_searchparams.bbox) {
           var center = _map.getView().getCenter();
