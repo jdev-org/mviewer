@@ -1,1 +1,5 @@
-{}
+{
+  "keycloak-url": "http://localhost:8080",
+  "keycloak-realm": "mviewer-realm",
+  "keycloak-clientId": "mviewer-client"
+}

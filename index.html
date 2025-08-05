@@ -967,6 +967,8 @@
     <script type="text/javascript" src="js/sensorFeature.js"></script>
     <script type="module" src="js/urlParams/urlParams.js"></script>
     <script type="module" src="js/cookies/main.js"></script>
+    <script type="text/javascript" src="lib/keycloak/keycloak.js"></script>
+
     <script>
       if (
         typeof mviewer == "undefined" ||
@@ -1033,6 +1035,7 @@
           url: configFile + "?_dc=" + new Date().getTime(),
           dataType: "xml",
           success: function (xml) {
+            console.log(xml);
             $(document).on("layersLoaded", function (e) {
               mviewer.overLayersReady();
               mviewer.showLayersByAttrOrder(mviewer.getLayersAttribute("rank"));
@@ -1052,38 +1055,73 @@
                 //get JSON conf from xml;
                 var _conf = configuration.parseXML(eData.xml);
                 var style = "css/themes/default.css";
-                if (
-                  !theme &&
-                  _conf.application.style &&
-                  _conf.application.style.match("css")
-                ) {
-                  style = _conf.application.style;
-                } else if (theme) {
-                  style = "css/themes/" + theme + ".css";
+                const loadApplication = () => {
+                  if (
+                    !theme &&
+                    _conf.application.style &&
+                    _conf.application.style.match("css")
+                  ) {
+                    style = _conf.application.style;
+                  } else if (theme) {
+                    style = "css/themes/" + theme + ".css";
+                  }
+                  $("head").prepend(
+                    '<link rel="stylesheet" href="' + style + '" type="text/css" />'
+                  );
+                  var title = "";
+                  if (_conf.application.title) {
+                    title = _conf.application.title;
+                    $("#loader-subtitle").empty();
+                    $("#loader-subtitle").append(title);
+                  }
+                  if (_conf.application.favicon) {
+                    let ico = _conf.application.favicon;
+                    let favicon = document.querySelector('link[rel="icon"]');
+                    favicon.attributes.href.value = ico;
+                  }
+                  configuration.load(_conf);
+                  $(document).trigger("ready-for-component");
+                  setTimeout(function () {
+                    $("#loading-page").hide();
+                    $("#main").css("opacity", 1).hide();
+                    $("#main").fadeIn(1500);
+                    mviewer.getMap().updateSize();
+                    mviewer.initToolTip();
+                  }, 2000);
                 }
-                $("head").prepend(
-                  '<link rel="stylesheet" href="' + style + '" type="text/css" />'
+
+                let { url, type, activate, realm, clientid } = JSON.parse(
+                  configuration.renderEnvPath(JSON.stringify(_conf.security))
                 );
-                var title = "";
-                if (_conf.application.title) {
-                  title = _conf.application.title;
-                  $("#loader-subtitle").empty();
-                  $("#loader-subtitle").append(title);
+                if (activate && type === "keycloak" && clientid && realm && url) {
+                  // Initialiser Keycloak uniquement si l'application est privée
+                  const keycloak = new Keycloak(_conf.security);
+
+                  keycloak.init({ onLoad: 'login-required' }).then(authenticated => {
+                    if (authenticated) {
+                      console.log("Connecté avec Keycloak");
+
+                      window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+
+                      // Injecter le token dans les appels XHR (si tu as besoin pour GeoServer, API, etc.)
+                      $.ajaxSetup({
+                        beforeSend: function (xhr) {
+                          xhr.setRequestHeader("Authorization", "Bearer " + keycloak.token);
+                        }
+                      });
+
+                      // Lancer le chargement normal de l'application
+                      loadApplication();
+                    } else {
+                      alert("Authentification requise");
+                    }
+                  }).catch(error => {
+                    console.error("Erreur d'initialisation Keycloak :", error);
+                    alert("Erreur d'authentification.");
+                  });
+                } else {
+                  loadApplication();
                 }
-                if (_conf.application.favicon) {
-                  let ico = _conf.application.favicon;
-                  let favicon = document.querySelector('link[rel="icon"]');
-                  favicon.attributes.href.value = ico;
-                }
-                configuration.load(_conf);
-                $(document).trigger("ready-for-component");
-                setTimeout(function () {
-                  $("#loading-page").hide();
-                  $("#main").css("opacity", 1).hide();
-                  $("#main").fadeIn(1500);
-                  mviewer.getMap().updateSize();
-                  mviewer.initToolTip();
-                }, 2000);
               });
               $("#map").focus();
             });
