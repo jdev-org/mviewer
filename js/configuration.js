@@ -1195,12 +1195,19 @@ var configuration = (function () {
 
       // S'il existe des idenfiants d'accès pour ce layer, on les injecte
       var _ba_ident = sessionStorage.getItem(oLayer.url);
-      if (_ba_ident && _ba_ident != "") {
+      const token = window.token;
+      if ((_ba_ident && _ba_ident != "") || token) {
         var xhr = new XMLHttpRequest();
         xhr.responseType = "blob";
         xhr.open("GET", src);
 
-        xhr.setRequestHeader("Authorization", "Basic " + window.btoa(_ba_ident));
+        if (_ba_ident && _ba_ident != "") {
+          xhr.setRequestHeader("Authorization", "Basic " + window.btoa(_ba_ident));
+        }
+        // set keycloak token if available
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+        }
         xhr.addEventListener("loadend", function (evt) {
           var data = this.response;
           if (this.status == "401") {

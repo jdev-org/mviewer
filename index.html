@@ -1099,33 +1099,18 @@
                   }, 2000);
                 };
 
-                // need to be in this scope (beforeSend not works else)
-                $(document).on("token-ready", (event, token) => {
-                    // Injecter le token dans les appels XHR (si tu as besoin pour GeoServer, API, etc.)
-                    console.log("token ready");
-                    // set cookie example
-                    // document.cookie = `auth_token=${token}; path=/; Secure; SameSite=None`;
-                    $.ajaxSetup({
-                      beforeSend: function (xhr, settings) {
-                          const url = settings.url || '';
-                          
-                          // const needsAuth = (
-                          //   url.includes('/api/') ||
-                          //   url.includes('/geoserver/') ||
-                          //   url.includes('/secure/') || 
-                          //   url.includes('/geobretagne/') ||
-                          //   url.includes('/kartenn.region-bretagne.fr/')
-                          // );
-
-                          // const excludesAuth = (
-                          //   url.includes('/geonetwork/') ||
-                          //   url.includes('/public/')
-                          // );
-                          xhr.setRequestHeader("Authorization", "Bearer " + token);
-                      }
-                    });
-                    loadApplication();
-                });
+                // only set token if needed
+                if(configAsWithEnvAsJson?.security?.token === "true") {
+                  $(document).on("token-ready", (event, token) => {
+                      // Injecter le token dans les appels XHR (si tu as besoin pour GeoServer, API, etc.)
+                      console.log("token ready");
+                      // set cookie example
+                      window.token = token;
+                      loadApplication();
+                  });
+                }else {
+                  loadApplication();
+                }
                 
               });
               $("#map").focus();
