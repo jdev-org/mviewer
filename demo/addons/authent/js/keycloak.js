@@ -4,45 +4,45 @@ const defaultKeycloakConfig = {
     realm: "",
     activate: false
 }
-export const verifyUser = (instance) => {
-    instance
-      .init({ onLoad: "login-required" })
-      .then((authenticated) => {
-        if (authenticated) {
-          console.log("Connecté avec Keycloak");
+export const verifyUser = (keycloakInstance) => {
+  keycloakInstance
+    .init({ onLoad: "login-required" })
+    .then((authenticated) => {
+      if (authenticated) {
+        console.log("Connecté avec Keycloak");
 
-          window.history.replaceState(
-            null,
-            document.title,
-            window.location.pathname + window.location.search
-          );
+        $(document).trigger("token-ready", keycloakInstance.token);
 
-          // Injecter le token dans les appels XHR (si tu as besoin pour GeoServer, API, etc.)
-          $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-              const url = settings.url || "";
+        window.history.replaceState(
+          null,
+          document.title,
+          window.location.pathname + window.location.search
+        );
 
-              const needsAuth =
-                url.includes("/api/") ||
-                url.includes("/geoserver/ows");
+        // Injecter le token dans les appels XHR (si tu as besoin pour GeoServer, API, etc.)
+        //   $.ajaxSetup({
+        //     beforeSend: function (xhr, settings) {
+        //       const url = settings.url || "";
 
-              if (needsAuth && keycloak?.token) {
-                xhr.setRequestHeader("Authorization", "Bearer " + keycloak.token);
-              }
-            },
-          });
+        //       const needsAuth = url.includes("/api/") || url.includes("/geoserver/ows");
 
-          // Lancer le chargement normal de l'application
-          // loadApplication();
-        } else {
-          alert("Authentification requise");
-        }
-      })
-      .catch((error) => {
-        console.error("Erreur d'initialisation Keycloak :", error);
-        alert("Erreur d'authentification.");
+        //       if (needsAuth && instance?.token) {
+        //         xhr.setRequestHeader("Authorization", "Bearer " + instance.token);
+        //       }
+        //     },
+        //   });
+
+        // Lancer le chargement normal de l'application
+        // loadApplication();
+      } else {
+        alert("Authentification requise");
+      }
+    })
+    .catch((error) => {
+      console.error("Erreur d'initialisation Keycloak :", error);
+      alert("Erreur d'authentification.");
     });
-}
+};
 export const createKeyCloak = (config = defaultKeycloakConfig) => {
   let { url, type, enabled, realm, clientid } = config;
   if (enabled && type === "keycloak" && clientid && realm && url) {
