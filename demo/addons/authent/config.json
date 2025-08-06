@@ -1,0 +1,21 @@
+{
+  "js": [
+    "lib/keycloak.js",
+    "js/main.js"
+  ],
+  "css": "style.css",
+  "type": "module",
+  "html": "authent.html",
+  "target": "page-content-wrapper",
+  "options": {
+    "mviewer": {
+      "default": {
+        "enabled": true,
+        "type": "keycloak",
+        "url": "http://localhost:8081/",
+        "clientid": "mviewer-client",
+        "realm": "mviewer-realm"
+      }
+    }
+  }
+}

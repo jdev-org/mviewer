@@ -60,8 +60,10 @@ class AdvancedCustomControl {
 }
 
 class Component {
-  constructor(id, path) {
+  constructor(id, path, xml) {
+    console.log(id, path, xml);
     this.id = id;
+    this.xml = xml;
     this.path = path + "/" + this.id + "/";
     this.config = {};
     this.load();
@@ -177,10 +179,12 @@ class Component {
       });
     };
 
-    const dispatch = function () {
+    const dispatch = function (xmlConfigurationAsJson) {
       return new Promise((resolve, reject) => {
         if (that.config) {
-          let event = new CustomEvent(`${that.id}-componentLoaded`, { detail: that.id });
+          let event = new CustomEvent(`${that.id}-componentLoaded`, {
+            detail: { configuration: xmlConfigurationAsJson, id: that.id },
+          });
           document.dispatchEvent(event);
           resolve(event);
         } else {
@@ -201,7 +205,7 @@ class Component {
       .catch((e) =>
         console.log(e)
       ) /* render html body in target element from config.target */
-      .then((target) => dispatch())
+      .then((target) => dispatch(this.xml))
       .catch((e) => console.log(e)) /* dispatch componentLoaded event */
       .then((event) => {
         if (event) {

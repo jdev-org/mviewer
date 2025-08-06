@@ -151,18 +151,27 @@ var configuration = (function () {
         $(document).trigger("applicationExtended", { xml: conf });
       });
 
+    const processExtension = (componentsConfig, data) => {
+      componentsConfig.toArray().forEach(function (component) {
+        var id = $(component).attr("id");
+        var path = $(component).attr("path");
+        if (path && id) {
+          mviewer.customComponents[id] = new Component(id, path, data);
+        }
+      });
+    };
     //load components
     //each component is rendered in Component constructor;
     //When all is done, trigger componentLoaded event
     $(document).on("ready-for-component", () => {
-      var components = $(conf).find("extension[type='component']");
-      components.toArray().forEach(function (component) {
-        var id = $(component).attr("id");
-        var path = $(component).attr("path");
-        if (path && id) {
-          mviewer.customComponents[id] = new Component(id, path);
-        }
-      });
+      var components = $(conf).find("extension[type='component']:not([startup='true'])");
+      processExtension(components);
+    });
+    $(document).on("ready-for-startup-component", (event, data) => {
+      var startupCcomponents = $(conf).find(
+        "extension[type='component'][startup='true']"
+      );
+      processExtension(startupCcomponents, data);
     });
   };
 

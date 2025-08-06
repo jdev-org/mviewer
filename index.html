@@ -1014,7 +1014,7 @@
             }
             configFile = "apps".concat(configFile);
           }
-          if (configFile && configFile.includes("state=")) {
+          if (configFile && configFile.includes('state=')) {
             configFile = "apps/default.xml";
           }
           if (configFile) {
@@ -1058,91 +1058,43 @@
                 //get JSON conf from xml;
                 var _conf = configuration.parseXML(eData.xml);
                 var style = "css/themes/default.css";
-                const loadApplication = () => {
-                  if (
-                    !theme &&
-                    _conf.application.style &&
-                    _conf.application.style.match("css")
-                  ) {
-                    style = _conf.application.style;
-                  } else if (theme) {
-                    style = "css/themes/" + theme + ".css";
-                  }
-                  $("head").prepend(
-                    '<link rel="stylesheet" href="' + style + '" type="text/css" />'
-                  );
-                  var title = "";
-                  if (_conf.application.title) {
-                    title = _conf.application.title;
-                    $("#loader-subtitle").empty();
-                    $("#loader-subtitle").append(title);
-                  }
-                  if (_conf.application.favicon) {
-                    let ico = _conf.application.favicon;
-                    let favicon = document.querySelector('link[rel="icon"]');
-                    favicon.attributes.href.value = ico;
-                  }
-                  configuration.load(_conf);
-                  $(document).trigger("ready-for-component");
-                  setTimeout(function () {
-                    $("#loading-page").hide();
-                    $("#main").css("opacity", 1).hide();
-                    $("#main").fadeIn(1500);
-                    mviewer.getMap().updateSize();
-                    mviewer.initToolTip();
-                  }, 2000);
-                }
-
-                let { url, type, activate, realm, clientid } = JSON.parse(
-                  configuration.renderEnvPath(JSON.stringify(_conf.security))
+                // init component usefull on startup not on conf already loaded
+                const configAsWithEnvAsJson = JSON.parse(
+                  configuration.renderEnvPath(JSON.stringify(_conf))
                 );
-                if (activate && type === "keycloak" && clientid && realm && url) {
-                  const keycloakConfig = {
-                    url: url,
-                    clientId: clientid,
-                    activate: activate,
-                    realm: realm
-                  };
-                  console.log(keycloakConfig);
-                  // Initialiser Keycloak uniquement si l'application est privée
-                  const keycloak = new Keycloak(keycloakConfig);
-
-                  keycloak.init({ onLoad: 'login-required' }).then(authenticated => {
-                    if (authenticated) {
-                      console.log("Connecté avec Keycloak");
-
-                      
-                      window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
-
-                      // Injecter le token dans les appels XHR (si tu as besoin pour GeoServer, API, etc.)
-                      $.ajaxSetup({
-                        beforeSend: function (xhr, settings) {
-                          const url = settings.url || '';
-                          
-                          const needsAuth = (
-                            url.includes('/api/') ||
-                            url.includes('/geoserver/ows') ||
-                            url.includes('/secure/')
-                          );
-
-                          if (needsAuth && keycloak?.token) {
-                            xhr.setRequestHeader("Authorization", "Bearer " + keycloak.token);
-                          }
-                        }
-                      });
-
-                      // Lancer le chargement normal de l'application
-                      loadApplication();
-                    } else {
-                      alert("Authentification requise");
-                    }
-                  }).catch(error => {
-                    console.error("Erreur d'initialisation Keycloak :", error);
-                    alert("Erreur d'authentification.");
-                  });
-                } else {
-                  loadApplication();
+                $(document).trigger("ready-for-startup-component", configAsWithEnvAsJson);                
+                if (
+                  !theme &&
+                  _conf.application.style &&
+                  _conf.application.style.match("css")
+                ) {
+                  style = _conf.application.style;
+                } else if (theme) {
+                  style = "css/themes/" + theme + ".css";
                 }
+                $("head").prepend(
+                  '<link rel="stylesheet" href="' + style + '" type="text/css" />'
+                );
+                var title = "";
+                if (_conf.application.title) {
+                  title = _conf.application.title;
+                  $("#loader-subtitle").empty();
+                  $("#loader-subtitle").append(title);
+                }
+                if (_conf.application.favicon) {
+                  let ico = _conf.application.favicon;
+                  let favicon = document.querySelector('link[rel="icon"]');
+                  favicon.attributes.href.value = ico;
+                }
+                configuration.load(_conf);
+                $(document).trigger("ready-for-component");
+                setTimeout(function () {
+                  $("#loading-page").hide();
+                  $("#main").css("opacity", 1).hide();
+                  $("#main").fadeIn(1500);
+                  mviewer.getMap().updateSize();
+                  mviewer.initToolTip();
+                }, 2000);
               });
               $("#map").focus();
             });
