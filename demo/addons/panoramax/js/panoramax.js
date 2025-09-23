@@ -39,6 +39,10 @@ var panoramax = (function () {
     _projection = _map.getView().getProjection();
     _initToolbarBtn();
     _initPhotoViewer();
+
+    if (_config.open_at_start) {
+      _toggleMapLayer();
+    }
   };
 
   /**
