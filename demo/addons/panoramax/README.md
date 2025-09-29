@@ -31,6 +31,7 @@ Une fois la configuration effectuée, un nouveau bouton **Panoramax** apparaît 
 Il est possible de modifier les configurations avancées de l'extension à travers le fichier `demo/addons/panoramax/config.json`, dans l'objet `options.panoramax` :
 
 - `url` : URL du serveur Panoramax à utiliser (par défaut le catalogue général : `https://explore.panoramax.fr`)
+- `open_at_start`: le plugin doit-il être affiché au chargement initial (`true` ou `false`).
 - `picture_size` : dimension originale du bloc photo à afficher, sous la forme `[largeur, hauteur]`. Les valeurs peuvent être exprimées dans n'importe quelle unité CSS valide, par exemple `200px` ou `30%`. Par défaut `["30%", "60%"]` sur PC. La configuration ne s'applique par sur affichage mobile.
 - `picture_position` : positionnement initial du bloc photo, sous la forme `{top: ..., bottom: ..., right: ..., left: ...}`. Les valeurs sont exprimées en espacement par rapport au bord de la carte. Les valeurs d'espacement peuvent être exprimées dans n'importe quelle unité CSS valide, par exemple `50px` ou `15%`. La valeur `null` permet de ne pas forcer le rapprochement d'un des bords. Par défaut `{ "top": "0px", "left": "310px", "right": null, "bottom": null }` sur PC. La configuration ne s'applique par sur affichage mobile.
 - `map_position_offset`: décalage à appliquer sur le centrage de la carte au chargement d'une image, sous la forme `[x, y]` (horizontal, vertical, en pixels). Par défaut `[-150, 0]`.
@@ -53,6 +54,7 @@ Un exemple complet de configuration possible :
   "options": {
     "panoramax": {
       "url": "https://explore.panoramax.fr",
+      "open_at_start": true,
       "picture_size": ["30%", "50%"],
       "filters": {
         "minDate": "2025-01-01",

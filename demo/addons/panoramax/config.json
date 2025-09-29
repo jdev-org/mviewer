@@ -6,6 +6,7 @@
   "options": {
     "panoramax": {
       "url": "https://explore.panoramax.fr",
+      "open_at_start": false,
       "picture_size": ["30%", "60%"],
       "picture_position": {
         "top": "0px",
