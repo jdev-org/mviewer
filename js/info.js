@@ -183,12 +183,14 @@ var info = (function () {
           .find("li.item.mst_" + lang_to_add)
           .each(function (i, item) {
             $(item).attr("data-counter", i + 1 + "/" + featurescount);
+            $(item).addClass("carousel-item");
           });
       } else {
         $(tmp)
           .find("li.item")
           .each(function (i, item) {
             $(item).attr("data-counter", i + 1 + "/" + featurescount);
+            $(item).addClass("carousel-item");
           });
       }
     }
@@ -573,9 +575,9 @@ var info = (function () {
             }
             break;
           default:
-            mviewer.alert(
-              "Ce format de réponse : " + contentType + " n'est pas pris en charge",
-              "alert-warning"
+            mviewer.toast(
+              "" + name + "",
+              "Format de réponse non pris en charge : " + contentType + " "
             );
         }
         if (html) {
@@ -738,11 +740,23 @@ var info = (function () {
 
           // the following code is to link the information panel's title to the layer name, so that a translation is always possible without having to retireve dictionnary
 
-          firstlayer_id = view.layers.filter((layer) => layer.firstlayer)[0].layerid;
+          const firstLayer = view.layers.find((layer) => layer.firstlayer);
 
-          let panel_header = $("#" + panel + " .mv-header h5");
+          if (firstLayer) {
+            firstlayer_id =
+              _panelsTemplate[panel] === "allintabs"
+                ? firstLayer.initiallayerid
+                : firstLayer.layerid;
+          }
 
-          panel_header.attr("i18n", "layers." + firstlayer_id);
+          let panel_header = $("#" + panel + " .mv-header h6");
+
+          if (
+            _panelsTemplate[panel] === "allintabs" ||
+            _panelsTemplate[panel] === "default"
+          ) {
+            panel_header.attr("i18n", "layers." + firstlayer_id);
+          }
 
           // default
           var layer_picker_container_selector = "#sidebar-wrapper";
@@ -829,7 +843,7 @@ var info = (function () {
               $(this).css("cursor", "pointer");
             })
             .attr("title", "Cliquez pour agrandir cette image");
-          $(".popup-content .nav-tabs li>a").tooltip("destroy").tooltip({
+          $(".popup-content .nav-tabs li>a").tooltip("dispose").tooltip({
             animation: false,
             trigger: "hover",
             container: "body",
@@ -952,7 +966,7 @@ var info = (function () {
 
     var pixel = mviewer.getMap().getEventPixel(evt.originalEvent);
     // default tooltip state or reset tooltip
-    $(popup).popover("destroy");
+    $(popup).popover("dispose");
     $("#map").css("cursor", "");
     var feature = mviewer
       .getMap()
@@ -1043,15 +1057,27 @@ var info = (function () {
           feature.getProperties()["nom"] ||
           feature.getProperties()[l.fields[0]];
       }
-      $(popup).popover({
-        container: popup,
-        placement: "top",
-        animation: false,
-        html: true,
-        content: title,
-        template: mviewer.templates.tooltip,
-      });
-      $(popup).popover("show");
+
+      if (!title) {
+        console.warn("Invalid tooltip field: check configuration !");
+      } else {
+        const popup = _featureTooltip.getElement();
+
+        const existing = bootstrap.Popover.getInstance(popup);
+        if (existing) {
+          existing.dispose();
+        }
+
+        const popover = new bootstrap.Popover(popup, {
+          container: popup,
+          placement: "top",
+          animation: false,
+          html: true,
+          content: title,
+          template: mviewer.templates.popover,
+        });
+        popover.show();
+      }
     }
   };
 

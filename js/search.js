@@ -200,7 +200,7 @@ var search = (function () {
     }
     if (_searchparams.closeafterclick) {
       $("#searchresults .list-group-item").click(function () {
-        $(".searchresults-title .close").trigger("click");
+        $(".searchresults-title .btn-close").trigger("click");
       });
     }
     $("#searchresults").show();
@@ -224,7 +224,7 @@ var search = (function () {
       _map.addLayer(vector);
     }
 
-    $(".searchresults-title .close").click(function () {
+    $(".searchresults-title .btn-close").click(function () {
       _clearSearchField();
       if (_sourceEls) {
         _sourceEls.clear();
@@ -318,7 +318,7 @@ var search = (function () {
       if (type === "search") {
         title = `${props?.context}-${props?.type}` || "";
       }
-      str += `<a class="${searchType} list-group-item" href="#" ${title}"
+      str += `<a class="${searchType} list-group-item list-group-item-action" href="#" ${title}"
               onclick="mviewer.animateToFeature(
                   ${JSON.stringify([coords[0], coords[1]])},
                   ${zoom},
@@ -429,7 +429,10 @@ var search = (function () {
         // We only display the first results
         results = results.slice(0, max_results);
 
-        str = '<a class="fuse list-group-item disabled">' + layername + "</a>";
+        str =
+          '<a class="fuse list-group-item list-group-item-action disabled">' +
+          layername +
+          "</a>";
         results.forEach(function (element) {
           // from version 4 data are stored in element.item
           element = element.item;
@@ -455,7 +458,7 @@ var search = (function () {
           var xyz = mviewer.getLonLatZfromGeometry(geom, _proj4326, zoom);
           var extentCenter = _getCenterWithExtent(geom, _proj4326);
           str += `
-            <a class="fuse list-group-item" title="${result_label}" 
+            <a class="fuse list-group-item list-group-item-action" title="${result_label}" 
                 href="#" onclick="
                   mviewer.animateToFeature(${JSON.stringify([xyz.lon, xyz.lat])}, ${
             xyz.zoom
@@ -788,7 +791,7 @@ var search = (function () {
               }
 
               str +=
-                '<a class="elasticsearch list-group-item" href="#" ' +
+                '<a class="elasticsearch list-group-item  list-group-item-action" href="#" ' +
                 'onclick="' +
                 action_click +
                 '" ' +

@@ -281,7 +281,7 @@ mviewer = (function () {
     if (mapoptions.rotation === "true") {
       _rotation = true;
     } else {
-      $("#northbtn").hide();
+      $("#northbtn").remove();
     }
     _center = mapoptions.center.split(",").map(Number);
     //Projection
@@ -397,8 +397,7 @@ mviewer = (function () {
     var item = $(
       [
         '<div class="alert ' + cls + ' alert-dismissible" role="alert">',
-        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">',
-        '<span aria-hidden="true">&times;</span></button>',
+        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
         mviewer.tr(msg),
         "</div>",
       ].join("")
@@ -408,6 +407,34 @@ mviewer = (function () {
     setTimeout(function () {
       item.alert("close");
     }, duration);
+  };
+
+  /**
+   * _messageToast Show toast method.
+   * @param {String} title
+   * @param {String} msg
+   */
+
+  var _messageToast = function (title, msg, delay) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.setAttribute("role", "alert");
+    toast.setAttribute("aria-live", "assertive");
+    toast.setAttribute("aria-atomic", "true");
+    toast.setAttribute("data-bs-delay", delay ?? 5000);
+    toast.innerHTML = `
+        <div class="toast-header">
+          <strong class="me-auto">${title}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+        </div>
+        <div class="toast-body">
+          ${msg}
+        </div>
+      `;
+    document.getElementById("toasts-zone").appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener("hidden.bs.toast", () => toast.remove());
   };
 
   var _deleteLayer = function (layername) {
@@ -900,7 +927,7 @@ mviewer = (function () {
           }
 
           //update visible layers on the map
-          $(`#${this.layer}-layer-summary`).attr("data-content", summary);
+          $(`#${this.layer}-layer-summary`).attr("data-bs-content", summary);
           $(`#${this.layer}-date`).text(modifiedDate);
         },
       });
@@ -917,18 +944,18 @@ mviewer = (function () {
    *
    */
 
-  var _updateMedia = function (s) {
+  var _updateMedia = function (s, displayMode) {
     switch (s) {
       case "xs":
       case "sm":
         if (_mediaSize === "xl") {
-          _updateViewPort("xs");
+          _updateViewPort("xs", displayMode);
         }
         break;
       case "md":
       case "lg":
         if (_mediaSize === "xs") {
-          _updateViewPort("xl");
+          _updateViewPort("xl", displayMode);
         }
         break;
     }
@@ -946,29 +973,47 @@ mviewer = (function () {
       $("#menu").appendTo("#thematic-modal .modal-body");
       $("#legend").appendTo("#legend-modal .modal-body");
       configuration.getConfiguration().mobile = true;
+      if ($("#right-panel").hasClass("active")) {
+        $("#right-panel").removeClass("active");
+      }
+      if ($("#bottom-panel").hasClass("active")) {
+        $("#bottom-panel").removeClass("active");
+      }
       if (displayMode) {
         $("#wrapper, #main").addClass("mode-" + displayMode);
         $("#page-content-wrapper").append(`
                     <a
                         id="btn-mode-su-menu"
-                        class="btn btn-sm btn-default"
+                        class="btn btn-primary"
                         type="button"
                         href="#"
-                        data-toggle="modal"
-                        data-target="#legend-modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#legend-modal"
                         title="Afficher la légende"
                         i18n="data.toggle">
-                        <i class="fas fa-layer-group"></i>
+                        <i class="ri-equalizer-fill"></i>
                         <span i18n="data.toggle"> Afficher la légende</span>
                     </a>`);
         if (displayMode === "u") {
           $("#mv-navbar").remove();
         }
+        if (displayMode === "s") {
+          $("#searchtool").appendTo("#main");
+        }
       }
     } else {
       $("#wrapper, #main").removeClass("xs").addClass("xl");
-      $("#menu").appendTo("#sidebar-wrapper");
-      $("#legend").appendTo("#layers-container-box");
+      if (displayMode !== "s" || displayMode !== "u") {
+        $("#menu").appendTo("#sidebar-wrapper");
+        $("#legend").appendTo("#layers-container-box");
+      }
+      if (displayMode === "s") {
+        $("#searchtool").appendTo("#searchtool_nav");
+        $("#legend").appendTo("#legend-modal .modal-body");
+      }
+      if (displayMode === "u") {
+        $("#legend").appendTo("#legend-modal .modal-body");
+      }
       configuration.getConfiguration().mobile = false;
     }
   };
@@ -987,8 +1032,25 @@ mviewer = (function () {
         $("#searchtool").appendTo("#main");
         $("#searchtool").removeClass("navbar-form");
       }
+      if (API.mode === "u" || API.mode === "s") {
+        $("#legend").appendTo("#legend-modal .modal-body");
+        $("#page-content-wrapper").append(`
+                    <a
+                        id="btn-mode-su-menu"
+                        class="btn btn-primary"
+                        type="button"
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#legend-modal"
+                        title="Afficher la légende"
+                        i18n="data.toggle">
+                        <i class="ri-equalizer-fill"></i>
+                        <span i18n="data.toggle"> Afficher la légende</span>
+                    </a>`);
+      }
+      $("#wrapper, #main").addClass("mode-" + displayMode);
     }
-    if ($(window).width() < 992 || displayMode !== "d") {
+    if ($(window).width() < 992) {
       _mediaSize = "xs";
       configuration.getConfiguration().mobile = true;
     } else {
@@ -998,25 +1060,23 @@ mviewer = (function () {
     if (_mediaSize === "xs") {
       _updateViewPort("xs", displayMode);
     }
-    if (displayMode === "d") {
-      $(window).resize(function () {
-        var w = $(this).width();
-        var s = "";
-        if (w < 768) {
-          s = "xs";
-        } else if (w < 992) {
-          s = "sm";
-        } else if (w < 1200) {
-          s = "md";
-        } else if (w >= 1200) {
-          s = "lg";
-        }
-        if (s !== _bsize) {
-          _bsize = s;
-          _updateMedia(_bsize);
-        }
-      });
-    }
+    $(window).resize(function () {
+      var w = $(this).width();
+      var s = "";
+      if (w < 768) {
+        s = "xs";
+      } else if (w < 992) {
+        s = "sm";
+      } else if (w < 1200) {
+        s = "md";
+      } else if (w >= 1200) {
+        s = "lg";
+      }
+      if (s !== _bsize) {
+        _bsize = s;
+        _updateMedia(_bsize, displayMode);
+      }
+    });
     if (configuration.getConfiguration().mobile) {
       $("#thematic-modal .modal-body").append(
         '<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>'
@@ -1027,12 +1087,6 @@ mviewer = (function () {
         '<ul class="sidebar-nav nav-pills nav-stacked" id="menu"></ul>'
       );
     }
-
-    $(".navbar-collapse a, #map").on("click", function () {
-      if ($(".navbar-collapse").hasClass("in")) {
-        $(".navbar-toggle").click();
-      }
-    });
   };
 
   /**
@@ -1887,9 +1941,7 @@ mviewer = (function () {
         // help popup only
         // set to right padding to take into account language dropdown menu syle
         langitems.push(
-          '<li style="padding-right:' +
-            p +
-            '" type="button" class="btn mv-translate""><a href="#" idlang="' +
+          '<li type="button" class="mv-translate""><a class="dropdown-item" href="#" idlang="' +
             language +
             '"><span style="margin-right: 5px;" class="flag-icon flag-icon-squared flag-icon-' +
             icon +
@@ -1904,6 +1956,9 @@ mviewer = (function () {
         $("#lang-button, #lang-selector").addClass("enabled");
         $("#lang-body>ul").append(langitems.join(""));
         $("#lang-selector>ul").append(langitems.join(""));
+        $("#help .modal-body").append(
+          '<ul class="langList">' + langitems.join("") + "</ul>"
+        );
       } else {
         // display selector or modal according to device
         $("#lang-button, #lang-selector").addClass("enabled");
@@ -1911,6 +1966,16 @@ mviewer = (function () {
         $("#lang-selector>ul").append(langitems.join(""));
       }
       $(".mv-translate a").click(function () {
+        let activeLangItemsOld = document.querySelectorAll(".mv-translate a.activeLang");
+        activeLangItemsOld.forEach((i) => {
+          i.classList.remove("activeLang");
+        });
+        let langElementItems = document.querySelectorAll(
+          '[idlang="' + $(this).attr("idlang") + '"]'
+        );
+        langElementItems.forEach((i) => {
+          i.classList.add("activeLang");
+        });
         _changeLanguage($(this).attr("idlang"));
 
         if (languages.length > 1) {
@@ -1983,6 +2048,10 @@ mviewer = (function () {
       mviewer.tr = mviewer.lang[lang];
       _elementTranslate("body");
       mviewer.lang.lang = lang;
+      let langElementItems = document.querySelectorAll('[idlang="' + lang + '"]');
+      langElementItems.forEach((i) => {
+        i.classList.add("activeLang");
+      });
     } else {
       console.log("langue non disponible " + lang);
     }
@@ -2035,7 +2104,7 @@ mviewer = (function () {
       "accesskey",
       "alt",
       "value",
-      "data-original-title",
+      "data-bs-original-title",
     ];
     var _element = $(element);
 
@@ -2074,14 +2143,13 @@ mviewer = (function () {
         }
       });
     });
-
-    _element.find("[data-content]").each((i, el) => {
-      var content = $("<div></div>").append($(el).attr("data-content"));
+    _element.find("[data-bs-content]").each((i, el) => {
+      var content = $("<div></div>").append($(el).attr("data-bs-content"));
       content.find("[i18n]").each((i, contentEl) => {
         let tr = mviewer.lang[lang]($(contentEl).attr("i18n"));
         if ($(contentEl).text().indexOf("{{") === -1) {
           $(contentEl).text(tr);
-          $(el).attr("data-content", content[0].outerHTML);
+          $(el).attr("data-bs-content", content[0].outerHTML);
         }
       });
     });
@@ -2229,7 +2297,7 @@ mviewer = (function () {
         $("#backgroundlayersbtn").css("background-image", 'url("' + thumb + '")');
         if (!configuration.getConfiguration().mobile) {
           $("#backgroundlayersbtn").attr("title", title);
-          $("#backgroundlayersbtn").tooltip("destroy").tooltip({
+          $("#backgroundlayersbtn").tooltip("dispose").tooltip({
             placement: "left",
             trigger: "hover",
             html: true,
@@ -2546,7 +2614,18 @@ mviewer = (function () {
 
       var url =
         window.location.href.split("#")[0].split("?")[0] + "?" + params(linkParams);
-      $("#permalinklink").attr("href", url).attr("target", "_blank");
+      let urlEmail = `mailto:?&body=` + encodeURIComponent(url);
+      let urlLinkedin =
+        "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(url);
+      let urlFacebook =
+        "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url);
+      let urlWhatapp = "https://wa.me/?text=" + encodeURIComponent(url);
+      document.getElementById("urlShare__link").value = url;
+      document.getElementById("btnShareNewTab").setAttribute("href", url);
+      document.getElementById("btnShareEmail").setAttribute("href", urlEmail);
+      document.getElementById("btnShareLinkedin").setAttribute("href", urlLinkedin);
+      document.getElementById("btnShareWhatapp").setAttribute("href", urlWhatapp);
+      document.getElementById("btnShareFacebook").setAttribute("href", urlFacebook);
       $("#permaqr").attr(
         "src",
         "https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=" +
@@ -2817,10 +2896,8 @@ mviewer = (function () {
     activeCalendar: (layerid, options) => {
       $("#" + layerid + "-layer-timefilter")
         .closest("div")
-        .append(
-          '<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>'
-        )
-        .datepicker(options);
+        .append('<span class="input-group-text"><i class="ri-calendar-line"></i></span>');
+      $("#" + layerid + "-layer-timefilter").datepicker(options);
     },
     /**
      * Public Method: add Layer in legend
@@ -2948,8 +3025,10 @@ mviewer = (function () {
       $("#" + layer.layerid + "-layer-summary").popover({
         container: "body",
         html: true,
+        title: "",
+        html: true,
+        content: layer.summary,
       });
-      $("#" + layer.layerid + "-layer-summary").attr("data-content", layer.summary);
       if (layer.attributefilterenabled === true) {
         //Activate  CQL for this layer
       }
@@ -3142,9 +3221,13 @@ mviewer = (function () {
         switch (layer.timeinterval) {
           case "year":
             options.minViewMode = 2;
+            options.format = "yyyy";
             break;
           case "month":
-            (options.startView = 2), (options.minViewMode = 1);
+            options.format = "yyyy-mm";
+            options.startView = 1;
+            options.minViewMode = 1;
+            options.maxViewMode = 2;
             break;
           default:
             break;
@@ -3152,16 +3235,16 @@ mviewer = (function () {
         $("#" + layer.layerid + "-layer-timefilter")
           .addClass("mv-calendar-timer")
           .addClass("form-control")
-          .wrap('<div class="input-group date"></div>');
+          .wrap('<div class="input-group input-group-sm my-2 date"></div>');
 
         $("#" + layer.layerid + "-layer-timefilter");
 
         $("#" + layer.layerid + "-layer-timefilter")
           .closest("div")
           .append(
-            '<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>'
-          )
-          .datepicker(options);
+            '<span class="input-group-text"><i class="ri-calendar-line"></i></span>'
+          );
+        $("#" + layer.layerid + "-layer-timefilter").datepicker(options);
         $("#" + layer.layerid + "-layer-timefilter").on("change", function (data, cc) {
           mviewer.setLayerTime(layer.layerid, data.currentTarget.value);
         });
@@ -3373,16 +3456,16 @@ mviewer = (function () {
       $(el).closest("li").find(".mv-layer-options").slideToggle();
       //hack slider js
       $(el).closest("li").find(".mv-slider-timer").slider("relayout");
-      if ($(el).find("span.state-icon").hasClass("glyphicon glyphicon-chevron-down")) {
+      if ($(el).find("i.state-icon").hasClass("ri-arrow-down-line")) {
         $(el)
-          .find("span.state-icon")
-          .removeClass("glyphicon glyphicon-chevron-down")
-          .addClass("glyphicon glyphicon-chevron-up");
+          .find("i.state-icon")
+          .removeClass("ri-arrow-down-line")
+          .addClass("ri-arrow-up-line");
       } else {
         $(el)
-          .find("span.state-icon")
-          .removeClass("glyphicon glyphicon-chevron-up")
-          .addClass("glyphicon glyphicon-chevron-down");
+          .find("i.state-icon")
+          .removeClass("ri-arrow-up-line")
+          .addClass("ri-arrow-down-line");
       }
     },
 
@@ -3581,11 +3664,11 @@ mviewer = (function () {
       }
 
       var title = layer_title_el.text();
-      $("#" + panel + " .mv-header h5").text(title);
+      $("#" + panel + " .mv-header h6").text(title);
 
       // also update the panel's title's i18n attribute
       if (new_i18n) {
-        $("#" + panel + " .mv-header h5").attr("i18n", new_i18n);
+        $("#" + panel + " .mv-header h6").attr("i18n", new_i18n);
       }
 
       // update the title of the element and its parent too
@@ -3616,7 +3699,7 @@ mviewer = (function () {
       var title = configuration.getConfiguration().baselayers.baselayer[nexid].label;
       $("#backgroundlayersbtn").css("background-image", 'url("' + thumb + '")');
       if (!configuration.getConfiguration().mobile) {
-        $("#backgroundlayersbtn").attr("data-original-title", title);
+        $("#backgroundlayersbtn").attr("data-bs-original-title", title);
         $("#backgroundlayersbtn").tooltip("hide").tooltip({
           placement: "top",
           trigger: "hover",
@@ -3690,8 +3773,12 @@ mviewer = (function () {
       _message(msg, cls), ms;
     },
 
+    toast: function (title, msg) {
+      _messageToast(title, msg);
+    },
+
     legendSize: function (img) {
-      if (img.width > 250) {
+      if (img.width > 220) {
         //$(img).addClass("big-legend");
         $(img).closest("div").addClass("big-legend");
         $(img)
@@ -3699,8 +3786,8 @@ mviewer = (function () {
           .append(
             '<span onclick="mviewer.popupPhoto(' +
               "this.parentElement.getElementsByTagName('img')[0].src)\" " +
-              'class="text-big-legend"><span><span class="glyphicon glyphicon-resize-full" aria-hidden="true">' +
-              "</span> Agrandir la légende</span></span>"
+              'class="text-big-legend"><span><i class="ri-expand-diagonal-line"></i>' +
+              "Agrandir la légende</span></span>"
           );
       }
     },

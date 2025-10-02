@@ -6,17 +6,10 @@
   "options": {
     "mviewer": {
       "pacte": {
-        "tooltipPosition": "bottom-right",
         "title": "Filtrer",
         "open": true,
         "zoomOnFeatures": true,
         "legendTitle": "Sélectionner une donnée :",
-        "style": {
-          "border": "1px #2e5367 solid",
-          "background": "#0f4496",
-          "text": "white",
-          "colorButton": "#0f4496"
-        },
         "layers": [
           {
             "layerId": "structure_illetrisme",
@@ -26,7 +19,6 @@
               { "label": "Geojson", "format": "application/json" },
               { "label": "Excel", "format": "excel" }
             ],
-
             "filter": [
               {
                 "attribut": "publics",
@@ -47,17 +39,11 @@
         ]
       },
       "filter": {
-        "tooltipPosition": "bottom-left",
+        "tooltipPosition": "bottom",
         "title": "Filtrer",
         "open": true,
         "zoomOnFeatures": true,
         "legendTitle": "Sélectionner une donnée :",
-        "style": {
-          "border": "1px #2e5367 solid",
-          "background": "#2e5367",
-          "text": "white",
-          "colorButton": "#2e5367"
-        },
         "layers": [
           {
             "layerId": "commune",
@@ -66,7 +52,7 @@
                 "attribut": "nom",
                 "type": "textbox",
                 "label": "Commune",
-                "updateOnChange": true
+                "updateOnChange": false
               }
             ]
           },
@@ -83,11 +69,11 @@
                 "attribut": "ville",
                 "type": "textbox",
                 "label": "Ville",
-                "updateOnChange": true
+                "updateOnChange": false
               },
               {
                 "attribut": "form_jur",
-                "type": "button",
+                "type": "checkbox",
                 "label": "Forme juridique",
                 "updateOnChange": true,
                 "dataSeparator": ","

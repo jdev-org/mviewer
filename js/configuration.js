@@ -367,11 +367,14 @@ var configuration = (function () {
     if (conf.application.logo) {
       $(".mv-logo").attr("src", conf.application.logo);
     }
+    if (conf.application.nologo === "true") {
+      document.querySelector(".mv-logo").remove();
+    }
     if (location.hash && !location.search) {
       $(".mv-title").attr("href", location.hash);
       $(".navbar-brand").attr("href", location.hash);
     }
-    if (conf.application.showhelp === "true") {
+    if (conf.application.showhelp === "true" && conf.application.help) {
       _showhelp_startup = true;
     }
     if (API.popup) {
@@ -382,11 +385,15 @@ var configuration = (function () {
         _showhelp_startup = false;
       }
     }
+    if (!conf.application.help) {
+      $("#iconhelp").remove();
+      $("#btnHelpMob").remove();
+    }
     if (conf.application.titlehelp) {
       $("#help h4.modal-title").text(conf.application.titlehelp);
     }
     if (conf.application.iconhelp) {
-      $("#iconhelp span").attr("class", conf.application.iconhelp);
+      $("#iconhelp i").attr("class", conf.application.iconhelp);
     }
     if (conf.application.coordinates === "true") {
       _captureCoordinates = true;
@@ -405,7 +412,7 @@ var configuration = (function () {
       $("#mouse-position").hide();
     }
     if (!conf.application.geoloc || !(conf.application.geoloc === "true")) {
-      $("#geolocbtn").hide();
+      $("#geolocbtn").remove();
     }
     if (!conf.application.studio || conf.application.studio === "false") {
       $("#studiolink").remove();
@@ -436,11 +443,15 @@ var configuration = (function () {
           //test georchestra proxy
           if (response.proxy == "true") {
             $("#login-box").show();
+            $("#login-box-mob").show();
             let title = mviewer.lang ? mviewer.tr("tbar.right.logout") : "Se déconnecter";
             if (response.user != "") {
               $("#login").attr("href", _authentification.logouturl);
+              $("#login-box-mob").attr("href", _authentification.logouturl);
               $("#login").attr("title", title);
-              $("#login span")[0].className = "fas fa-lock";
+              $("#login-box-mob").attr("title", title);
+              $("#login i")[0].className = "ri-lock-fill";
+              $("#login-box-mob i")[0].className = "ri-lock-fill";
               $("#login-box>span").text(response.user);
             } else {
               var url = "";
@@ -450,6 +461,7 @@ var configuration = (function () {
                 url = location.href + _authentification.loginurl.replace("?", "&");
               }
               $("#login").attr("href", url);
+              $("#login-box-mob").attr("href", url);
             }
           } else {
             console.log(

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
 	<application
-		title="Illetrisme - pacte linguistique"
+		title="Plugin - Filtrer et télécharger les données"
+    	htmltitle="Filtrer et télécharger les données &lt;span class=&quot;badge text-bg-light&quot;&gt;Plugin&lt;/span&gt;&lt;/div&gt;"
 		id="pacte"
 		logo="https://www.geo2france.fr/mviewer/apps/img/logo/logo_g2f_blanc.png"
-		help="mviewer_help.html"
-		style="https://www.geo2france.fr/mviewer/apps/css/themes/g2f.css"
+		style="css/themes/chambray.css"
 		exportpng="true"
 		showhelp="false"
 		coordinates="false"
@@ -19,12 +19,10 @@
 	<olscompletion url="https://data.geopf.fr/geocodage/search/" type="ban" attribution="La recherche d'adresse est un service proposé par la geoplateforme IGN"/>
 	<searchparameters bbox="false" localities="true" features="false" static="false"/>
 	<baselayers style="gallery"><!-- style="default"||gallery" -->
-			<baselayer  type="WMS" id="osmgp1" attributioncollapsible="false" layers="faded" label="OSM - Géo2France - couleur" title="OSM" thumbgallery="apps/img/basemap/osmGP.jpg"
-				url="https://osm.geo2france.fr/mapcache/" maxzoom="19"
-				visible="true" format="image/png" attribution="Geo2France/OSM" />
+			<baselayer visible="true" id="positron" thumbgallery="img/basemap/positron.png" title="CartoDb" label="Positron" type="OSM" url="https://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png" attribution="Map tiles by  &lt;a href=&quot;https://cartodb.com/attributions&quot;&gt;CartoDb&lt;/a&gt;, under  &lt;a href=&quot;https://creativecommons.org/licenses/by/3.0/&quot;&gt;CC BY 3.0 &lt;/a&gt;"  ></baselayer>
 	</baselayers>
 	<themes mini="false" legendmini="true">
-		<theme name="Inclusion"  collapsed="true" id="dora" icon="comment">
+		<theme name="Inclusion"  collapsed="true" id="dora" icon="fas fa-comment">
 			<layer
 				id="inclusion_vue_materialisee"
 				name="Strucuture inclusion numérique (dont données DORA)"

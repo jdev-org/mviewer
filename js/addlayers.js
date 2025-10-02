@@ -274,7 +274,7 @@ var addlayers = (function () {
 
       var button = `<li class="half" id="addLayerMenuBtn">
             <a href="#" onclick="mviewer.tools.addlayers.toggle();">
-            <span class="fa-stack fa-lg pull-left col-sm-3">
+            <span class="fa-stack">
               <i class="fas fa-plus fa-solid "></i>
             </span>Ajouter des données</a>
             </li>`;
@@ -375,15 +375,9 @@ var addlayers = (function () {
 
     let itemButton = document.createElement("button");
     itemButton.type = "button";
-    itemButton.className = "close";
+    itemButton.className = "btn-close";
     itemButton.ariaLabel = "Close";
-    itemButton.setAttribute("data-dismiss", "alert");
-
-    let itemSpan = document.createElement("span");
-    itemSpan.ariaHidden = "true";
-    itemSpan.innerHTML = "&times;";
-
-    itemButton.appendChild(itemSpan);
+    itemButton.setAttribute("data-bs-dismiss", "alert");
     item.appendChild(itemButton);
 
     item.innerHTML += mviewer.tr(msg);
@@ -415,11 +409,8 @@ var addlayers = (function () {
   var _showLayerList = function (layerList, parentDiv) {
     parentDiv.empty();
     $.each(layerList, function (id, layer) {
-      let btn = $(
-        '<button class="vcenter"><span class="glyphicon glyphicon-plus"></span></button>'
-      );
+      let btn = $('<button class="vcenter"><i class="ri-add-circle-line"></i></button>');
 
-      // glyphicon glyphicon-ok
       let childContainerRow = $(`<div class="row"></div>`);
       let childContainerCol = $(`<div class="col-md-12"></div>`);
       childContainerRow.append(childContainerCol);
@@ -427,9 +418,7 @@ var addlayers = (function () {
         _addLayer(layer, this);
       });
       let rowClass = layer.Layer && layer.Layer.length > 0 ? "" : "layer-result-row";
-      const layerContentRow = $(
-        `<div class="row pl-1 ${rowClass}" style="padding-left: 20px;"></div>`
-      );
+      const layerContentRow = $(`<div class="pl-1 ${rowClass} list-group-item"></div>`);
       let layerContent = $(`<div class="col-md-8"> </div>`);
       const btnContent = $(`<div class="col-md-1"> </div>`);
 
@@ -443,7 +432,7 @@ var addlayers = (function () {
       if (layer.Layer && layer.Layer.length > 0) {
         layerContent = $(`<div class="col-md-12"> </div>`);
         title = $(
-          `<span class="layer-result layerGroup" title="${layer.Title}">${layer.Title}</span>`
+          `<div class="layer-result layerGroup" title="${layer.Title}">${layer.Title}</div>`
         );
         layerContentRow.append(layerContent);
         layerContent.append(title);
@@ -457,7 +446,7 @@ var addlayers = (function () {
         layerContentRow.append(layerContent);
         layerContent.append(title);
         layerContent.append(
-          `<br/><span class="layer-result-descr" title="${layer.Abstract}">${layer.Abstract}</span>`
+          `<div class="layer-result-descr" title="${layer.Abstract}">${layer.Abstract}</div>`
         );
         if (layer.Thumbnail) {
           layerContentRow.append(
@@ -513,7 +502,7 @@ var addlayers = (function () {
     mviewer.addLayer(oLayer);
     info.addQueryableLayer(oLayer);
     if (btn) {
-      btn.innerHTML = '<span class="glyphicon glyphicon-ok"></span>';
+      btn.innerHTML = '<i class="ri-checkbox-circle-fill"></i>';
     }
   };
 
