@@ -1,4 +1,8 @@
 name: "Building & push docker image for master and develop branch"
+
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -10,8 +14,10 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
-      - name: "Checking out the repository"
-        uses: actions/checkout@v2
+      - name: "Checkout repository with submodules"
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: "Calculating the docker image tag"
         if: github.repository == 'mviewer/mviewer'
         id: version
