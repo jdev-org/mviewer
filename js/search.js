@@ -151,7 +151,9 @@ var search = (function () {
    */
 
   var _clearSearchResults = function () {
-    $("#searchresults .list-group-item").not(".search-header, .searchresults-title").remove();
+    $("#searchresults .list-group-item")
+      .not(".search-header, .searchresults-title")
+      .remove();
     $("#searchresults .search-header").addClass("hidden");
     $("#searchresults").hide();
   };
@@ -262,7 +264,9 @@ var search = (function () {
           return;
           // Do not launch search if less than x chars
         } else if (chars < 3) {
-          $("#searchresults .list-group-item").not(".search-header, .searchresults-title").remove();
+          $("#searchresults .list-group-item")
+            .not(".search-header, .searchresults-title")
+            .remove();
           $("#searchresults .search-header").addClass("hidden");
         }
         // Launch search
