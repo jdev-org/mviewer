@@ -53,7 +53,8 @@ Le partage de carte permet de générer un lien web fixant la situation actuelle
 
 * la position de la carte,
 * le niveau de zoom,
-* la liste des couches affichées avec leurs paramètres de transparence.
+* le fond de carte,
+* la liste des couches affichées avec leurs paramètres de transparence et leur style.
 
 Une fois que vous avez cliqué sur l'icone ( |Share_icon| ), une nouvelle fenêtre apparaît :
 
@@ -96,8 +97,15 @@ Choix du mode d'affichage du permalien
 Choix du type de lien
 *********************
 
-* générer un lien hypertext *(icone de gauche)* : lorsque vous cliquez, un nouvel onglet de votre navigateur s'ouvre avec le lien permanent,
-* utiliser un QR Code *(icone de droite)*.
+Depuis la version 4, un grand nombre de modes de partage sont proposés :
+
+* Générer un lien hypertext *(icone nouvel onglet)* : lorsque vous cliquez, un nouvel onglet de votre navigateur s'ouvre avec le lien permanent,
+* E-mail
+* Intégrer pour intégration en iframe
+* Les réseaux sociauax : Linkedin, WhatsApp, Facebook
+* Génération d'un QR-code
+
+Vous avez aussi la possibilité de copier directement le lien de partage.
 
 **Exemple de permalien** : http://localhost/mviewer/?x=-220750&y=6144926&z=8&l=epci&lb=positron&mode=u
 
