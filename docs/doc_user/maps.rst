@@ -7,12 +7,8 @@
 Fonds de carte
 =====================
 
-En cliquant sur l'icone ( |MapsIcon| ) en bas à droite de la carte, l'utilisateur à la possibilité de changer le fond de carte. Par défaut, quatre fonds sont proposés :
+En cliquant sur l'icone ( |MapsIcon| ) en bas à droite de la carte, l'utilisateur à la possibilité de changer le fond de carte. Vous pouvez consulter la démo sur les fonds de carte : https://kartenn.region-bretagne.fr/kartoviz/?config=demo/fonds.xml
 
-* Positron *(actif au démarrage)*,
-* OpenStreetMap,
-* Carroyage,
-* Dark Matter.
 
 .. image:: ../_images/user/maps/maps.png
               :alt: Comment mesurer

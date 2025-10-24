@@ -30,6 +30,12 @@ Dans un terminal, après vous être placé dans le dossier web Apache, exécuter
 
 	git clone https://github.com/mviewer/mviewer.git --recurse-submodules
 
+Si vous souhaitez juste récupérer le coeur : 
+
+.. code-block:: bash
+
+	git clone https://github.com/mviewer/mviewer.git
+
 
 Sans git
 ----------
@@ -70,12 +76,12 @@ Ce répertoire doit absolument se nommer **addons** et doit être accessible dan
 Test navigateur
 =================
 
-Une fois déployée, l'application est accessible dans le navigateur internet en saisissant l'URL http://nom_du_serveur/nom_du_mviewer/demo/
+Une fois déployée, l'application est accessible dans le navigateur internet en saisissant l'URL https://nom_du_serveur/nom_du_mviewer/ ou https://nom_du_serveur/nom_du_mviewer/demo/ pour les démos.
 
 exemples :
 
- - http://localhost/mviewer/demo/
- - http://localhost/miewer-master/demo/index.html
+ - https://localhost/mviewer/demo/
+ - https://localhost/miewer-master/demo/index.html
 
 En lançant l'application racine  **index.html**, vous avez maintenant un visualiseur géographique fonctionnel avec les couches de la Région Bretagne *(configuration par défaut disponible dans apps/default.xml)*.
 
@@ -180,8 +186,8 @@ Lors d'une nouvelle release de mviewer, il est conseillé d'utiliser git pour me
 
 .. code-block:: bash
 
-    cd /var/www/mviewer-dev
-    git clone https://github.com/mviewer/mviewer.git
+    cd /var/www/
+    git clone https://github.com/mviewer/mviewer.git mviewer-dev
 
 Puis, tester cette instance en pointant sur des applications en production. Exemple : https://localhost/mviewer-dev?config=prod/monappli.xml.
 	

@@ -213,7 +213,7 @@ Vous devrez un jour mettre à jour votre branche master au sein de votre fork. F
 Organisation des fichiers de carte
 ----------------------------------
 
-**Rgèle générale**
+**Règle générale**
 
 Ne **JAMAIS** modifier les fichiers du coeur.
 

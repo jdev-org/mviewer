@@ -12,7 +12,12 @@ Le panneau de documenation offre aux utilisateurs des informations complémentai
 Ouvrir et fermer le panneau
 ************************************
 
-En cliquant sur le bouton "**?**", un nouveau panneau s'affiche au premier plan de l'écran.
+En cliquant sur le bouton "|icon_help| ", un nouveau panneau s'affiche au premier plan de l'écran.
+
+
+.. |icon_help| image:: ../_images/user/documentation/icon_help.png
+              :alt: Lien panneau documentation
+	      :width: 16 pt
 
 .. image:: ../_images/user/documentation/help.png
               :alt: Panneau "Documentation"
@@ -38,4 +43,4 @@ Techniquement, ce panneau de documentation se présente sous la forme d'un fichi
               :alt: mviewer_help.html
               :align: center
 
-En éditant et modifiant ce fichier, vous aurez la possibilité de gérer (ajouter/supprimer/renommer) les onglets, ainsi que leur contenu. Pour plus d'information, veuillez consulter la page XXXX.
+En éditant et modifiant ce fichier, vous aurez la possibilité de gérer (ajouter/supprimer/renommer) les onglets, ainsi que leur contenu.
