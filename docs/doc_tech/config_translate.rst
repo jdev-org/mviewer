@@ -16,7 +16,7 @@ Toutes les illustrations mentionnées dans la documentation sont issues de cet e
 
 
 Fonctionnement technique
-========================
+--------------------------------
 
 **Librairies**
 Le mviewer utilise la libraire `i18n.js <https://i18njs.com/>`_ pour traduire l'interface vers le langage de votre choix.
@@ -57,7 +57,7 @@ Le texte affiché pour notre élément de la page (<span>) sera alors::
     "une valeur en français"
 
 Traduction de l'interface
-=========================
+--------------------------------
 
 **Paramètre de configuration à utiliser**
 
@@ -77,7 +77,7 @@ Fichier de traduction associé: `./mviewer.i18n.json <https://github.com/mviewer
 
 
 Traduction des éléments propres à votre application mviewer
-===========================================================
+--------------------------------
 
 **Paramètre de configuration à utiliser**
 

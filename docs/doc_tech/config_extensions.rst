@@ -6,8 +6,10 @@
 Configurer - Extensions
 =======================
 
+Pour rappel, les extensions depuis la version 4.x sont dans un repository séparé ici : https://github.com/mviewer/mviewer-addons
+
 Configuration globale
---------------------
+--------------------------------
 
 Chargement de librairies JavaScript externes ou de composants personnalisés.
 Ce module d'extension permet de répondre à deux cas d'usage :
@@ -47,7 +49,7 @@ Ce module d'extension permet de répondre à deux cas d'usage :
 	</extensions>
 
 Extension filtre sur nom de la couche
---------------------
+--------------------------------
 
 Cett extension permet de filtrer ses couches selon leur titre comme ceci :
 
@@ -63,10 +65,10 @@ Il faut pour cela ajouter ceci dans votre XML :
         <extension type="component" id="layerfilter" path="addons"/>
     </extensions>
 
-Plus d’informations sur la configuration : https://github.com/mviewer/mviewer/blob/master/addons/layerfilter/README.md
+Plus d’informations sur la configuration : https://github.com/mviewer/mviewer-addons/blob/main/layerfilter/README.md
 
 Extension plein écran
---------------------
+--------------------------------
 
 Cette extension permet d'afficher la carte en plein écran comme ceci :
 
@@ -86,7 +88,7 @@ Cette extension permet d'afficher la carte en plein écran comme ceci :
 
 
 Extension isochrone
---------------------
+--------------------------------
 
 Cett extension permet d'ajouter la possibilité de calculer des isochrones dans votre mviewer comme ceci :
 
@@ -104,7 +106,7 @@ Cett extension permet d'ajouter la possibilité de calculer des isochrones dans 
     </extensions>
 
 Extension ajout couche temporaire
---------------------
+--------------------------------
 
 Cette extension permet d'ajouter une couche dans votre mviewer. Attention, la couche ne sera pas persistente :
 
@@ -113,7 +115,7 @@ Cette extension permet d'ajouter une couche dans votre mviewer. Attention, la co
               :align: center
 
 
-| Elle fonctionne avec les formats GeoJSON, CSV et Shapefile (via un ZIP).
+| Elle fonctionne avec les formats GeoJSON, CSV et Shapefile (via un ZIP). La donnée pourra être chargée via un fichier ou une URL.
 
 | Pour le GeoJSON, il sera nécessaire d'utiliser la projection EPSG:4326. La fenêtre modal pour le CSV permettant de choisir la projeciton.
 
@@ -127,7 +129,7 @@ Cette extension permet d'ajouter une couche dans votre mviewer. Attention, la co
         <extension type="component" id="fileimport" path="addons"/>
     </extensions>
 
-| Puis une couche au niveau de l'import donc voici un exemple (plus d'info sur la conf https://github.com/mviewer/mviewer/tree/master/addons/fileimport) :
+| Puis une couche au niveau de l'import donc voici un exemple (plus d'info sur la conf https://github.com/mviewer/mviewer-addons/blob/main/fileimport/README.md) :
 
 .. code-block:: xml
 
@@ -150,7 +152,7 @@ Cette extension permet d'ajouter une couche dans votre mviewer. Attention, la co
 
 
 Extension filtre sur données
---------------------
+--------------------------------
 
 Cette extension permet de filtrer les entités d'une donnée :
 
@@ -166,14 +168,14 @@ Elle nécessite plusieurs prérequis :
 
 	type="customlayer"
 	
-* il faut définir un id au niveau de l'application dans le XML :
+* Il faut définir un id au niveau de l'application dans le XML :
 
 .. code-block:: xml
 
 	<application
 		id="livre_lecture"
 
-* il faut compléter le fichier addons/filter/config.json en y ajoutant vos options de recherche et en mettant en début de liste le même id que dans votre XML. Exemple ici avec au début la configuration du positionnement de la fenêtre et ensuite les recherches par couches
+* Il faut compléter le fichier addons/filter/config.json en y ajoutant vos options de recherche et en mettant en début de liste le même id que dans votre XML. Exemple ici avec au début la configuration du positionnement de la fenêtre et ensuite les recherches par couches
 
 .. code-block:: javascript
 
@@ -235,10 +237,10 @@ Elle nécessite plusieurs prérequis :
 	      "updateOnChange": true
             },...
 
-Plus d'informations sur la configuration : https://github.com/mviewer/mviewer/tree/master/addons/filter
+Plus d'informations sur la configuration : https://github.com/mviewer/mviewer-addons/tree/main/filter
 
 Extension zoomToArea
---------------------
+--------------------------------
 Ce plugin permet à l'utilisateur de zoomer sur une zone d'intérêt sélectionnée préalablement dans une liste déroulante située en haut à droite du header mviewer.
 
 .. image:: ../_images/dev/config_extension/zoomToArea.png
@@ -299,7 +301,7 @@ Pour commencer, vous devez ajouter votre ID de Mviewer sous la propriété  ``mv
 					}
 			}
 		}
-}
+	}
 
 **4. Configurer les paramètres du plugin**
 
@@ -319,13 +321,13 @@ Pour fonctionner, le plugin a besoin des paramètres suivants :
 	}
 
 
- - ``dataUrl`` : Lien vers la couche de données (flux wfs ou couche geojson)
- - ``dataEPSG`` : Projection des données sources 
- - ``fieldNameAreas`` : Nom du champs où se trouve le nom des entités
- - ``fieldIdAreas`` : Nom du champs où se trouve l'id des entités 
- - ``fieldSortBy`` : Nom du champs pour ordonner les entités dans la liste déroulante (ordre croissant)
- - ``bufferSize``:  Valeur numérique définissant la taille du buffer réalisé autour des entités (permet de régler le niveau de zoom),
- - ``selectLabel`` : Label de la liste déroulante
+- ``dataUrl`` : Lien vers la couche de données (flux wfs ou couche geojson)
+- ``dataEPSG`` : Projection des données sources 
+- ``fieldNameAreas`` : Nom du champs où se trouve le nom des entités
+- ``fieldIdAreas`` : Nom du champs où se trouve l'id des entités 
+- ``fieldSortBy`` : Nom du champs pour ordonner les entités dans la liste déroulante (ordre croissant)
+- ``bufferSize``:  Valeur numérique définissant la taille du buffer réalisé autour des entités (permet de régler le niveau de zoom),
+- ``selectLabel`` : Label de la liste déroulante
 
 **Exemple**
 
@@ -365,7 +367,7 @@ Ce plugin permet d'ajouter un module d'impression dans mviewer pour générer de
 
 **Installation**
 
-Par défaut, print extension est disponible dans le dossier ``/demo/addons``. Il est conseillé de déplacer les addons que vous utiliser dans un dossier séparé.
+Il est conseillé de déplacer les addons que vous utiliser dans un dossier séparé avec votre configuration.
 
 1. Ajout de l'extension dans votre conf XML :
 
@@ -418,10 +420,10 @@ Voici un exemple :
 
 **Personnalisation du modèle**
 
-Pour la personnalisation du modèle, se référer à la documentation ici https://github.com/mviewer/mviewer/tree/master/addons/print#layout-with-a-json-template
+Pour la personnalisation du modèle, se référer à la documentation ici https://github.com/mviewer/mviewer-addons/tree/main/print#layout-with-a-json-template
 
 Extension trackview
--------------------
+--------------------------------
 Ce plugin permet de consulter une tarce d'activités ( vtt, course à pied, etc. ) par l'utilisation de fichier de données au format GPX. 
 Pour plus de détails, il permet également de visualiser ces données sous la forme d'un graphique altimétrique.
 
@@ -431,7 +433,7 @@ Pour plus de détails, il permet également de visualiser ces données sous la f
 
 **Installation**
 
-L'extension **trackview** se situe par défaut, dans le répertoire ``/demo/addons``. Pour une meilleure organisation et une maintenance plus facile, il est conseillé de déplacer les addons utilisés dans un dossier séparé.
+Pour une meilleure organisation et une maintenance plus facile, il est conseillé de déplacer les addons utilisés dans un dossier séparé.
 
 1. Ajout de l'extension dans votre fichier de config **.xml**
 
@@ -466,10 +468,10 @@ Il est essentiel de renseigner le même id que précédemment pour assurer le bo
 
 **Personnalisation de l'extension**
 
-Pour plus d'informations sur la personnalisation de cette extension, veuillez consulter la documentation complète à l'adresse suivante : https://github.com/mviewer/mviewer/tree/master/addons/trackview/readme.md
+Pour plus d'informations sur la personnalisation de cette extension, veuillez consulter la documentation complète à l'adresse suivante : https://github.com/mviewer/mviewer-addons/blob/main/trackview/readme.md
 
 Extension streetview
---------------------
+--------------------------------
 
 Cette extension permet de visualiser l'environnement réel à partir de coordonnées comme ceci :
 
@@ -485,4 +487,4 @@ Pour cela, il suffit d’ajouter ceci dans votre fichier XML :
         <extension type="component" id="streetview" path="addons"/>
     </extensions>
 
-Pour plus d'informations sur le fonctionnement de cette extension, veuillez consulter la documentation complète à l'adresse suivante : https://github.com/mviewer/mviewer/tree/develop/addons/streetview/README.md
+Pour plus d'informations sur le fonctionnement de cette extension, veuillez consulter la documentation complète à l'adresse suivante : https://github.com/mviewer/mviewer-addons/blob/main/streetview/README.md
