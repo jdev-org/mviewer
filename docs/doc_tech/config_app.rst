@@ -41,6 +41,7 @@ Syntaxe
 		togglealllayersfromtheme=""
 		templaterightinfopanel=""
 		templatebottominfopanel=""
+		templatemobileinfopanel=""
 		studio=""
 		home=""
 		lang=""
@@ -80,6 +81,7 @@ Paramètres secondaires
 * ``togglealllayersfromtheme`` :guilabel:`studio` : Ajoute un bouton dans le panneau de gauche pour chaque thématique afin d'afficher/masquer toutes les couches de la thématique.Valeur : true/false. Valeur par défaut **false**.
 * ``templaterightinfopanel``: Template à utiliser pour le rendu du panneau de droite. Valeur à choisir parmi les templates de mviewer.templates.featureInfo (default|brut|accordion|allintabs). Valeur par défaut **default**.
 * ``templatebottominfopanel``: Template à utiliser pour le rendu du panneau du bas. Valeur à choisir parmi les templates de mviewer.templates.featureInfo (default|brut|accordion|allintabs). Valeur par défaut **default**.
+* ``templatemobileinfopanel``: Template à utiliser pour le rendu de la fenêtre pour l'interrogation en mobile. Valeur à choisir parmi les templates de mviewer.templates.featureInfo (brut|accordion). Valeur par défaut **accordion**.
 * ``studio`` :guilabel:`studio` : Lien vers le mviewerstudio pour modifier la carte en cours.
 * ``home`` :guilabel:`studio` : Lien vers le site parent de mviewer
 * ``hideprotectedlayers``: Indique si les couches protégées doivent être masquées dans l'arbre des thématiques lorsque l'utilisateur n'y a pas accès. Valeur : true/false (true par défaut).
