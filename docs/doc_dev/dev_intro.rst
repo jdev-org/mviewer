@@ -10,10 +10,10 @@ Développer avec mviewer
 .. Note::
     Mviewer est développé en ``javascript`` et utilise les librairies suivantes :
 
-    - `Openlayers <https://openlayers.org/>`_ version 6.3.1
+    - `Openlayers <https://openlayers.org/>`_ version 8.2
     - `Fuse <https://fusejs.io/>`_ version 5.1.0
     - `I18njs <http://i18njs.com/>`_ no version
-    - `Bootstrap <https://getbootstrap.com/docs/3.3/>`_ version 3.3.6
+    - `Bootstrap <https://getbootstrap.com/docs/3.3/>`_ version 5.3.3
     - `jQuery <https://jquery.com/>`_ version 1.10.2
     - `Sortable <https://github.com/SortableJS/Sortable>`_ version 1.4.2
     - `Mustache <https://github.com/janl/mustache.js/>`_ version 2.3.0
