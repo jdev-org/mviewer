@@ -729,7 +729,13 @@ var info = (function () {
           view.layers[0].firstlayer = true;
           var template = "";
           if (configuration.getConfiguration().mobile) {
-            template = Mustache.render(mviewer.templates.featureInfo.accordion, view);
+            const templateMobileInfo =
+              configuration.getConfiguration().application.templatemobileinfopanel;
+            if (templateMobileInfo === "brut") {
+              template = Mustache.render(mviewer.templates.featureInfo.brut, view);
+            } else {
+              template = Mustache.render(mviewer.templates.featureInfo.accordion, view);
+            }
           } else {
             template = Mustache.render(
               mviewer.templates.featureInfo[_panelsTemplate[panel]],
