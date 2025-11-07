@@ -59,7 +59,6 @@ Elément enfant de ``<baselayers>`` permettant le paramétrage de chaque fond de
 		id=""
 		label=""
 		title=""
-		maxscale=""
 		thumbgallery=""
 		url=""
 		layers=""
@@ -93,7 +92,6 @@ Elément enfant de ``<baselayers>`` permettant le paramétrage de chaque fond de
 **Paramètres secondaires**
 
 * ``owsoptions``: pour une couche WMS, permet de forcer certains paramètres des requêtes GetMap. Exemple : "VERSION:1.3.0".
-* ``maxscale``: paramètre optionnel définissant l'échelle max du fond de carte.
 * ``fromcapacity``: paramètre optionnel de type booléen (true/false)spécifique aux fonds de carte WMTS. Permet la construction de la couche à partir des capacités du service WMTS.
 * ``matrixset`` : paramètre optionnel précisant le style à associer à la couche. Paramètre obligatoire pour les couches de type WMTS si le paramètre **fromcapacity** n'est pas activé.
 * ``maxzoom``: paramètre optionnel de type numérique définissant le zoom maximum pour la couche (pas géré pour le type vector-tms).
