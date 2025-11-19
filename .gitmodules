@@ -6,3 +6,6 @@
 	path = addons
 	url = https://github.com/mviewer/mviewer-addons.git
 	branch = main
+[submodule "apps/omees"]
+	path = apps/omees
+	url = https://github.com/jdev-org/omees-mv-carto.git
